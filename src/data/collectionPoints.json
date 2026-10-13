@@ -39,6 +39,42 @@
     ]
   },
   {
+    "id": "cacapava-droga-raia-praca-da-bandeira",
+    "name": "Droga Raia",
+    "city": "Caçapava",
+    "address": "Praça da Bandeira, 45, Centro",
+    "lat": -23.099981,
+    "lng": -45.705666,
+    "materials": ["Medicamentos", "Caixas de medicamentos"],
+    "sources": [
+      {
+        "label": "Verificação presencial (outubro de 2026)"
+      },
+      {
+        "label": "Tiendeo",
+        "url": "https://www.tiendeo.com.br/Lojas/cacapava/droga-raia"
+      }
+    ]
+  },
+  {
+    "id": "cacapava-drogaria-sao-paulo-centro",
+    "name": "Drogaria São Paulo",
+    "city": "Caçapava",
+    "address": "Avenida Coronel Manoel Inocêncio, 141, Centro",
+    "lat": -23.10089,
+    "lng": -45.70462,
+    "materials": ["Medicamentos", "Caixas de medicamentos"],
+    "sources": [
+      {
+        "label": "Verificação presencial (outubro de 2026)"
+      },
+      {
+        "label": "Tiendeo",
+        "url": "https://www.tiendeo.com.br/Lojas/cacapava/av-cel-manoel-inoc%C3%AAncio-centro/90762"
+      }
+    ]
+  },
+  {
     "id": "taubate-pev-portal-da-mantiqueira",
     "name": "PEV Portal da Mantiqueira",
     "city": "Taubaté",
