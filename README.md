@@ -53,7 +53,7 @@ The points are stored in [`src/data/collectionPoints.json`](src/data/collectionP
 | `hours` | no | "Horário: …" (opening hours) |
 | `materials` | no | "Recebe:" list (accepted materials) |
 | `notes` | no | Note in italics |
-| `sources` | yes | "Fonte: …" (source), with one link per item. `label` is the displayed text and `url` is the link address |
+| `sources` | yes | "Fonte: …" (source), with one entry per item. `label` is the displayed text and `url` is the link address. `url` is optional: without it, the label is shown as plain text (used for in-person verification) |
 
 Example (the Caçapava point, exactly as it appears in the file):
 
@@ -82,11 +82,12 @@ The popup text is in Portuguese, the language of the app's users.
 
 ### Data sources
 
-A point is only included if its location is precise and a verifiable source confirms it is operating. Points in neighboring cities are included when they appear on the city hall's official list, are mapped in OSM and lie within 20 km of central Caçapava. "PEV" stands for *Ponto de Entrega Voluntária*, a public drop-off point run by the city. Data verified on October 13, 2026:
+A point is only included if its location is precise and it is confirmed to be operating, either by a verifiable source or by an in-person visit from the project team. Points in neighboring cities are included when they appear on the city hall's official list, are mapped in OSM and lie within 20 km of central Caçapava. "PEV" stands for *Ponto de Entrega Voluntária*, a public drop-off point run by the city. Data verified on October 13, 2026:
 
 | Point | Distance | Information | Location |
 | --- | --- | --- | --- |
 | PEV Vila Santos (Caçapava) | 0.4 km | [Caçapava City Hall, news article of May 15, 2025](https://cacapava.sp.gov.br/coleta-certa-pev-reabre-no-dia-19-de-maio-em-cacapava) | Map of the Public Works Department published on the [city hall's website](https://www.cacapava.sp.gov.br/obras-e-servicos-municipais/coleta-de-lixo) (same address) |
+| Carrefour Bairro Caçapava (Caçapava), battery drop-off | 0.4 km | In-person verification (October 2026). No public information was found | [OSM way 558135447](https://www.openstreetmap.org/way/558135447) (supermarket building, Avenida Brasil, 401) |
 | PEV Portal da Mantiqueira (Taubaté) | 14.0 km | [City Hall Service Charter (March 2025)](https://taubate.sp.gov.br/anexos/ouvidoria/CARTA_DE_SERVICO_SESP.pdf) and [EcoTaubaté](http://www.ecotaubate.com.br/servicos-e-tecnologia/coleta-de-residuos-dos-pontos-de-entrega-voluntaria-pevs) | [OSM node 10759204861](https://www.openstreetmap.org/node/10759204861) |
 | PEV Jardim Copacabana (São José dos Campos) | 16.5 km | [São José dos Campos City Hall](https://www.sjc.sp.gov.br/servicos/manutencao-da-cidade/pevs-na-cidade/) | [OSM way 1187312060](https://www.openstreetmap.org/way/1187312060) |
 | PEV Vila Jaci (São José dos Campos) | 19.8 km | [São José dos Campos City Hall](https://www.sjc.sp.gov.br/servicos/manutencao-da-cidade/pevs-na-cidade/) | [OSM way 1281244617](https://www.openstreetmap.org/way/1281244617) |
@@ -98,6 +99,7 @@ Where each kind of information comes from:
 - **Name, address, opening hours and materials:** official pages of the city halls and of Taubaté's waste management concessionaire ("Information" column).
 - **Coordinates of the neighboring points:** OpenStreetMap elements ("Location" column). When the element is an area (`way`), the coordinate used is its center. This data is licensed under the [ODbL](https://www.openstreetmap.org/copyright), and the "© OpenStreetMap contributors" attribution shown on the map satisfies that requirement.
 - **Coordinate of PEV Vila Santos:** map link for the Public Works Department published on the Caçapava City Hall website. The PEV is in the department's yard, at the same address.
+- **Carrefour Bairro Caçapava:** the battery drop-off point was observed in person by the project team, since neither the store nor the city publishes this information. The coordinate is the center of the supermarket building in OSM, so it marks the store rather than the exact spot of the bin.
 
 To check what exists in OSM, paste the query below into [overpass-turbo.eu](https://overpass-turbo.eu). It searches for recycling points and for elements with "PEV", "ecoponto" or "recicl" in their name in Caçapava and the neighboring municipalities. The results must be checked manually against the official lists, because the name search also returns elements unrelated to waste, such as "IPEV", an Air Force area.
 
@@ -115,8 +117,8 @@ out center tags;
 
 ### Adding or updating a point
 
-1. Confirm with a recent official source that the point is operating, and note its address, opening hours and accepted materials.
-2. Get the exact coordinate, from an OpenStreetMap element or from a map published by the source itself. Do not use geocoding that only finds the street: the marker would end up in the wrong place.
+1. Confirm that the point is operating, with a recent official source or an in-person visit, and note its address, opening hours and accepted materials. For an in-person visit, add a `sources` entry without `url` that says so and gives the date.
+2. Get the exact coordinate, from an OpenStreetMap element or from a map published by the source itself. Do not use geocoding that only finds the street, or approximate coordinates for the neighborhood: the marker would end up in the wrong place.
 3. Add the point to `src/data/collectionPoints.json`, with its sources in `sources`.
 4. Update the table above and the verification date.
 5. Run `npm run dev`, click the new marker and check the popup.
