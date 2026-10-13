@@ -21,6 +21,24 @@
     ]
   },
   {
+    "id": "cacapava-carrefour-bairro",
+    "name": "Carrefour Bairro Caçapava",
+    "city": "Caçapava",
+    "address": "Avenida Brasil, 401, Centro",
+    "lat": -23.1037329,
+    "lng": -45.7093128,
+    "materials": ["Pilhas"],
+    "sources": [
+      {
+        "label": "Verificação presencial (outubro de 2026)"
+      },
+      {
+        "label": "OpenStreetMap",
+        "url": "https://www.openstreetmap.org/way/558135447"
+      }
+    ]
+  },
+  {
     "id": "taubate-pev-portal-da-mantiqueira",
     "name": "PEV Portal da Mantiqueira",
     "city": "Taubaté",
