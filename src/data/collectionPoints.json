@@ -1,0 +1,119 @@
+[
+  {
+    "id": "cacapava-pev-vila-santos",
+    "name": "PEV Vila Santos",
+    "city": "Caçapava",
+    "address": "Rua Regente Feijó, 18 (pátio da Secretaria de Obras)",
+    "lat": -23.0985477,
+    "lng": -45.7039216,
+    "hours": "Segunda a sexta, das 8h às 15h",
+    "materials": [
+      "Materiais recicláveis",
+      "Pilhas e baterias",
+      "Eletrônicos",
+      "Óleo de cozinha usado"
+    ],
+    "sources": [
+      {
+        "label": "Prefeitura de Caçapava",
+        "url": "https://cacapava.sp.gov.br/coleta-certa-pev-reabre-no-dia-19-de-maio-em-cacapava"
+      }
+    ]
+  },
+  {
+    "id": "taubate-pev-portal-da-mantiqueira",
+    "name": "PEV Portal da Mantiqueira",
+    "city": "Taubaté",
+    "address": "Avenida Bento Nogueira de Moura, 420",
+    "lat": -23.0280119,
+    "lng": -45.5947633,
+    "hours": "Todos os dias, das 7h às 19h",
+    "materials": [
+      "Entulho",
+      "Restos de poda",
+      "Móveis",
+      "Lixo eletrônico",
+      "Pilhas e baterias",
+      "Lâmpadas"
+    ],
+    "notes": "Até 1 m³ por descarte. Não recebe lixo doméstico. Destinado aos resíduos gerados em Taubaté.",
+    "sources": [
+      {
+        "label": "Prefeitura de Taubaté",
+        "url": "https://taubate.sp.gov.br/anexos/ouvidoria/CARTA_DE_SERVICO_SESP.pdf"
+      },
+      {
+        "label": "EcoTaubaté",
+        "url": "http://www.ecotaubate.com.br/servicos-e-tecnologia/coleta-de-residuos-dos-pontos-de-entrega-voluntaria-pevs"
+      },
+      {
+        "label": "OpenStreetMap",
+        "url": "https://www.openstreetmap.org/node/10759204861"
+      }
+    ]
+  },
+  {
+    "id": "sjc-pev-jardim-copacabana",
+    "name": "PEV Jardim Copacabana",
+    "city": "São José dos Campos",
+    "address": "Rua Charles Diamond, 80 (em frente à Praça Joaquim Figueira de Andrade)",
+    "lat": -23.1740299,
+    "lng": -45.847699,
+    "hours": "Segunda a sábado, das 8h às 17h; domingos e feriados, das 8h às 12h",
+    "materials": [
+      "Entulho de pequenas reformas, até 1 m³",
+      "Móveis e eletrodomésticos",
+      "Eletroeletrônicos, pilhas, baterias e até 4 lâmpadas fluorescentes inteiras",
+      "Podas e jardinagem, até 1 m³",
+      "Pneus de carro e moto, até 4",
+      "Óleo de cozinha",
+      "Recicláveis: papel, papelão, plástico, metal e vidro",
+      "Cortinas e tapetes",
+      "Lã de vidro, fibras e mantas de asfalto",
+      "Discos de vinil, fitas, disquetes, CDs e DVDs"
+    ],
+    "notes": "Destinado aos moradores de São José dos Campos.",
+    "sources": [
+      {
+        "label": "Prefeitura de São José dos Campos",
+        "url": "https://www.sjc.sp.gov.br/servicos/manutencao-da-cidade/pevs-na-cidade/"
+      },
+      {
+        "label": "OpenStreetMap",
+        "url": "https://www.openstreetmap.org/way/1187312060"
+      }
+    ]
+  },
+  {
+    "id": "sjc-pev-vila-jaci",
+    "name": "PEV Vila Jaci",
+    "city": "São José dos Campos",
+    "address": "Rua Xavantes, 367",
+    "lat": -23.1607988,
+    "lng": -45.8893913,
+    "hours": "Segunda a sábado, das 8h às 17h; domingos e feriados, das 8h às 12h",
+    "materials": [
+      "Entulho de pequenas reformas, até 1 m³",
+      "Móveis e eletrodomésticos",
+      "Eletroeletrônicos, pilhas, baterias e até 4 lâmpadas fluorescentes inteiras",
+      "Podas e jardinagem, até 1 m³",
+      "Pneus de carro e moto, até 4",
+      "Óleo de cozinha",
+      "Recicláveis: papel, papelão, plástico, metal e vidro",
+      "Cortinas e tapetes",
+      "Lã de vidro, fibras e mantas de asfalto",
+      "Discos de vinil, fitas, disquetes, CDs e DVDs"
+    ],
+    "notes": "Destinado aos moradores de São José dos Campos.",
+    "sources": [
+      {
+        "label": "Prefeitura de São José dos Campos",
+        "url": "https://www.sjc.sp.gov.br/servicos/manutencao-da-cidade/pevs-na-cidade/"
+      },
+      {
+        "label": "OpenStreetMap",
+        "url": "https://www.openstreetmap.org/way/1281244617"
+      }
+    ]
+  }
+]

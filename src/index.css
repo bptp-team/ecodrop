@@ -1,0 +1,32 @@
+:root {
+  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.5;
+  color-scheme: light dark;
+}
+
+body {
+  margin: 0;
+}
+
+/* Full-height column: the main area fills the space below the header. */
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+}
+
+.app-header {
+  padding: 1rem;
+}
+
+.app-header h1,
+.app-header p {
+  margin: 0;
+}
+
+/* Also a flex column, so the map can grow to fill it. */
+.app-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}

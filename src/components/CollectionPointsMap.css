@@ -1,0 +1,29 @@
+.map {
+  flex: 1;
+}
+
+.point-popup {
+  font-size: 0.875rem;
+}
+
+.point-popup h2 {
+  margin: 0 0 0.25rem;
+  font-size: 1rem;
+}
+
+.point-popup p,
+.point-popup ul {
+  margin: 0.25rem 0;
+}
+
+.point-popup ul {
+  padding-left: 1.25rem;
+}
+
+.point-popup-note {
+  font-style: italic;
+}
+
+.point-popup-source {
+  font-size: 0.75rem;
+}
