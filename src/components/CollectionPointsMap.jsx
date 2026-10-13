@@ -59,11 +59,15 @@ function CollectionPointsMap() {
               <p className="point-popup-source">
                 Fonte:{' '}
                 {point.sources.map((source, index) => (
-                  <span key={source.url}>
+                  <span key={source.label}>
                     {index > 0 && ' · '}
-                    <a href={source.url} target="_blank" rel="noreferrer">
-                      {source.label}
-                    </a>
+                    {source.url ? (
+                      <a href={source.url} target="_blank" rel="noreferrer">
+                        {source.label}
+                      </a>
+                    ) : (
+                      source.label
+                    )}
                   </span>
                 ))}
               </p>
