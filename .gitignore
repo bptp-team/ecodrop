@@ -19,6 +19,17 @@ out/
 .env.*
 !.env.example
 
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.tfvars
+*.tfvars.json
+!*.tfvars.example
+.terraformrc
+terraform.rc
+
 # Logs
 logs/
 *.log
