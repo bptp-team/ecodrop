@@ -175,3 +175,129 @@ for (const { name, width } of viewports.filter(({ width }) =>
     )
   })
 }
+
+test('searches by name or synonym and keeps the query in browser history', async ({
+  page,
+}) => {
+  await page.route('https://tile.openstreetmap.org/**', (route) =>
+    route.abort(),
+  )
+  await page.goto('/')
+
+  const search = page.getByRole('searchbox', {
+    name: 'O que você quer descartar?',
+  })
+  await search.fill('PILHAS')
+  await search.press('Enter')
+
+  await expect(page).toHaveURL(/\/\?busca=PILHAS$/)
+  await expect(
+    page.getByRole('heading', { name: 'Resultado para “PILHAS”' }),
+  ).toBeVisible()
+  await expect(
+    page.getByText('Tipo de resíduo: Pilhas e baterias'),
+  ).toBeVisible()
+
+  await search.fill('smartphone')
+  await page.getByRole('button', { name: 'Buscar' }).click()
+  await expect(page).toHaveURL(/\/\?busca=smartphone$/)
+  await expect(page.getByRole('button', { name: 'Buscar' })).toBeFocused()
+  await expect(
+    page.getByRole('heading', { name: 'Resultado para “smartphone”' }),
+  ).toBeVisible()
+  await expect(page.getByText('Tipo de resíduo: Eletrônicos')).toBeVisible()
+
+  await page.reload()
+  await expect(
+    page.getByRole('heading', { name: 'Resultado para “smartphone”' }),
+  ).toBeVisible()
+  await expect(search).toHaveValue('smartphone')
+
+  await page.goBack()
+  await expect(page).toHaveURL(/\/\?busca=PILHAS$/)
+  await expect(search).toHaveValue('PILHAS')
+  await expect(
+    page.getByRole('heading', { name: 'Resultado para “PILHAS”' }),
+  ).toBeVisible()
+})
+
+test('keeps an unmatched query visible and allows clearing it', async ({
+  page,
+}) => {
+  await page.route('https://tile.openstreetmap.org/**', (route) =>
+    route.abort(),
+  )
+  await page.goto('/?busca=pilah')
+
+  await expect(
+    page.getByRole('heading', { name: 'Não encontramos “pilah”.' }),
+  ).toBeVisible()
+  await expect(
+    page.getByText('Confira a grafia ou tente outro nome.'),
+  ).toBeVisible()
+  await expect(
+    page.getByRole('searchbox', { name: 'O que você quer descartar?' }),
+  ).toHaveValue('pilah')
+  await expect(
+    page.getByText('Tipo de resíduo:', { exact: false }),
+  ).toHaveCount(0)
+
+  await page.getByRole('button', { name: 'Limpar busca' }).click()
+  await expect(page).toHaveURL('/')
+  await expect(
+    page.getByText(
+      'Digite o nome de um item para descobrir seu tipo de resíduo.',
+    ),
+  ).toBeVisible()
+})
+
+test('places the search panel left of the map on desktop and above it on mobile', async ({
+  page,
+}) => {
+  await page.route('https://tile.openstreetmap.org/**', (route) =>
+    route.abort(),
+  )
+
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/')
+  const sidebar = page.locator('.search-sidebar')
+  const map = page.locator('.leaflet-container')
+  const desktopSidebar = await sidebar.boundingBox()
+  const desktopMap = await map.boundingBox()
+  expect(desktopSidebar).not.toBeNull()
+  expect(desktopMap).not.toBeNull()
+  expect(desktopSidebar.width).toBe(340)
+  expect(desktopSidebar.x + desktopSidebar.width).toBeLessThanOrEqual(
+    desktopMap.x,
+  )
+  const desktopSearchInput = await page.getByRole('searchbox').boundingBox()
+  const desktopSearchButton = await page
+    .getByRole('button', { name: 'Buscar' })
+    .boundingBox()
+  expect(desktopSearchInput.x - desktopSidebar.x).toBe(24)
+  expect(
+    desktopSidebar.x +
+      desktopSidebar.width -
+      desktopSearchButton.x -
+      desktopSearchButton.width,
+  ).toBe(24)
+
+  await page.setViewportSize({ width: 1024, height: 900 })
+  await page.reload()
+  const breakpointSidebar = await sidebar.boundingBox()
+  const breakpointMap = await map.boundingBox()
+  expect(breakpointSidebar.width).toBe(340)
+  expect(breakpointSidebar.x + breakpointSidebar.width).toBeLessThanOrEqual(
+    breakpointMap.x,
+  )
+
+  await page.setViewportSize({ width: 375, height: 900 })
+  await page.reload()
+  const mobileSidebar = await sidebar.boundingBox()
+  const mobileMap = await map.boundingBox()
+  expect(mobileSidebar).not.toBeNull()
+  expect(mobileMap).not.toBeNull()
+  expect(mobileSidebar.y + mobileSidebar.height).toBeLessThanOrEqual(
+    mobileMap.y,
+  )
+})

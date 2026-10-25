@@ -2,13 +2,20 @@
   font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
   line-height: 1.5;
   color-scheme: light;
-  color: #173b2a;
-  background: #f3f8f3;
-
+  --color-text: #173b2a;
+  --color-background: #f3f8f3;
   --color-primary: #174b32;
   --color-primary-dark: #103a26;
   --color-on-primary: #fff;
-  --color-background: #f3f8f3;
+  --color-surface: #fff;
+  --color-header-subtitle: #d7e8dc;
+  --color-border: #d4ded6;
+  --color-input-border: #718477;
+  --color-focus: #75b98c;
+  --color-neutral: #9a9a9a;
+
+  color: var(--color-text);
+  background: var(--color-background);
 }
 
 body {
@@ -59,12 +66,34 @@ body {
 }
 
 .app-header p {
-  color: #d7e8dc;
+  color: var(--color-header-subtitle);
 }
 
 /* Also a flex column, so the map can grow to fill it. */
 .app-main {
   flex: 1;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 340px minmax(0, 1fr);
+  min-height: 0;
+}
+
+.search-sidebar {
+  box-sizing: border-box;
+  padding: 1.5rem;
+  box-shadow: inset -1px 0 var(--color-border);
+  background: var(--color-surface);
+  overflow-y: auto;
+}
+
+@media (max-width: 1023px) {
+  .app-main {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(420px, 1fr);
+  }
+
+  .search-sidebar {
+    padding: 1rem;
+    box-shadow: none;
+    border-bottom: 1px solid var(--color-border);
+  }
 }

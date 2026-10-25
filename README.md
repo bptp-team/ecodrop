@@ -37,7 +37,8 @@ public/        files served as-is (favicon)
 src/
   components/  React components (e.g. the collection points map)
   config/      app configuration (e.g. initial map center and zoom)
-  data/        static data (e.g. collection points)
+  data/        static data (collection points and searchable items)
+  search/      client-side item search
   App.jsx      root component
   index.css    global styles
   main.jsx     entry point
@@ -99,6 +100,14 @@ External links open in a new tab and include a screen-reader-only notice. When `
 The Carrefour point intentionally keeps its OpenStreetMap URL in both `sources` and `osmUrl`, so it appears as a source and as the dedicated map link.
 
 The popup text is in Portuguese, the language of the app's users.
+
+### Item search
+
+Searchable items are maintained in [`src/data/searchableItems.json`](src/data/searchableItems.json). Each entry explicitly defines its `name`, `synonyms`, and `wasteType`; add or correct search terms in this catalog and cover the change with a test in `src/search/itemSearch.test.js`. Do not infer an item's waste type from a collection point's `materials`.
+
+The browser searches this catalog with MiniSearch. Searches ignore letter case and accents, support prefixes and a small fuzzy distance, and are submitted by Enter or the **Buscar** button. The submitted term is stored in the `busca` query parameter and restored on reload and browser back/forward navigation. The current catalog is an initial set whose waste-type assignments and synonyms should be reviewed by the project team.
+
+The search panel sits to the left of the map on desktop with 24 px of horizontal inner spacing and moves above the map below 1024 px. The RF08 waste-type filter shown in the prototype is intentionally outside this search feature's scope.
 
 ### Data sources
 
