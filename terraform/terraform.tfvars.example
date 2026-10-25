@@ -1,0 +1,13 @@
+# Copy this file to terraform.tfvars and fill in your own values.
+# The real terraform.tfvars is listed in .gitignore and must not be committed.
+
+# Get it with: az account show --query id -o tsv
+subscription_id = "00000000-0000-0000-0000-000000000000"
+
+# GitHub organization or user that owns the repository.
+github_owner = "bptp-team"
+
+# The immutable OIDC subject carries these numeric IDs, not the names.
+# Get them with: gh api repos/bptp-team/ecodrop --jq '.owner.id, .id'
+github_owner_id = "000000000"
+github_repo_id  = "000000000"
