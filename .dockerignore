@@ -1,0 +1,19 @@
+# Deny by default
+*
+
+# Build inputs
+!package.json
+!package-lock.json
+!index.html
+!vite.config.js
+!public/
+!src/
+!nginx/nginx.conf
+
+# Excluded even inside allowed paths
+**/.env
+**/.env.*
+**/node_modules
+**/dist
+**/*.log
+**/.DS_Store
