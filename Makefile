@@ -23,6 +23,7 @@ format-check:
 
 test:
 	npm run test
+	npm run test:e2e
 
 preview:
 	npm run preview

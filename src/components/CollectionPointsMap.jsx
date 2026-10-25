@@ -3,9 +3,9 @@ import markerIconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png'
 import markerIconUrl from 'leaflet/dist/images/marker-icon.png'
 import markerShadowUrl from 'leaflet/dist/images/marker-shadow.png'
 import 'leaflet/dist/leaflet.css'
-import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet'
+import { MapContainer, Marker, TileLayer } from 'react-leaflet'
 import { MAP_CENTER, MAP_ZOOM } from '../config/map.js'
-import collectionPoints from '../data/collectionPoints.json'
+import PointPopup from './PointPopup.jsx'
 import './CollectionPointsMap.css'
 
 // Leaflet's default icon derives its image paths from leaflet.css, which
@@ -17,7 +17,7 @@ const markerIcon = L.icon({
   shadowUrl: markerShadowUrl,
 })
 
-function CollectionPointsMap() {
+function CollectionPointsMap({ points }) {
   return (
     <MapContainer center={MAP_CENTER} zoom={MAP_ZOOM} className="map">
       <TileLayer
@@ -25,54 +25,14 @@ function CollectionPointsMap() {
         url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
         maxZoom={19}
       />
-      {collectionPoints.map((point) => (
+      {points.map((point) => (
         <Marker
           key={point.id}
           position={[point.lat, point.lng]}
           icon={markerIcon}
           alt={point.name}
         >
-          <Popup>
-            <div className="point-popup">
-              <h2>{point.name}</h2>
-              <p>
-                {point.address}, {point.city}
-              </p>
-              {point.hours && (
-                <p>
-                  <strong>Horário:</strong> {point.hours}
-                </p>
-              )}
-              {point.materials && (
-                <>
-                  <p>
-                    <strong>Recebe:</strong>
-                  </p>
-                  <ul>
-                    {point.materials.map((material) => (
-                      <li key={material}>{material}</li>
-                    ))}
-                  </ul>
-                </>
-              )}
-              {point.notes && <p className="point-popup-note">{point.notes}</p>}
-              <p className="point-popup-source">
-                Fonte:{' '}
-                {point.sources.map((source, index) => (
-                  <span key={source.label}>
-                    {index > 0 && ' · '}
-                    {source.url ? (
-                      <a href={source.url} target="_blank" rel="noreferrer">
-                        {source.label}
-                      </a>
-                    ) : (
-                      source.label
-                    )}
-                  </span>
-                ))}
-              </p>
-            </div>
-          </Popup>
+          <PointPopup point={point} />
         </Marker>
       ))}
     </MapContainer>

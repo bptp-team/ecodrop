@@ -1,11 +1,19 @@
 :root {
   font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
   line-height: 1.5;
-  color-scheme: light dark;
+  color-scheme: light;
+  color: #173b2a;
+  background: #f3f8f3;
+
+  --color-primary: #174b32;
+  --color-primary-dark: #103a26;
+  --color-on-primary: #fff;
+  --color-background: #f3f8f3;
 }
 
 body {
   margin: 0;
+  background: var(--color-background);
 }
 
 /* Full-height column: the main area fills the space below the header. */
@@ -17,11 +25,32 @@ body {
 
 .app-header {
   padding: 1rem;
+  color: var(--color-on-primary);
+  background: var(--color-primary);
 }
 
-.app-header h1,
 .app-header p {
   margin: 0;
+}
+
+.app-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.app-logo {
+  width: 2rem;
+  height: 2rem;
+}
+
+.app-brand h1 {
+  margin: 0;
+  color: var(--color-on-primary);
+}
+
+.app-header p {
+  color: #d7e8dc;
 }
 
 /* Also a flex column, so the map can grow to fill it. */
