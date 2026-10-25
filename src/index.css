@@ -16,6 +16,15 @@ body {
   background: var(--color-background);
 }
 
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 /* Full-height column: the main area fills the space below the header. */
 #root {
   display: flex;

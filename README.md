@@ -62,9 +62,10 @@ The current dataset contains collection points in Caçapava only.
 | `address`, `city` | yes      | Address line: "`address`, `city`"                                                                                                                                                                            |
 | `lat`, `lng`      | yes      | Marker position, in decimal degrees                                                                                                                                                                          |
 | `hours`           | no       | "Horário: …" (opening hours)                                                                                                                                                                                 |
-| `materials`       | no       | "Recebe:" list (accepted materials)                                                                                                                                                                          |
+| `materials`       | no       | "Recebe:" list (accepted materials); omitted when empty                                                                                                                                                      |
 | `notes`           | no       | Note in italics                                                                                                                                                                                              |
 | `sources`         | yes      | "Fonte: …" (source), with one entry per item. `label` is the displayed text and `url` is the link address. `url` is optional: without it, the label is shown as plain text (used for in-person verification) |
+| `osmUrl`          | no       | Link to the point in OpenStreetMap, shown as "Ver no OpenStreetMap ↗"                                                                                                                                        |
 
 Example (the Caçapava point, exactly as it appears in the file):
 
@@ -93,6 +94,9 @@ Example (the Caçapava point, exactly as it appears in the file):
 ```
 
 In the popup, this `sources` entry is rendered as "Fonte: [Prefeitura de Caçapava](https://cacapava.sp.gov.br/coleta-certa-pev-reabre-no-dia-19-de-maio-em-cacapava)". When there is more than one source, the links are separated by " · ".
+
+External links open in a new tab and include a screen-reader-only notice. When `osmUrl` is absent, the dedicated OpenStreetMap link is omitted.
+The Carrefour point intentionally keeps its OpenStreetMap URL in both `sources` and `osmUrl`, so it appears as a source and as the dedicated map link.
 
 The popup text is in Portuguese, the language of the app's users.
 

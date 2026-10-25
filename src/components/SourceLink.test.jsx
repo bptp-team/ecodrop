@@ -35,7 +35,16 @@ describe('SourceLink', () => {
     )
 
     expect(markup).toBe(
-      '<a href="https://www.openstreetmap.org/way/123" target="_blank" rel="noreferrer">OpenStreetMap</a>',
+      '<a href="https://www.openstreetmap.org/way/123" target="_blank" rel="noreferrer">OpenStreetMap<span class="visually-hidden"> (abre em nova aba)</span></a>',
     )
+  })
+
+  it('keeps sources without URLs as plain text', () => {
+    const markup = renderToStaticMarkup(
+      createElement(SourceLink, { label: 'Verificação presencial' }),
+    )
+
+    expect(markup).toBe('Verificação presencial')
+    expect(markup).not.toContain('<a')
   })
 })

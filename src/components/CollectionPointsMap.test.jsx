@@ -31,7 +31,8 @@ vi.mock('react-leaflet', () => ({
       },
       children,
     ),
-  Popup: ({ children }) => createElement('div', null, children),
+  Popup: ({ children, maxWidth }) =>
+    createElement('div', { 'data-popup-max-width': maxWidth }, children),
   TileLayer: ({ attribution, maxZoom }) =>
     createElement('div', {
       'data-attribution': attribution,
@@ -59,6 +60,7 @@ describe('CollectionPointsMap', () => {
 
     expect(markup.match(/data-marker-name=/g)).toHaveLength(4)
     expect(markup).toContain('data-marker-name="PEV Vila Santos"')
+    expect(markup).toContain('data-popup-max-width="260"')
     expect(markup).toContain(
       'Rua Regente Feijó, 18 (pátio da Secretaria de Obras)',
     )

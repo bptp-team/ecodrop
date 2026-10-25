@@ -10,6 +10,7 @@ function SourceLink({ label, url }) {
   return (
     <a href={url} target="_blank" rel="noreferrer">
       {label}
+      <span className="visually-hidden"> (abre em nova aba)</span>
     </a>
   )
 }
