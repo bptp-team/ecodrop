@@ -6,20 +6,29 @@ Built with [React](https://react.dev) and [Vite](https://vite.dev).
 
 ## Requirements
 
-- Node.js 20.19+ or 22.12+
+- Node.js 22.12+
 
 ## Getting started
 
 ```bash
-npm install   # installs the dependencies
-npm run dev   # starts the development server at http://localhost:5173
+make install
+make dev
 ```
 
-Other scripts:
+## Commands
 
-- `npm run build`: builds the production version into `dist/`
-- `npm run preview`: serves the contents of `dist/` locally
-- `npm run lint`: lints the code with oxlint
+- `make dev`: starts the development server at http://localhost:5173
+- `make build`: builds the production version into `dist/`
+- `make preview`: serves the contents of `dist/` locally
+- `make lint`: checks JavaScript and JSX with ESLint
+- `make format`: formats project files with Prettier
+- `make format-check`: checks formatting without changing files
+- `make test`: runs the Vitest suite
+- `make prepare`: installs the Git hooks
+
+The Makefile delegates to the corresponding npm scripts.
+
+Git hooks are installed with the project dependencies. The pre-commit hook runs lint and formatting checks; the pre-push hook runs the test suite.
 
 ## Structure
 
@@ -44,16 +53,18 @@ The map uses [Leaflet](https://leafletjs.com) with [React Leaflet](https://react
 
 The points are stored in [`src/data/collectionPoints.json`](src/data/collectionPoints.json). Each item in the list becomes a marker on the map, and its fields make up the popup:
 
-| Field | Required | Where it appears in the popup |
-| --- | --- | --- |
-| `id` | yes | Not shown. It is the point's unique identifier |
-| `name` | yes | Title |
-| `address`, `city` | yes | Address line: "`address`, `city`" |
-| `lat`, `lng` | yes | Marker position, in decimal degrees |
-| `hours` | no | "Horário: …" (opening hours) |
-| `materials` | no | "Recebe:" list (accepted materials) |
-| `notes` | no | Note in italics |
-| `sources` | yes | "Fonte: …" (source), with one entry per item. `label` is the displayed text and `url` is the link address. `url` is optional: without it, the label is shown as plain text (used for in-person verification) |
+The current dataset contains collection points in Caçapava only.
+
+| Field             | Required | Where it appears in the popup                                                                                                                                                                                |
+| ----------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `id`              | yes      | Not shown. It is the point's unique identifier                                                                                                                                                               |
+| `name`            | yes      | Title                                                                                                                                                                                                        |
+| `address`, `city` | yes      | Address line: "`address`, `city`"                                                                                                                                                                            |
+| `lat`, `lng`      | yes      | Marker position, in decimal degrees                                                                                                                                                                          |
+| `hours`           | no       | "Horário: …" (opening hours)                                                                                                                                                                                 |
+| `materials`       | no       | "Recebe:" list (accepted materials)                                                                                                                                                                          |
+| `notes`           | no       | Note in italics                                                                                                                                                                                              |
+| `sources`         | yes      | "Fonte: …" (source), with one entry per item. `label` is the displayed text and `url` is the link address. `url` is optional: without it, the label is shown as plain text (used for in-person verification) |
 
 Example (the Caçapava point, exactly as it appears in the file):
 
@@ -66,7 +77,12 @@ Example (the Caçapava point, exactly as it appears in the file):
   "lat": -23.0985477,
   "lng": -45.7039216,
   "hours": "Segunda a sexta, das 8h às 15h",
-  "materials": ["Materiais recicláveis", "Pilhas e baterias", "Eletrônicos", "Óleo de cozinha usado"],
+  "materials": [
+    "Materiais recicláveis",
+    "Pilhas e baterias",
+    "Eletrônicos",
+    "Óleo de cozinha usado"
+  ],
   "sources": [
     {
       "label": "Prefeitura de Caçapava",
@@ -82,24 +98,19 @@ The popup text is in Portuguese, the language of the app's users.
 
 ### Data sources
 
-A point is only included if its location is precise and it is confirmed to be operating, either by a verifiable source or by an in-person visit from the project team. Points in neighboring cities are included when they appear on the city hall's official list, are mapped in OSM and lie within 20 km of central Caçapava. "PEV" stands for *Ponto de Entrega Voluntária*, a public drop-off point run by the city. Data verified on October 13, 2026:
+A point is only included if its location is precise and it is confirmed to be operating, either by a verifiable source or by an in-person visit from the project team. The current dataset is limited to Caçapava. "PEV" stands for _Ponto de Entrega Voluntária_, a public drop-off point run by the city. Data verified on October 13, 2026:
 
-| Point | Distance | Information | Location |
-| --- | --- | --- | --- |
-| PEV Vila Santos (Caçapava) | 0.4 km | [Caçapava City Hall, news article of May 15, 2025](https://cacapava.sp.gov.br/coleta-certa-pev-reabre-no-dia-19-de-maio-em-cacapava) | Map of the Public Works Department published on the [city hall's website](https://www.cacapava.sp.gov.br/obras-e-servicos-municipais/coleta-de-lixo) (same address) |
-| Carrefour Bairro Caçapava (Caçapava), battery drop-off | 0.4 km | In-person verification (October 2026). No public information was found | [OSM way 558135447](https://www.openstreetmap.org/way/558135447) (supermarket building, Avenida Brasil, 401) |
-| Droga Raia (Caçapava), medicine drop-off | 0.2 km | In-person verification (October 2026). No public information was found | [Tiendeo store directory](https://www.tiendeo.com.br/Lojas/cacapava/droga-raia) (Praça da Bandeira, 45) |
-| Drogaria São Paulo (Caçapava), medicine drop-off | 0.2 km | In-person verification (October 2026). No public information was found | [Tiendeo store directory](https://www.tiendeo.com.br/Lojas/cacapava/av-cel-manoel-inoc%C3%AAncio-centro/90762) (Avenida Coronel Manoel Inocêncio, 141) |
-| PEV Portal da Mantiqueira (Taubaté) | 14.0 km | [City Hall Service Charter (March 2025)](https://taubate.sp.gov.br/anexos/ouvidoria/CARTA_DE_SERVICO_SESP.pdf) and [EcoTaubaté](http://www.ecotaubate.com.br/servicos-e-tecnologia/coleta-de-residuos-dos-pontos-de-entrega-voluntaria-pevs) | [OSM node 10759204861](https://www.openstreetmap.org/node/10759204861) |
-| PEV Jardim Copacabana (São José dos Campos) | 16.5 km | [São José dos Campos City Hall](https://www.sjc.sp.gov.br/servicos/manutencao-da-cidade/pevs-na-cidade/) | [OSM way 1187312060](https://www.openstreetmap.org/way/1187312060) |
-| PEV Vila Jaci (São José dos Campos) | 19.8 km | [São José dos Campos City Hall](https://www.sjc.sp.gov.br/servicos/manutencao-da-cidade/pevs-na-cidade/) | [OSM way 1281244617](https://www.openstreetmap.org/way/1281244617) |
-
-The city halls of São José dos Campos and Taubaté describe their PEVs as intended for waste from their own residents. That is why the popup for these points includes that notice.
+| Point                                                  | Distance | Information                                                                                                                          | Location                                                                                                                                                            |
+| ------------------------------------------------------ | -------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| PEV Vila Santos (Caçapava)                             | 0.4 km   | [Caçapava City Hall, news article of May 15, 2025](https://cacapava.sp.gov.br/coleta-certa-pev-reabre-no-dia-19-de-maio-em-cacapava) | Map of the Public Works Department published on the [city hall's website](https://www.cacapava.sp.gov.br/obras-e-servicos-municipais/coleta-de-lixo) (same address) |
+| Carrefour Bairro Caçapava (Caçapava), battery drop-off | 0.4 km   | In-person verification (October 2026). No public information was found                                                               | [OSM way 558135447](https://www.openstreetmap.org/way/558135447) (supermarket building, Avenida Brasil, 401)                                                        |
+| Droga Raia (Caçapava), medicine drop-off               | 0.2 km   | In-person verification (October 2026). No public information was found                                                               | [Tiendeo store directory](https://www.tiendeo.com.br/Lojas/cacapava/droga-raia) (Praça da Bandeira, 45)                                                             |
+| Drogaria São Paulo (Caçapava), medicine drop-off       | 0.2 km   | In-person verification (October 2026). No public information was found                                                               | [Tiendeo store directory](https://www.tiendeo.com.br/Lojas/cacapava/av-cel-manoel-inoc%C3%AAncio-centro/90762) (Avenida Coronel Manoel Inocêncio, 141)              |
 
 Where each kind of information comes from:
 
-- **Name, address, opening hours and materials:** official pages of the city halls and of Taubaté's waste management concessionaire ("Information" column).
-- **Coordinates of the neighboring points:** OpenStreetMap elements ("Location" column). When the element is an area (`way`), the coordinate used is its center. This data is licensed under the [ODbL](https://www.openstreetmap.org/copyright), and the "© OpenStreetMap contributors" attribution shown on the map satisfies that requirement.
+- **Name, address, opening hours and materials:** official Caçapava City Hall information ("Information" column) and in-person verification.
+- **Coordinates of points mapped in OSM:** OpenStreetMap elements ("Location" column). When the element is an area (`way`), the coordinate used is its center. This data is licensed under the [ODbL](https://www.openstreetmap.org/copyright), and the "© OpenStreetMap contributors" attribution shown on the map satisfies that requirement.
 - **Coordinate of PEV Vila Santos:** map link for the Public Works Department published on the Caçapava City Hall website. The PEV is in the department's yard, at the same address.
 - **Carrefour Bairro Caçapava:** the battery drop-off point was observed in person by the project team, since neither the store nor the city publishes this information. The coordinate is the center of the supermarket building in OSM, so it marks the store rather than the exact spot of the bin.
 - **Droga Raia and Drogaria São Paulo:** the medicine drop-off points were also observed in person. Neither store is mapped in OSM, so the coordinates come from the Tiendeo store directory. They were checked against OSM: each falls within about 20 m of the street in its address and outside the Praça da Bandeira square. Since Tiendeo is a third-party directory, these coordinates are less reliable than the others and should be replaced once the stores are mapped in OSM.

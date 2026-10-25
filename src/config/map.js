@@ -3,6 +3,5 @@
 // (Leaflet uses [lat, lng], MapLibre uses [lng, lat]).
 export const MAP_CENTER = { lat: -23.10083, lng: -45.70694 }
 
-// Shows Caçapava and, on wider screens, the nearby points in
-// São José dos Campos and Taubaté.
+// Shows Caçapava and its surrounding area.
 export const MAP_ZOOM = 12
