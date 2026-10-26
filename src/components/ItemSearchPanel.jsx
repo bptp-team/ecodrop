@@ -54,71 +54,74 @@ function ItemSearchPanel({
     ? `/aprenda/${encodeURIComponent(items[0].wasteType)}?${new URLSearchParams({ busca: query }).toString()}`
     : null
 
-  const displayedWasteTypes = new Set()
-  const resultCards = items.map((item) => {
-    const shouldShowGuide = !displayedWasteTypes.has(item.wasteType)
-    displayedWasteTypes.add(item.wasteType)
-    const details = typeDetails[item.wasteType]
-    const guide = (details?.disposalGuide ?? []).filter(
-      (step) => typeof step === 'string' && step.trim() && !isPlaceholder(step),
-    )
-    const sources = (details?.sources ?? [])
-      .filter((source) => source?.label && !isPlaceholder(source.label))
-      .map((source) => ({
-        ...source,
-        url: isPlaceholder(source.url) ? undefined : source.url,
-      }))
-    const itemPoints = filterCollectionPointsByItems(points, [item])
-    const pointWord = itemPoints.length === 1 ? 'ponto' : 'pontos'
-    const receiveVerb = itemPoints.length === 1 ? 'recebe' : 'recebem'
+  const resultGroupsByWasteType = new Map()
+  for (const item of items) {
+    const group = resultGroupsByWasteType.get(item.wasteType) ?? []
+    group.push(item)
+    resultGroupsByWasteType.set(item.wasteType, group)
+  }
 
-    return (
-      <article className="search-result" key={item.id}>
-        <p>
-          <strong>Tipo de resíduo:</strong> {item.wasteType}
-        </p>
-        <hr />
-        {shouldShowGuide && (
-          <section aria-label={`Orientação para ${item.wasteType}`}>
+  const resultCards = [...resultGroupsByWasteType].map(
+    ([wasteType, matchingItems]) => {
+      const details = typeDetails[wasteType]
+      const guide = (details?.disposalGuide ?? []).filter(
+        (step) =>
+          typeof step === 'string' && step.trim() && !isPlaceholder(step),
+      )
+      const sources = (details?.sources ?? [])
+        .filter((source) => source?.label && !isPlaceholder(source.label))
+        .map((source) => ({
+          ...source,
+          url: isPlaceholder(source.url) ? undefined : source.url,
+        }))
+      const itemPoints = filterCollectionPointsByItems(points, matchingItems)
+      const pointWord = itemPoints.length === 1 ? 'ponto' : 'pontos'
+      const receiveVerb = itemPoints.length === 1 ? 'recebe' : 'recebem'
+
+      return (
+        <article className="search-result" key={wasteType}>
+          <p>
+            <strong>Tipo de resíduo:</strong> {wasteType}
+          </p>
+          <hr />
+          <section aria-label={`Orientação para ${wasteType}`}>
             <h4>Como descartar</h4>
             {guide.length > 0 ? (
-              <>
-                <ol>
-                  {guide.map((step, index) => (
-                    <li key={`${item.id}-step-${index}`}>{step}</li>
-                  ))}
-                </ol>
-              </>
+              <ol>
+                {guide.map((step, index) => (
+                  <li key={`${wasteType}-step-${index}`}>{step}</li>
+                ))}
+              </ol>
             ) : (
               <p>Não registramos a forma de descarte ainda.</p>
             )}
           </section>
-        )}
-        <SourceList sources={shouldShowGuide ? sources : []} />
-        <section
-          className="search-result-points"
-          aria-label={`Pontos que recebem ${item.name}`}
-        >
-          {itemPoints.length > 0 && (
-            <p>
-              {itemPoints.length} {pointWord} em Caçapava {receiveVerb} este
-              item. Os demais foram ocultados no mapa.
-            </p>
-          )}
-          {itemPoints.length > 0 && (
-            <ul>
-              {itemPoints.map((point) => (
-                <li key={point.id}>
-                  <strong>{point.name}</strong>
-                  {point.address && <span> — {point.address}</span>}
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
-      </article>
-    )
-  })
+          <SourceList sources={sources} />
+          <section
+            className="search-result-points"
+            aria-label={`Pontos que recebem ${wasteType}`}
+          >
+            {itemPoints.length > 0 && (
+              <p>
+                {itemPoints.length} {pointWord} em Caçapava {receiveVerb} este
+                tipo de resíduo. Os demais foram ocultados no mapa.
+              </p>
+            )}
+            {itemPoints.length > 0 && (
+              <ul>
+                {itemPoints.map((point) => (
+                  <li key={point.id}>
+                    <strong>{point.name}</strong>
+                    {point.address && <span> — {point.address}</span>}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        </article>
+      )
+    },
+  )
 
   return (
     <section className="item-search-panel" aria-labelledby="item-search-label">

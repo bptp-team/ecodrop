@@ -421,7 +421,7 @@ test('filters pilha to compatible points and clears all query parameters', async
   await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(2)
   await expect(
     page.getByText(
-      '2 pontos em Caçapava recebem este item. Os demais foram ocultados no mapa.',
+      '2 pontos em Caçapava recebem este tipo de resíduo. Os demais foram ocultados no mapa.',
     ),
   ).toBeVisible()
 
@@ -475,7 +475,7 @@ test('asks for an item when the search is submitted empty', async ({
   ).toBeVisible()
 })
 
-test('shows all matching items in relevance order and the no-points state', async ({
+test('groups matching items by waste type and preserves the no-points state', async ({
   page,
 }) => {
   await page.route('https://tile.openstreetmap.org/**', (route) =>
@@ -488,14 +488,12 @@ test('shows all matching items in relevance order and the no-points state', asyn
   await search.fill('papel')
   await page.getByRole('button', { name: 'Buscar' }).click()
 
-  const resultCards = page.locator('.search-result')
-  await expect(resultCards).toHaveCount(2)
-  await expect(resultCards.nth(0)).toContainText(
-    'Tipo de resíduo: Papel e papelão',
-  )
-  await expect(resultCards.nth(1)).toContainText(
-    'Tipo de resíduo: Papel e papelão',
-  )
+  const resultCard = page.locator('.search-result')
+  await expect(resultCard).toHaveCount(1)
+  await expect(
+    resultCard.getByText('Tipo de resíduo: Papel e papelão'),
+  ).toHaveCount(1)
+  await expect(resultCard.locator('.search-result-items')).toHaveCount(0)
   await expect(page.getByRole('status')).toBeVisible()
   await expect(page.getByRole('status')).toHaveText(
     'Nenhum ponto recebe este item.',
@@ -522,7 +520,7 @@ test('finds medicines in the sidebar and shows only their two collection points'
   await expect(page.getByText('Tipo de resíduo: Medicamentos')).toBeVisible()
   await expect(
     page.getByText(
-      '2 pontos em Caçapava recebem este item. Os demais foram ocultados no mapa.',
+      '2 pontos em Caçapava recebem este tipo de resíduo. Os demais foram ocultados no mapa.',
     ),
   ).toBeVisible()
   await expect(page.getByText('Droga Raia', { exact: true })).toBeVisible()

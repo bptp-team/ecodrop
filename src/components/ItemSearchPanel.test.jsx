@@ -23,11 +23,15 @@ function renderPanel(typeDetails, items = matchingItems, points = []) {
 }
 
 describe('ItemSearchPanel', () => {
-  it('does not render item names as result headings', () => {
+  it('groups matching items by waste type without repeating their names', () => {
     const markup = renderPanel({})
 
+    expect(markup.match(/class="search-result"/g)).toHaveLength(1)
+    expect(markup.match(/Tipo de resíduo:<\/strong>/g)).toHaveLength(1)
     expect(markup).not.toContain('<h3>Papel</h3>')
     expect(markup).not.toContain('<h3>Papelão</h3>')
+    expect(markup).not.toContain('<li>Papel</li>')
+    expect(markup).not.toContain('<li>Papelão</li>')
   })
 
   it('shows the disposal guide and sources only once per matching waste type', () => {
@@ -101,7 +105,7 @@ describe('ItemSearchPanel', () => {
     const separatorPosition = markup.indexOf('<hr')
     const sourcePosition = markup.indexOf('Fonte oficial')
     const summaryPosition = markup.indexOf(
-      '2 pontos em Caçapava recebem este item. Os demais foram ocultados no mapa.',
+      '2 pontos em Caçapava recebem este tipo de resíduo. Os demais foram ocultados no mapa.',
     )
     const firstPointPosition = markup.indexOf('Droga Raia')
     const clearPosition = markup.indexOf('Limpar busca')
@@ -139,7 +143,7 @@ describe('ItemSearchPanel', () => {
     )
 
     expect(markup).toContain(
-      '1 ponto em Caçapava recebe este item. Os demais foram ocultados no mapa.',
+      '1 ponto em Caçapava recebe este tipo de resíduo. Os demais foram ocultados no mapa.',
     )
   })
 
