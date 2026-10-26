@@ -42,3 +42,9 @@ output "cd_client_id" {
   description = "ECODROP_CD_CLIENT_ID for the ecodrop repository."
   value       = azurerm_user_assigned_identity.cd.client_id
 }
+
+output "application_insights_connection_string" {
+  description = "ECODROP_APPINSIGHTS_CONNECTION_STRING for the ecodrop repository. It only allows sending data, and the published site exposes it to every visitor."
+  value       = azurerm_application_insights.main.connection_string
+  sensitive   = true
+}
