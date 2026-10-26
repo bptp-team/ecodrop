@@ -75,6 +75,14 @@ resource "azapi_resource" "environment" {
   }
 }
 
+# Read-only view of the environment for its static IP, the target of the domain's
+# A record. Exporting the IP from azapi_resource.environment instead would send a
+# PUT to the environment.
+data "azurerm_container_app_environment" "main" {
+  name                = azapi_resource.environment.name
+  resource_group_name = azurerm_resource_group.main.name
+}
+
 resource "azurerm_container_app" "main" {
   name                         = "ecodrop"
   resource_group_name          = azurerm_resource_group.main.name
