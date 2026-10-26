@@ -23,7 +23,7 @@ make dev
 - `make lint`: checks JavaScript and JSX with ESLint
 - `make format`: formats project files with Prettier
 - `make format-check`: checks formatting without changing files
-- `make test`: runs the Vitest suite
+- `make test`: runs the unit tests (Vitest) and the end-to-end tests (Playwright). The first time, install the test browser with `npx playwright install chromium`
 - `make prepare`: installs the Git hooks
 
 The Makefile delegates to the corresponding npm scripts.
@@ -33,18 +33,108 @@ Git hooks are installed with the project dependencies. The pre-commit hook runs 
 ## Structure
 
 ```
-public/        files served as-is (favicon)
+.github/workflows/  pipeline: checks on every push, deployment on version tags
+nginx/              web server settings used to serve the site in production
+public/             files served as-is (favicon)
 src/
-  components/  React components (e.g. the collection points map)
-  config/      app configuration (e.g. initial map center and zoom)
-  data/        static data (collection points and searchable items)
-  search/      client-side item search
-  App.jsx      root component
-  index.css    global styles
-  main.jsx     entry point
+  components/       React components (map, search panel, learning pages)
+  config/           app settings (initial map center and zoom)
+  data/             static data (collection points, searchable items, waste types)
+  search/           item search and collection point filtering
+  utils/            small shared helpers
+  App.jsx           root component
+  index.css         global styles
+  main.jsx          entry point
+terraform/          Azure infrastructure
+tests/              end-to-end tests
+Dockerfile          builds the production image
 ```
 
 New directories (`assets/`, `pages/`) should be created once there is content for them.
+
+## Deployment
+
+The site is live at **https://ecodrop.thomaspalma.com.br**.
+
+### How it works
+
+- The [`Dockerfile`](Dockerfile) builds the site into an image, and [`nginx/nginx.conf`](nginx/nginx.conf) serves it.
+- The image is stored in the project's own Azure container registry.
+- The site runs on Azure Container Apps, which provides HTTPS and a free certificate for the domain.
+- The app stops when nobody is using it and starts again on the next visit, which keeps it within Azure's free monthly allowance. The first visit after a quiet period can take a few seconds.
+- All Azure resources are described in [`terraform/`](terraform/).
+
+### Publishing a new version
+
+Create a version tag and push it:
+
+```bash
+git tag 1.0.1
+git push origin 1.0.1
+```
+
+The pipeline in [`.github/workflows/ecodrop.yaml`](.github/workflows/ecodrop.yaml) then:
+
+1. runs the usual checks: lint, tests and build;
+2. builds the image and stores it in the registry;
+3. updates the site and checks that it answers.
+
+Pushes without a tag only run the checks. Each version number can be used only once.
+
+The pipeline signs in to Azure through a trust relationship between GitHub and Azure, so no password is stored in GitHub. Its identity can only publish images and update the app.
+
+### Infrastructure
+
+Terraform creates and manages these resources, all in the `mexicocentral` region:
+
+| Resource                   | Name           | Purpose                                      |
+| -------------------------- | -------------- | -------------------------------------------- |
+| Resource group             | `ecodrop-rg`   | Groups the resources below                   |
+| Container registry         | `ecodropacr`   | Stores the published images                  |
+| Container Apps environment | `ecodrop-env`  | The space where the app runs                 |
+| Container app              | `ecodrop`      | Runs the site                                |
+| Identity                   | `ecodrop-pull` | Lets the app download its image              |
+| Identity                   | `ecodrop-cd`   | Lets the pipeline publish and update the app |
+
+Things to know:
+
+- The environment is created with the AzAPI provider instead of AzureRM. AzureRM cannot choose the environment type, and Azure's default type ("Express") does not support custom domains.
+- The environment and the app are protected against deletion, because recreating them would change the address the domain points to.
+- The Azure for Students subscription allows only one Container Apps environment per region.
+- The registry is the only fixed cost, about US$ 5 per month.
+- The pipeline reads the `ECODROP_CD_CLIENT_ID` repository variable, which holds the `cd_client_id` Terraform output.
+
+Running Terraform requires Terraform and the Azure CLI, signed in to the subscription:
+
+```bash
+cp terraform/terraform.tfvars.example terraform/terraform.tfvars   # first time only, then fill in the values
+terraform -chdir=terraform init
+terraform -chdir=terraform plan
+terraform -chdir=terraform apply
+```
+
+`terraform.tfvars` must not be committed. Terraform keeps its state in the `ecodroptfstate` storage account, in the `ecodrop-tfstate-rg` resource group, which was created by hand before the first run. Anyone running Terraform needs the "Storage Blob Data Contributor" role on that account.
+
+### Domain
+
+The domain is managed in Registro.br with two records:
+
+| Type | Name            | Value                                                      |
+| ---- | --------------- | ---------------------------------------------------------- |
+| A    | `ecodrop`       | The `container_app_environment_static_ip` Terraform output |
+| TXT  | `asuid.ecodrop` | The `custom_domain_verification_id` Terraform output       |
+
+The TXT record proves to Azure that the domain belongs to the project. Keep both records in place: the certificate renews automatically while they exist.
+
+The domain was connected to the app once, after the records were published:
+
+```bash
+az containerapp hostname add -g ecodrop-rg -n ecodrop --hostname ecodrop.thomaspalma.com.br
+az containerapp hostname bind -g ecodrop-rg -n ecodrop --environment ecodrop-env \
+  --hostname ecodrop.thomaspalma.com.br --validation-method HTTP
+```
+
+This step is not part of Terraform because its Azure provider cannot link the free certificate yet. It only needs to be repeated if the app is ever recreated.
 
 ## Map
 
