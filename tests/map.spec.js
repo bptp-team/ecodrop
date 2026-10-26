@@ -151,11 +151,13 @@ for (const { name, width } of viewports.filter(({ width }) => width < 1024)) {
     expect(sidebarBounds.height).toBeLessThan(mainBounds.height)
     await expect(
       page.getByText(
-        'Digite o nome de um item para descobrir seu tipo de resíduo.',
+        'Digite o nome de um item para descobrir onde e como descartá-lo',
       ),
     ).toBeVisible()
     const promptBounds = await page
-      .getByText('Digite o nome de um item para descobrir seu tipo de resíduo.')
+      .getByText(
+        'Digite o nome de um item para descobrir onde e como descartá-lo',
+      )
       .boundingBox()
     expect(sidebarBounds.y + sidebarBounds.height).toBeGreaterThanOrEqual(
       promptBounds.y + promptBounds.height,
@@ -376,7 +378,7 @@ test('keeps an unmatched query visible and allows clearing it', async ({
   await expect(page).toHaveURL('/')
   await expect(
     page.getByText(
-      'Digite o nome de um item para descobrir seu tipo de resíduo.',
+      'Digite o nome de um item para descobrir onde e como descartá-lo',
     ),
   ).toBeVisible()
 })
@@ -404,7 +406,7 @@ test('clears matched item results when the search is cleared', async ({
   await expect(search).toHaveValue('')
   await expect(
     page.getByText(
-      'Digite o nome de um item para descobrir seu tipo de resíduo.',
+      'Digite o nome de um item para descobrir onde e como descartá-lo',
     ),
   ).toBeVisible()
   await expect(page.locator('.search-result')).toHaveCount(0)

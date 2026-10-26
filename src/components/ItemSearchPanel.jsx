@@ -164,7 +164,7 @@ function ItemSearchPanel({
           </p>
         )}
         {!query && !validationMessage && (
-          <p>Digite o nome de um item para descobrir seu tipo de resíduo.</p>
+          <p>Digite o nome de um item para descobrir onde e como descartá-lo</p>
         )}
         {query && items.length > 0 && (
           <section aria-labelledby="item-search-title">
