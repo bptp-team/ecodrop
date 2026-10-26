@@ -72,6 +72,8 @@ function ItemSearchPanel({
         url: isPlaceholder(source.url) ? undefined : source.url,
       }))
     const itemPoints = filterCollectionPointsByItems(points, [item])
+    const pointWord = itemPoints.length === 1 ? 'ponto' : 'pontos'
+    const receiveVerb = itemPoints.length === 1 ? 'recebe' : 'recebem'
 
     return (
       <article className="search-result" key={item.id}>
@@ -100,10 +102,12 @@ function ItemSearchPanel({
           className="search-result-points"
           aria-label={`Pontos que recebem ${item.name}`}
         >
-          <p>
-            {itemPoints.length} pontos em Caçapava recebem este item. Os demais
-            foram ocultados no mapa.
-          </p>
+          {itemPoints.length > 0 && (
+            <p>
+              {itemPoints.length} {pointWord} em Caçapava {receiveVerb} este
+              item. Os demais foram ocultados no mapa.
+            </p>
+          )}
           {itemPoints.length > 0 && (
             <ul>
               {itemPoints.map((point) => (

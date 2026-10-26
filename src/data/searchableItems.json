@@ -22,7 +22,7 @@
       "bateria usada"
     ],
     "wasteType": "Pilhas e baterias",
-    "collectionPointMaterials": []
+    "collectionPointMaterials": ["Pilhas e baterias", "Pilhas"]
   },
   {
     "id": "cellphone",

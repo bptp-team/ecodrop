@@ -141,8 +141,27 @@ describe('ItemSearchPanel', () => {
     )
 
     expect(markup).toContain(
-      '1 pontos em Caçapava recebem este item. Os demais foram ocultados no mapa.',
+      '1 ponto em Caçapava recebe este item. Os demais foram ocultados no mapa.',
     )
+  })
+
+  it('shows only the no-points notice when no points match', () => {
+    const markup = renderPanel(
+      {},
+      [
+        {
+          id: 'medicine',
+          name: 'Medicamento',
+          wasteType: 'Medicamentos',
+          collectionPointMaterials: ['Medicamentos'],
+        },
+      ],
+      [],
+    )
+
+    expect(markup).not.toContain('0 pontos em Caçapava recebem este item.')
+    expect(markup).not.toContain('Os demais foram ocultados no mapa.')
+    expect(markup).toContain('Nenhum ponto recebe este item.')
   })
 
   it('renders the learn page using the selected waste type content', () => {
