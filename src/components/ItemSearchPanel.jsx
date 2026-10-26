@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import SourceList from './SourceList.jsx'
+import SearchMessage from './SearchMessage.jsx'
 import wasteTypeDetails from '../data/wasteTypeDetails.json'
 import { filterCollectionPointsByItems } from '../search/collectionPointFilter.js'
 import './ItemSearchPanel.css'
@@ -50,11 +51,7 @@ function ItemSearchPanel({
   }
 
   const learnUrl = items[0]
-    ? `/?${new URLSearchParams({
-        pagina: 'aprenda',
-        tipo: items[0].wasteType,
-        busca: query,
-      }).toString()}`
+    ? `/aprenda/${encodeURIComponent(items[0].wasteType)}?${new URLSearchParams({ busca: query }).toString()}`
     : null
 
   const displayedWasteTypes = new Set()
@@ -173,13 +170,10 @@ function ItemSearchPanel({
           </section>
         )}
         {query && items.length === 0 && (
-          <section
-            className="search-not-found"
-            aria-labelledby="item-search-title"
-          >
-            <h2 id="item-search-title">Não encontramos “{query}”.</h2>
-            <p>Confira a grafia ou tente outro nome.</p>
-          </section>
+          <SearchMessage title={`Não encontramos "${query}".`}>
+            Confira a grafia ou veja os tipos de resíduo na página{' '}
+            <a href="/aprenda">Aprenda</a>.
+          </SearchMessage>
         )}
         {query && items.length > 0 && !hasCompatiblePoints && (
           <p className="search-no-points" role="status">

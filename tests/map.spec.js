@@ -18,7 +18,7 @@ const learnPageTypes = [
 
 for (const wasteType of learnPageTypes) {
   test(`opens the learning page for ${wasteType}`, async ({ page }) => {
-    await page.goto(`/?pagina=aprenda&tipo=${encodeURIComponent(wasteType)}`)
+    await page.goto(`/aprenda/${encodeURIComponent(wasteType)}`)
 
     await expect(
       page.getByRole('heading', { name: `Aprenda sobre ${wasteType}` }),
@@ -328,10 +328,12 @@ test('keeps an unmatched query visible and allows clearing it', async ({
   await page.goto('/?busca=pilah')
 
   await expect(
-    page.getByRole('heading', { name: 'Não encontramos “pilah”.' }),
+    page.getByRole('heading', { name: 'Não encontramos "pilah".' }),
   ).toBeVisible()
   await expect(
-    page.getByText('Confira a grafia ou tente outro nome.'),
+    page.getByText(
+      'Confira a grafia ou veja os tipos de resíduo na página Aprenda.',
+    ),
   ).toBeVisible()
   await expect(
     page.getByRole('searchbox', { name: 'O que você quer descartar?' }),
@@ -512,9 +514,7 @@ test('finds medicines in the sidebar and shows only their two collection points'
   await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(2)
 
   await page.getByRole('link', { name: 'Saiba mais' }).click()
-  await expect(page).toHaveURL(
-    '/?pagina=aprenda&tipo=Medicamentos&busca=medicamento',
-  )
+  await expect(page).toHaveURL('/aprenda/Medicamentos?busca=medicamento')
   await expect(
     page.getByRole('heading', { name: 'Aprenda sobre Medicamentos' }),
   ).toBeVisible()
@@ -530,6 +530,11 @@ test('finds medicines in the sidebar and shows only their two collection points'
   )
   await page.getByRole('link', { name: 'Voltar à busca' }).click()
   await expect(page).toHaveURL('/?busca=medicamento')
+  await expect(
+    page.getByRole('searchbox', { name: 'O que você quer descartar?' }),
+  ).toHaveValue('medicamento')
+  await expect(page.locator('.search-result')).toHaveCount(1)
+  await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(2)
 })
 
 test('keeps the app within the viewport with scrollable results and pinned actions', async ({
@@ -574,17 +579,50 @@ test('keeps the app within the viewport with scrollable results and pinned actio
   expect(layout.mapBottom).toBeLessThanOrEqual(layout.viewportHeight)
 })
 
-test('does not leave all collection points visible when the item is unmatched', async ({
+test('keeps all collection points visible when the item is unmatched', async ({
   page,
 }) => {
   await page.route('https://tile.openstreetmap.org/**', (route) =>
     route.abort(),
   )
-  await page.goto('/?busca=xyzabc')
+  await page.goto('/?busca=pilah')
 
   await expect(
-    page.getByRole('heading', { name: 'Não encontramos “xyzabc”.' }),
+    page.getByRole('heading', { name: 'Não encontramos "pilah".' }),
   ).toBeVisible()
+  await expect(page.getByRole('status')).toContainText(
+    'Confira a grafia ou veja os tipos de resíduo na página Aprenda.',
+  )
+  await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(4)
+
+  await page.getByRole('link', { name: 'Aprenda' }).click()
+  await expect(page).toHaveURL('/aprenda')
+  await expect(
+    page.getByRole('heading', { name: 'Aprenda sobre resíduos' }),
+  ).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Vidro' })).toBeVisible()
+  await page.getByRole('link', { name: 'Vidro' }).click()
+  await expect(page).toHaveURL('/aprenda/Vidro')
+  await expect(
+    page.getByRole('heading', { name: 'Aprenda sobre Vidro' }),
+  ).toBeVisible()
+})
+
+test('keeps the existing no-compatible-points notice for lâmpada', async ({
+  page,
+}) => {
+  await page.route('https://tile.openstreetmap.org/**', (route) =>
+    route.abort(),
+  )
+  await page.goto('/?busca=l%C3%A2mpada')
+
+  await expect(page.locator('.search-result')).toContainText(
+    'Tipo de resíduo: Lâmpadas',
+  )
+  await expect(page.locator('.search-result')).toContainText('Como descartar')
+  await expect(page.getByRole('status')).toHaveText(
+    'Nenhum ponto recebe este item.',
+  )
   await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(0)
 })
 

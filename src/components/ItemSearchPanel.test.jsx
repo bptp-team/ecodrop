@@ -115,9 +115,7 @@ describe('ItemSearchPanel', () => {
     expect(learnPosition).toBeGreaterThan(clearPosition)
     expect(markup).toContain('Drogaria São Paulo')
     expect(markup).toContain('Praça da Bandeira, 45, Centro')
-    expect(markup).toContain(
-      'href="/?pagina=aprenda&amp;tipo=Medicamentos&amp;busca=papel"',
-    )
+    expect(markup).toContain('href="/aprenda/Medicamentos?busca=papel"')
   })
 
   it('shows the point count even when there are no sources', () => {
@@ -162,6 +160,25 @@ describe('ItemSearchPanel', () => {
     expect(markup).not.toContain('0 pontos em Caçapava recebem este item.')
     expect(markup).not.toContain('Os demais foram ocultados no mapa.')
     expect(markup).toContain('Nenhum ponto recebe este item.')
+  })
+
+  it('shows the not-found message with a link to the learning index', () => {
+    const markup = renderToStaticMarkup(
+      createElement(ItemSearchPanel, {
+        query: 'pilah',
+        items: [],
+        points: [],
+        hasCompatiblePoints: true,
+        onSearch: () => {},
+      }),
+    )
+
+    expect(markup).toContain('role="status"')
+    expect(markup).toContain('Não encontramos &quot;pilah&quot;.')
+    expect(markup).toContain(
+      'Confira a grafia ou veja os tipos de resíduo na página',
+    )
+    expect(markup).toContain('href="/aprenda">Aprenda</a>')
   })
 
   it('renders the learn page using the selected waste type content', () => {

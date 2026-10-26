@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest'
 import collectionPoints from '../data/collectionPoints.json'
 import searchableItems from '../data/searchableItems.json'
 import wasteTypeDetails from '../data/wasteTypeDetails.json'
+import LearnIndexPage from './LearnIndexPage.jsx'
 import LearnPage from './LearnPage.jsx'
 
 const wasteTypes = [
@@ -30,6 +31,15 @@ describe('LearnPage', () => {
       expect(markup).toContain('Não registramos a forma de descarte ainda.')
     },
   )
+
+  it('lists learning topics on the dedicated index page without query parameters', () => {
+    const markup = renderToStaticMarkup(createElement(LearnIndexPage))
+
+    expect(markup).toContain('Aprenda sobre resíduos')
+    expect(markup).toContain('href="/aprenda/Vidro"')
+    expect(markup).toContain('Vidro</a>')
+    expect(markup).not.toContain('?')
+  })
 
   it('has placeholder data for every type in the searchable catalog', () => {
     expect(Object.keys(wasteTypeDetails).sort()).toEqual([...wasteTypes].sort())

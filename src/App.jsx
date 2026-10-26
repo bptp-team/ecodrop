@@ -4,6 +4,7 @@ import ItemSearchPanel from './components/ItemSearchPanel.jsx'
 import collectionPoints from './data/collectionPoints.json'
 import searchableItems from './data/searchableItems.json'
 import wasteTypeDetails from './data/wasteTypeDetails.json'
+import LearnIndexPage from './components/LearnIndexPage.jsx'
 import LearnPage from './components/LearnPage.jsx'
 import { filterCollectionPointsByItems } from './search/collectionPointFilter.js'
 import { createItemSearch } from './search/itemSearch.js'
@@ -15,13 +16,36 @@ function getSearchQuery() {
 }
 
 function getLearnPage() {
+  const pathname = window.location.pathname.replace(/\/+$/, '') || '/'
+  if (pathname === '/aprenda') return { page: 'index' }
+
+  if (pathname.startsWith('/aprenda/')) {
+    try {
+      const wasteType = decodeURIComponent(pathname.slice('/aprenda/'.length))
+      if (wasteTypeDetails[wasteType]) {
+        return {
+          page: 'detail',
+          wasteType,
+          searchQuery:
+            new URLSearchParams(window.location.search).get('busca') ?? '',
+        }
+      }
+    } catch {
+      return null
+    }
+  }
+
   const searchParams = new URLSearchParams(window.location.search)
   if (searchParams.get('pagina') !== 'aprenda') return null
 
-  return {
-    wasteType: searchParams.get('tipo') ?? '',
-    searchQuery: searchParams.get('busca') ?? '',
-  }
+  const wasteType = searchParams.get('tipo')
+  return wasteType
+    ? {
+        page: 'detail',
+        wasteType,
+        searchQuery: searchParams.get('busca') ?? '',
+      }
+    : { page: 'index' }
 }
 
 function App() {
@@ -30,9 +54,10 @@ function App() {
   const [isSearchOpen, setIsSearchOpen] = useState(true)
   const learnPage = getLearnPage()
   const items = query ? findItems(query) : []
-  const visiblePoints = query
-    ? filterCollectionPointsByItems(collectionPoints, items)
-    : collectionPoints
+  const visiblePoints =
+    query && items.length > 0
+      ? filterCollectionPointsByItems(collectionPoints, items)
+      : collectionPoints
 
   useEffect(() => {
     function handlePopState() {
@@ -69,7 +94,9 @@ function App() {
         </div>
         <p>Pontos de coleta e descarte de resíduos em Caçapava, SP</p>
       </header>
-      {learnPage ? (
+      {learnPage?.page === 'index' ? (
+        <LearnIndexPage />
+      ) : learnPage ? (
         <LearnPage
           wasteType={learnPage.wasteType}
           searchQuery={learnPage.searchQuery}
