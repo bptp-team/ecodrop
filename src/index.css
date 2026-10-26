@@ -114,6 +114,21 @@ body {
     box-shadow: none;
   }
 
+  .search-sidebar--compact {
+    inset: 0 0 auto;
+    height: auto;
+  }
+
+  .search-sidebar--compact .item-search-panel {
+    height: auto;
+  }
+
+  .search-sidebar--compact .search-feedback {
+    flex: 0 0 auto;
+    min-height: auto;
+    overflow: visible;
+  }
+
   .search-sidebar--closed {
     display: none;
   }

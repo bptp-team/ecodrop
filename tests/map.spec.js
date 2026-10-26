@@ -124,7 +124,7 @@ for (const { name, width } of viewports) {
 }
 
 for (const { name, width } of viewports.filter(({ width }) => width < 1024)) {
-  test(`${name} search panel fills the available screen and can be closed and reopened`, async ({
+  test(`${name} search panel stays compact until results and can be closed and reopened`, async ({
     page,
   }) => {
     await page.setViewportSize({ width, height: 900 })
@@ -139,7 +139,18 @@ for (const { name, width } of viewports.filter(({ width }) => width < 1024)) {
     expect(sidebarBounds.x).toBe(mainBounds.x)
     expect(sidebarBounds.y).toBe(mainBounds.y)
     expect(sidebarBounds.width).toBe(mainBounds.width)
-    expect(sidebarBounds.height).toBe(mainBounds.height)
+    expect(sidebarBounds.height).toBeLessThan(mainBounds.height)
+    await expect(
+      page.getByText(
+        'Digite o nome de um item para descobrir seu tipo de resíduo.',
+      ),
+    ).toBeVisible()
+    const promptBounds = await page
+      .getByText('Digite o nome de um item para descobrir seu tipo de resíduo.')
+      .boundingBox()
+    expect(sidebarBounds.y + sidebarBounds.height).toBeGreaterThanOrEqual(
+      promptBounds.y + promptBounds.height,
+    )
     expect(
       await page.evaluate(() => document.documentElement.scrollHeight),
     ).toBeLessThanOrEqual(900)
@@ -156,6 +167,16 @@ for (const { name, width } of viewports.filter(({ width }) => width < 1024)) {
       },
     )
     expect(isZoomControlCovered).toBe(true)
+
+    const search = page.getByRole('searchbox', {
+      name: 'O que você quer descartar?',
+    })
+    await search.fill('medicamento')
+    await page.getByRole('button', { name: 'Buscar' }).click()
+    await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(2)
+    const resultsSidebarBounds = await sidebar.boundingBox()
+    expect(resultsSidebarBounds.height).toBe(mainBounds.height)
+
     await expect(
       page.getByRole('button', { name: 'Fechar busca' }),
     ).toBeVisible()
@@ -626,7 +647,7 @@ test('keeps the existing no-compatible-points notice for lâmpada', async ({
   await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(0)
 })
 
-test('places the search panel beside the map on desktop and over it on mobile', async ({
+test('places the search panel beside the map on desktop and compactly over it on mobile', async ({
   page,
 }) => {
   await page.route('https://tile.openstreetmap.org/**', (route) =>
@@ -677,8 +698,8 @@ test('places the search panel beside the map on desktop and over it on mobile', 
     x: mobileMain.x,
     y: mobileMain.y,
     width: mobileMain.width,
-    height: mobileMain.height,
   })
+  expect(mobileSidebar.height).toBeLessThan(mobileMain.height)
   expect(mobileMap).toMatchObject({
     x: mobileMain.x,
     y: mobileMain.y,

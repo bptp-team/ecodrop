@@ -121,7 +121,7 @@ function App() {
       ) : (
         <main className="app-main">
           <aside
-            className={`search-sidebar${isSearchOpen ? '' : ' search-sidebar--closed'}`}
+            className={`search-sidebar${isSearchOpen ? '' : ' search-sidebar--closed'}${items.length === 0 ? ' search-sidebar--compact' : ''}`}
             aria-label="Busca de itens"
           >
             <ItemSearchPanel
