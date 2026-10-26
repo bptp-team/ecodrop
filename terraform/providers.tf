@@ -4,7 +4,9 @@ provider "azurerm" {
   resource_providers_to_register = [
     "Microsoft.App",
     "Microsoft.ContainerRegistry",
+    "Microsoft.Insights",
     "Microsoft.ManagedIdentity",
+    "Microsoft.OperationalInsights",
   ]
 
   features {}
