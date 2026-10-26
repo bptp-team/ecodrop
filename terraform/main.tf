@@ -38,20 +38,49 @@ resource "azurerm_role_assignment" "pull_acr_pull" {
   skip_service_principal_aad_check = true
 }
 
+# AzureRM creates environments through an API version that cannot choose their mode,
+# and Azure then picks Express, which does not support custom domains. AzAPI uses a
+# newer API version to request the standard workload profiles mode explicitly.
 # Without a Log Analytics workspace the logs are only streamed, so the environment
 # itself costs nothing.
-resource "azurerm_container_app_environment" "main" {
-  name                = "ecodrop-env"
-  resource_group_name = azurerm_resource_group.main.name
-  location            = azurerm_resource_group.main.location
-  tags                = local.tags
+resource "azapi_resource" "environment" {
+  type      = "Microsoft.App/managedEnvironments@2026-07-01"
+  name      = "ecodrop-env"
+  parent_id = azurerm_resource_group.main.id
+  location  = azurerm_resource_group.main.location
+  tags      = local.tags
+
+  body = {
+    properties = {
+      environmentMode = "WorkloadProfiles"
+      workloadProfiles = [
+        {
+          name                = "Consumption"
+          workloadProfileType = "Consumption"
+        }
+      ]
+    }
+  }
+
+  response_export_values = ["properties.customDomainConfiguration.customDomainVerificationId"]
+
+  # The provider's built-in schemas stop at 2026-01-01, the last version without
+  # environmentMode. Azure still validates the request.
+  schema_validation_enabled = false
+
+  # The app's address includes the environment's domain, and the domain's CNAME
+  # record and certificate depend on it.
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "azurerm_container_app" "main" {
   name                         = "ecodrop"
   resource_group_name          = azurerm_resource_group.main.name
-  container_app_environment_id = azurerm_container_app_environment.main.id
+  container_app_environment_id = azapi_resource.environment.id
   revision_mode                = "Single"
+  workload_profile_name        = "Consumption"
   tags                         = local.tags
 
   identity {
@@ -70,6 +99,13 @@ resource "azurerm_container_app" "main" {
     min_replicas = 0
     max_replicas = 1
 
+    # Starts the container when a request arrives and adds a replica every 10
+    # concurrent requests, up to max_replicas.
+    http_scale_rule {
+      name                = "http-scaler"
+      concurrent_requests = "10"
+    }
+
     container {
       name = "ecodrop"
       # Placeholder that also listens on 8080, replaced by the first release.
@@ -82,6 +118,7 @@ resource "azurerm_container_app" "main" {
   ingress {
     external_enabled = true
     target_port      = 8080
+    transport        = "http"
 
     traffic_weight {
       latest_revision = true
@@ -90,8 +127,10 @@ resource "azurerm_container_app" "main" {
   }
 
   # The pipeline owns the image. Applying again must not roll it back to the placeholder.
+  # Recreating the app would change the address the domain's CNAME record points at.
   lifecycle {
-    ignore_changes = [template[0].container[0].image]
+    ignore_changes  = [template[0].container[0].image]
+    prevent_destroy = true
   }
 
   depends_on = [azurerm_role_assignment.pull_acr_pull]
