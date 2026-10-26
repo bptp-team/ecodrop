@@ -29,10 +29,15 @@ export function createItemSearch(items) {
   )
 
   return function findItem(query) {
-    const [bestMatch] = index.search(query.trim())
-    if (!bestMatch) return null
+    const searchText = query.trim()
+    if (!searchText) return []
 
-    const item = items.find(({ id }) => id === bestMatch.id)
-    return item ? { ...item, wasteType: bestMatch.wasteType } : null
+    return index
+      .search(searchText)
+      .map(({ id, wasteType }) => {
+        const item = items.find((candidate) => candidate.id === id)
+        return item ? { ...item, wasteType } : null
+      })
+      .filter((item) => item !== null)
   }
 }

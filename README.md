@@ -109,6 +109,57 @@ The browser searches this catalog with MiniSearch. Searches ignore letter case a
 
 The search panel sits to the left of the map on desktop with 24 px of horizontal inner spacing and moves above the map below 1024 px. The RF08 waste-type filter shown in the prototype is intentionally outside this search feature's scope.
 
+### Relationships between data files
+
+The app keeps searchable vocabulary, collection locations, and educational content in separate static JSON files. Keep the links between them explicit:
+
+```text
+searchableItems.json
+  item.wasteType ───────────────► wasteTypeDetails.json key
+  item.collectionPointMaterials ► collectionPoints.json[].materials
+
+collectionPoints.json
+  each entry ───────────────────► one map marker and one listed collection point
+```
+
+#### `searchableItems.json`: item catalog
+
+Each entry describes one searchable item:
+
+| Field                      | Purpose                                                                                                                                              |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `id`                       | Stable, unique item identifier.                                                                                                                      |
+| `name`                     | Item's primary display/search name.                                                                                                                  |
+| `synonyms`                 | Alternative names that safely mean the same item.                                                                                                    |
+| `wasteType`                | Exact key of this item's educational entry in `wasteTypeDetails.json`. Items that share a waste type share its content and learning page.            |
+| `collectionPointMaterials` | Explicit accepted-material labels that connect this item to collection points. Each value must match a `materials` value in `collectionPoints.json`. |
+
+Do not guess item-to-point compatibility from similar wording. Add a material here only after confirming that it represents this item and is listed for the intended point(s). Matching ignores letter case and accents, but otherwise uses the full material label.
+
+#### `collectionPoints.json`: locations and accepted materials
+
+Each collection point has its own stable `id`, `name`, `address`, `city`, map coordinates, and verified `materials`. The `materials` array supplies the accepted labels used by the item catalog's `collectionPointMaterials` mapping. A point is listed under a search result and kept on the filtered map when at least one of the result item's mapped materials matches one of the point's accepted materials. If no point matches, the result shows the no-compatible-points state.
+
+Add or update the point itself in this file; do not duplicate point names or addresses in the item catalog. The result card derives the point count, name, and address from the matching entries here.
+
+#### `wasteTypeDetails.json`: educational content by waste type
+
+This file is an object keyed by the exact `wasteType` string from the item catalog. Every distinct item waste type must have an entry, even while content is being collected:
+
+| Field           | Shape                                          | Display                                                                                      |
+| --------------- | ---------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `impacts`       | Array of strings                               | Impacts on the learning page.                                                                |
+| `disposalGuide` | Array of strings                               | Ordered disposal steps on the result and learning page.                                      |
+| `sources`       | Array of `{ "label": string, "url"?: string }` | Official references rendered by `SourceList`. A source without a URL is shown as plain text. |
+
+For missing content, keep at least one explicit placeholder in the relevant array, such as `"[Impacto ambiental a pesquisar com fonte oficial]"`, `"[Passo de descarte confirmado pela equipe]"`, or `"[Nome da fonte oficial]"`. The UI recognizes bracketed placeholder strings and displays a pending-content message instead of presenting them as verified facts. Do not use a fake URL as a real source link.
+
+The **Saiba mais** action opens the same learning page for every waste type, using the selected item's `wasteType` to load impacts, disposal steps, and sources. Thus, adding a new item with a new waste type requires adding both the item to `searchableItems.json` and the matching educational entry to `wasteTypeDetails.json`. Adding an item to an existing type reuses that type's page and content.
+
+#### Tests that guard the relationships
+
+The test suite checks that each catalog waste type has educational data, each mapped material exists in collection-point data, all learning-data structures include placeholders, and the learning page is reachable and renders its sections for every distinct waste type. Update these tests and run `npm test` and `npm run test:e2e` when adding or changing a type. These checks are intended to catch missing JSON links before the new entry is considered complete.
+
 ### Data sources
 
 A point is only included if its location is precise and it is confirmed to be operating, either by a verifiable source or by an in-person visit from the project team. The current dataset is limited to Caçapava. "PEV" stands for _Ponto de Entrega Voluntária_, a public drop-off point run by the city. Data verified on October 13, 2026:

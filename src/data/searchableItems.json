@@ -2,8 +2,14 @@
   {
     "id": "cooking-oil",
     "name": "Óleo de cozinha",
-    "synonyms": ["óleo usado", "óleo de fritura", "óleo de cozinha usado"],
-    "wasteType": "Óleo de cozinha usado"
+    "synonyms": [
+      "óleo",
+      "óleo usado",
+      "óleo de fritura",
+      "óleo de cozinha usado"
+    ],
+    "wasteType": "Óleo de cozinha usado",
+    "collectionPointMaterials": []
   },
   {
     "id": "battery",
@@ -15,7 +21,8 @@
       "pilha usada",
       "bateria usada"
     ],
-    "wasteType": "Pilhas e baterias"
+    "wasteType": "Pilhas e baterias",
+    "collectionPointMaterials": []
   },
   {
     "id": "cellphone",
@@ -26,25 +33,29 @@
       "telefone móvel",
       "celular usado"
     ],
-    "wasteType": "Eletrônicos"
+    "wasteType": "Eletrônicos",
+    "collectionPointMaterials": []
   },
   {
     "id": "lamp",
     "name": "Lâmpada",
     "synonyms": ["lâmpadas", "lâmpada usada", "lâmpada queimada"],
-    "wasteType": "Lâmpadas"
+    "wasteType": "Lâmpadas",
+    "collectionPointMaterials": []
   },
   {
     "id": "paper",
     "name": "Papel",
     "synonyms": ["papel usado", "folha de papel", "folhas de papel"],
-    "wasteType": "Papel e papelão"
+    "wasteType": "Papel e papelão",
+    "collectionPointMaterials": []
   },
   {
     "id": "cardboard",
     "name": "Papelão",
     "synonyms": ["caixa de papelão", "caixas de papelão", "papel-cartão"],
-    "wasteType": "Papel e papelão"
+    "wasteType": "Papel e papelão",
+    "collectionPointMaterials": []
   },
   {
     "id": "glass",
@@ -55,6 +66,14 @@
       "embalagem de vidro",
       "vidro reciclável"
     ],
-    "wasteType": "Vidro"
+    "wasteType": "Vidro",
+    "collectionPointMaterials": []
+  },
+  {
+    "id": "medicine",
+    "name": "Medicamento",
+    "synonyms": ["remédio", "Medicamentos"],
+    "wasteType": "Medicamentos",
+    "collectionPointMaterials": ["Medicamentos"]
   }
 ]

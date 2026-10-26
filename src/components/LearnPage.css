@@ -1,0 +1,17 @@
+.learn-page {
+  width: min(100% - 2rem, 52rem);
+  margin: 0 auto;
+  padding: 1.5rem 0;
+}
+
+.learn-page h2 {
+  margin: 1rem 0;
+}
+
+.learn-page h3 {
+  margin-bottom: 0.5rem;
+}
+
+.learn-back {
+  color: var(--color-primary-dark);
+}

@@ -1,0 +1,93 @@
+{
+  "Óleo de cozinha usado": {
+    "impacts": ["[Impacto ambiental a pesquisar com fonte oficial]"],
+    "disposalGuide": [
+      "[Passo de descarte confirmado pela equipe]",
+      "[Próximo passo confirmado pela equipe]"
+    ],
+    "sources": [
+      {
+        "label": "[Nome da fonte oficial]",
+        "url": "[URL da fonte oficial]"
+      }
+    ]
+  },
+  "Pilhas e baterias": {
+    "impacts": ["[Impacto ambiental a pesquisar com fonte oficial]"],
+    "disposalGuide": [
+      "[Passo de descarte confirmado pela equipe]",
+      "[Próximo passo confirmado pela equipe]"
+    ],
+    "sources": [
+      {
+        "label": "[Nome da fonte oficial]",
+        "url": "[URL da fonte oficial]"
+      }
+    ]
+  },
+  "Eletrônicos": {
+    "impacts": ["[Impacto ambiental a pesquisar com fonte oficial]"],
+    "disposalGuide": [
+      "[Passo de descarte confirmado pela equipe]",
+      "[Próximo passo confirmado pela equipe]"
+    ],
+    "sources": [
+      {
+        "label": "[Nome da fonte oficial]",
+        "url": "[URL da fonte oficial]"
+      }
+    ]
+  },
+  "Lâmpadas": {
+    "impacts": ["[Impacto ambiental a pesquisar com fonte oficial]"],
+    "disposalGuide": [
+      "[Passo de descarte confirmado pela equipe]",
+      "[Próximo passo confirmado pela equipe]"
+    ],
+    "sources": [
+      {
+        "label": "[Nome da fonte oficial]",
+        "url": "[URL da fonte oficial]"
+      }
+    ]
+  },
+  "Papel e papelão": {
+    "impacts": ["[Impacto ambiental a pesquisar com fonte oficial]"],
+    "disposalGuide": [
+      "[Passo de descarte confirmado pela equipe]",
+      "[Próximo passo confirmado pela equipe]"
+    ],
+    "sources": [
+      {
+        "label": "[Nome da fonte oficial]",
+        "url": "[URL da fonte oficial]"
+      }
+    ]
+  },
+  "Vidro": {
+    "impacts": ["[Impacto ambiental a pesquisar com fonte oficial]"],
+    "disposalGuide": [
+      "[Passo de descarte confirmado pela equipe]",
+      "[Próximo passo confirmado pela equipe]"
+    ],
+    "sources": [
+      {
+        "label": "[Nome da fonte oficial]",
+        "url": "[URL da fonte oficial]"
+      }
+    ]
+  },
+  "Medicamentos": {
+    "impacts": ["[Impacto ambiental a pesquisar com fonte oficial]"],
+    "disposalGuide": [
+      "[Passo de descarte confirmado pela equipe]",
+      "[Próximo passo confirmado pela equipe]"
+    ],
+    "sources": [
+      {
+        "label": "[Nome da fonte oficial]",
+        "url": "[URL da fonte oficial]"
+      }
+    ]
+  }
+}

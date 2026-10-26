@@ -6,6 +6,35 @@ const viewports = [
   { name: 'desktop', width: 1440 },
 ]
 
+const learnPageTypes = [
+  'Óleo de cozinha usado',
+  'Pilhas e baterias',
+  'Eletrônicos',
+  'Lâmpadas',
+  'Papel e papelão',
+  'Vidro',
+  'Medicamentos',
+]
+
+for (const wasteType of learnPageTypes) {
+  test(`opens the learning page for ${wasteType}`, async ({ page }) => {
+    await page.goto(`/?pagina=aprenda&tipo=${encodeURIComponent(wasteType)}`)
+
+    await expect(
+      page.getByRole('heading', { name: `Aprenda sobre ${wasteType}` }),
+    ).toBeVisible()
+    await expect(
+      page.getByRole('heading', { name: 'Impactos ambientais' }),
+    ).toBeVisible()
+    await expect(
+      page.getByRole('heading', { name: 'Como descartar' }),
+    ).toBeVisible()
+    await expect(
+      page.getByText('Não registramos a forma de descarte ainda.'),
+    ).toBeVisible()
+  })
+}
+
 for (const { name, width } of viewports) {
   test.describe(`${name} viewport (${width}px)`, () => {
     test.use({ viewport: { width, height: 900 } })
@@ -27,7 +56,12 @@ for (const { name, width } of viewports) {
 
       const map = page.locator('.leaflet-container')
       await expect(map).toBeVisible()
-      await expect(map).toHaveCSS('min-height', '420px')
+      const mapBounds = await map.boundingBox()
+      expect(mapBounds.height).toBeGreaterThan(0)
+      expect(mapBounds.y + mapBounds.height).toBeLessThanOrEqual(900)
+      expect(
+        await page.evaluate(() => document.documentElement.scrollHeight),
+      ).toBeLessThanOrEqual(900)
       await expect(map.locator('img.leaflet-marker-icon')).toHaveCount(4)
       await expect(map.locator('.leaflet-control-attribution')).toContainText(
         '© OpenStreetMap contributors',
@@ -86,6 +120,70 @@ for (const { name, width } of viewports) {
         /Prefeitura de Caçapava \(abre em nova aba\)/,
       )
     })
+  })
+}
+
+for (const { name, width } of viewports.filter(({ width }) => width < 1024)) {
+  test(`${name} search panel fills the available screen and can be closed and reopened`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 900 })
+    await page.goto('/')
+
+    const main = page.locator('.app-main')
+    const sidebar = page.locator('.search-sidebar')
+    const mainBounds = await main.boundingBox()
+    const sidebarBounds = await sidebar.boundingBox()
+
+    expect(sidebarBounds).not.toBeNull()
+    expect(sidebarBounds.x).toBe(mainBounds.x)
+    expect(sidebarBounds.y).toBe(mainBounds.y)
+    expect(sidebarBounds.width).toBe(mainBounds.width)
+    expect(sidebarBounds.height).toBe(mainBounds.height)
+    expect(
+      await page.evaluate(() => document.documentElement.scrollHeight),
+    ).toBeLessThanOrEqual(900)
+    const zoomControl = page.locator('.leaflet-control-zoom-in')
+    const zoomBounds = await zoomControl.boundingBox()
+    const isZoomControlCovered = await page.evaluate(
+      ({ x, y }) => {
+        const topElement = document.elementFromPoint(x, y)
+        return document.querySelector('.search-sidebar').contains(topElement)
+      },
+      {
+        x: zoomBounds.x + zoomBounds.width / 2,
+        y: zoomBounds.y + zoomBounds.height / 2,
+      },
+    )
+    expect(isZoomControlCovered).toBe(true)
+    await expect(
+      page.getByRole('button', { name: 'Fechar busca' }),
+    ).toBeVisible()
+
+    await page.getByRole('button', { name: 'Fechar busca' }).click()
+    await expect(sidebar).toBeHidden()
+    await expect(zoomControl).toBeVisible()
+    const isZoomControlClickable = await page.evaluate(
+      ({ x, y }) => {
+        const topElement = document.elementFromPoint(x, y)
+        return topElement.closest('.leaflet-control-zoom-in') !== null
+      },
+      {
+        x: zoomBounds.x + zoomBounds.width / 2,
+        y: zoomBounds.y + zoomBounds.height / 2,
+      },
+    )
+    expect(isZoomControlClickable).toBe(true)
+    await expect(
+      page.getByRole('button', { name: 'Abrir busca' }),
+    ).toBeVisible()
+    await expect(page.locator('.leaflet-container')).toBeVisible()
+    expect(
+      await page.evaluate(() => document.documentElement.scrollHeight),
+    ).toBeLessThanOrEqual(900)
+
+    await page.getByRole('button', { name: 'Abrir busca' }).click()
+    await expect(sidebar).toBeVisible()
   })
 }
 
@@ -192,7 +290,7 @@ test('searches by name or synonym and keeps the query in browser history', async
 
   await expect(page).toHaveURL(/\/\?busca=PILHAS$/)
   await expect(
-    page.getByRole('heading', { name: 'Resultado para “PILHAS”' }),
+    page.getByRole('heading', { name: 'Resultados para “PILHAS”' }),
   ).toBeVisible()
   await expect(
     page.getByText('Tipo de resíduo: Pilhas e baterias'),
@@ -203,13 +301,13 @@ test('searches by name or synonym and keeps the query in browser history', async
   await expect(page).toHaveURL(/\/\?busca=smartphone$/)
   await expect(page.getByRole('button', { name: 'Buscar' })).toBeFocused()
   await expect(
-    page.getByRole('heading', { name: 'Resultado para “smartphone”' }),
+    page.getByRole('heading', { name: 'Resultados para “smartphone”' }),
   ).toBeVisible()
   await expect(page.getByText('Tipo de resíduo: Eletrônicos')).toBeVisible()
 
   await page.reload()
   await expect(
-    page.getByRole('heading', { name: 'Resultado para “smartphone”' }),
+    page.getByRole('heading', { name: 'Resultados para “smartphone”' }),
   ).toBeVisible()
   await expect(search).toHaveValue('smartphone')
 
@@ -217,7 +315,7 @@ test('searches by name or synonym and keeps the query in browser history', async
   await expect(page).toHaveURL(/\/\?busca=PILHAS$/)
   await expect(search).toHaveValue('PILHAS')
   await expect(
-    page.getByRole('heading', { name: 'Resultado para “PILHAS”' }),
+    page.getByRole('heading', { name: 'Resultados para “PILHAS”' }),
   ).toBeVisible()
 })
 
@@ -251,7 +349,217 @@ test('keeps an unmatched query visible and allows clearing it', async ({
   ).toBeVisible()
 })
 
-test('places the search panel left of the map on desktop and above it on mobile', async ({
+test('clears matched item results when the search is cleared', async ({
+  page,
+}) => {
+  await page.route('https://tile.openstreetmap.org/**', (route) =>
+    route.abort(),
+  )
+  await page.goto('/')
+  const search = page.getByRole('searchbox', {
+    name: 'O que você quer descartar?',
+  })
+  await search.fill('medicamento')
+  await page.getByRole('button', { name: 'Buscar' }).click()
+
+  await expect(page).toHaveURL('/?busca=medicamento')
+  await expect(page.locator('.search-result')).toHaveCount(1)
+  await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(2)
+
+  await page.getByRole('button', { name: 'Limpar busca' }).click()
+
+  await expect(page).toHaveURL('/')
+  await expect(search).toHaveValue('')
+  await expect(
+    page.getByText(
+      'Digite o nome de um item para descobrir seu tipo de resíduo.',
+    ),
+  ).toBeVisible()
+  await expect(page.locator('.search-result')).toHaveCount(0)
+  await expect(page.locator('.search-result-points')).toHaveCount(0)
+  await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(4)
+})
+
+test('clears the applied search when the search input is cleared', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 375, height: 700 })
+  await page.route('https://tile.openstreetmap.org/**', (route) =>
+    route.abort(),
+  )
+  await page.goto('/')
+  const search = page.getByRole('searchbox', {
+    name: 'O que você quer descartar?',
+  })
+  await search.fill('medicamento')
+  await page.getByRole('button', { name: 'Buscar' }).click()
+
+  await expect(page.locator('.search-result')).toHaveCount(1)
+  await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(2)
+
+  await search.fill('')
+
+  await expect(search).toHaveValue('')
+  await expect(page).toHaveURL('/')
+  await expect(page.locator('.search-result')).toHaveCount(0)
+  await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(4)
+})
+
+test('asks for an item when the search is submitted empty', async ({
+  page,
+}) => {
+  await page.route('https://tile.openstreetmap.org/**', (route) =>
+    route.abort(),
+  )
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Buscar' }).click()
+
+  await expect(page).toHaveURL('/')
+  await expect(
+    page.getByText('Digite o nome de um item antes de buscar.'),
+  ).toBeVisible()
+  await expect(
+    page.getByRole('region', { name: 'O que você quer descartar?' }),
+  ).toBeVisible()
+})
+
+test('shows all matching items in relevance order and the no-points state', async ({
+  page,
+}) => {
+  await page.route('https://tile.openstreetmap.org/**', (route) =>
+    route.abort(),
+  )
+  await page.goto('/')
+  const search = page.getByRole('searchbox', {
+    name: 'O que você quer descartar?',
+  })
+  await search.fill('papel')
+  await page.getByRole('button', { name: 'Buscar' }).click()
+
+  const resultCards = page.locator('.search-result')
+  await expect(resultCards).toHaveCount(2)
+  await expect(resultCards.nth(0)).toContainText(
+    'Tipo de resíduo: Papel e papelão',
+  )
+  await expect(resultCards.nth(1)).toContainText(
+    'Tipo de resíduo: Papel e papelão',
+  )
+  await expect(page.getByRole('status')).toBeVisible()
+  await expect(page.getByRole('status')).toHaveText(
+    'Nenhum ponto recebe este item.',
+  )
+  await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(0)
+})
+
+test('finds medicines in the sidebar and shows only their two collection points', async ({
+  page,
+}) => {
+  await page.route('https://tile.openstreetmap.org/**', (route) =>
+    route.abort(),
+  )
+  await page.goto('/')
+  const search = page.getByRole('searchbox', {
+    name: 'O que você quer descartar?',
+  })
+  await search.fill('medicamento')
+  await page.getByRole('button', { name: 'Buscar' }).click()
+
+  await expect(page.locator('.search-result').first()).toContainText(
+    'Tipo de resíduo: Medicamentos',
+  )
+  await expect(page.getByText('Tipo de resíduo: Medicamentos')).toBeVisible()
+  await expect(
+    page.getByText(
+      '2 pontos em Caçapava recebem este item. Os demais foram ocultados no mapa.',
+    ),
+  ).toBeVisible()
+  await expect(page.getByText('Droga Raia', { exact: true })).toBeVisible()
+  await expect(
+    page.getByText('Drogaria São Paulo', { exact: true }),
+  ).toBeVisible()
+  await expect(
+    page.getByRole('heading', { name: /Não encontramos/ }),
+  ).toHaveCount(0)
+  await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(2)
+
+  await page.getByRole('link', { name: 'Saiba mais' }).click()
+  await expect(page).toHaveURL(
+    '/?pagina=aprenda&tipo=Medicamentos&busca=medicamento',
+  )
+  await expect(
+    page.getByRole('heading', { name: 'Aprenda sobre Medicamentos' }),
+  ).toBeVisible()
+  await expect(
+    page.getByText('Não registramos a forma de descarte ainda.'),
+  ).toBeVisible()
+  const documentMetrics = await page.evaluate(() => ({
+    documentHeight: document.documentElement.scrollHeight,
+    viewportHeight: window.innerHeight,
+  }))
+  expect(documentMetrics.documentHeight).toBeLessThanOrEqual(
+    documentMetrics.viewportHeight,
+  )
+  await page.getByRole('link', { name: 'Voltar à busca' }).click()
+  await expect(page).toHaveURL('/?busca=medicamento')
+})
+
+test('keeps the app within the viewport with scrollable results and pinned actions', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 375, height: 600 })
+  await page.route('https://tile.openstreetmap.org/**', (route) =>
+    route.abort(),
+  )
+  await page.goto('/?busca=medicamento')
+
+  const layout = await page.evaluate(() => {
+    const feedback = document.querySelector('.search-feedback')
+    const actions = document.querySelector('.search-panel-actions')
+    const sidebar = document.querySelector('.search-sidebar')
+    const map = document.querySelector('.leaflet-container')
+
+    return {
+      viewportHeight: window.innerHeight,
+      documentHeight: document.documentElement.scrollHeight,
+      feedbackHeight: feedback.clientHeight,
+      feedbackScrollHeight: feedback.scrollHeight,
+      actionsBottom: actions.getBoundingClientRect().bottom,
+      actionsTop: actions.getBoundingClientRect().top,
+      actionsHeight: actions.getBoundingClientRect().height,
+      sidebarBottom: sidebar.getBoundingClientRect().bottom,
+      sidebarTop: sidebar.getBoundingClientRect().top,
+      mapBottom: map.getBoundingClientRect().bottom,
+      actionsInsideScroller: Boolean(actions.closest('.search-feedback')),
+    }
+  })
+
+  expect(layout.documentHeight).toBeLessThanOrEqual(layout.viewportHeight)
+  expect(layout.feedbackScrollHeight).toBeGreaterThan(layout.feedbackHeight)
+  expect(layout.actionsBottom).toBeLessThanOrEqual(layout.sidebarBottom)
+  expect(layout.actionsBottom).toBeGreaterThan(layout.sidebarBottom - 120)
+  expect(layout.actionsTop).toBeGreaterThan(layout.sidebarTop)
+  expect(layout.actionsInsideScroller).toBe(false)
+  await expect(page.getByRole('button', { name: 'Limpar busca' })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Saiba mais' })).toBeVisible()
+  await expect(page.locator('.leaflet-container')).toBeVisible()
+  expect(layout.mapBottom).toBeLessThanOrEqual(layout.viewportHeight)
+})
+
+test('does not leave all collection points visible when the item is unmatched', async ({
+  page,
+}) => {
+  await page.route('https://tile.openstreetmap.org/**', (route) =>
+    route.abort(),
+  )
+  await page.goto('/?busca=xyzabc')
+
+  await expect(
+    page.getByRole('heading', { name: 'Não encontramos “xyzabc”.' }),
+  ).toBeVisible()
+  await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(0)
+})
+
+test('places the search panel beside the map on desktop and over it on mobile', async ({
   page,
 }) => {
   await page.route('https://tile.openstreetmap.org/**', (route) =>
@@ -295,9 +603,19 @@ test('places the search panel left of the map on desktop and above it on mobile'
   await page.reload()
   const mobileSidebar = await sidebar.boundingBox()
   const mobileMap = await map.boundingBox()
+  const mobileMain = await page.locator('.app-main').boundingBox()
   expect(mobileSidebar).not.toBeNull()
   expect(mobileMap).not.toBeNull()
-  expect(mobileSidebar.y + mobileSidebar.height).toBeLessThanOrEqual(
-    mobileMap.y,
-  )
+  expect(mobileSidebar).toMatchObject({
+    x: mobileMain.x,
+    y: mobileMain.y,
+    width: mobileMain.width,
+    height: mobileMain.height,
+  })
+  expect(mobileMap).toMatchObject({
+    x: mobileMain.x,
+    y: mobileMain.y,
+    width: mobileMain.width,
+    height: mobileMain.height,
+  })
 })
