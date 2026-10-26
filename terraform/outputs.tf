@@ -20,7 +20,7 @@ output "container_app_name" {
 
 output "container_app_environment_name" {
   description = "Name of the Container Apps environment, used when binding the domain certificate."
-  value       = azurerm_container_app_environment.main.name
+  value       = azapi_resource.environment.name
 }
 
 output "container_app_fqdn" {
@@ -30,7 +30,7 @@ output "container_app_fqdn" {
 
 output "custom_domain_verification_id" {
   description = "Value of the domain's asuid TXT record, which proves ownership to Azure."
-  value       = azurerm_container_app_environment.main.custom_domain_verification_id
+  value       = azapi_resource.environment.output.properties.customDomainConfiguration.customDomainVerificationId
 }
 
 output "cd_client_id" {
