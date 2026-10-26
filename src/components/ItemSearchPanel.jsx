@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import SourceList from './SourceList.jsx'
 import SearchMessage from './SearchMessage.jsx'
 import wasteTypeDetails from '../data/wasteTypeDetails.json'
@@ -19,31 +20,30 @@ function ItemSearchPanel({
   onClose,
   typeDetails = wasteTypeDetails,
 }) {
-  const [inputValue, setInputValue] = useState(query)
+  const inputRef = useRef(null)
   const [validationMessage, setValidationMessage] = useState('')
 
   function handleSubmit(event) {
     event.preventDefault()
-    const searchText = inputValue.trim()
-    setInputValue(searchText)
+    const searchText = inputRef.current?.value.trim() ?? ''
     if (!searchText) {
       setValidationMessage('Digite o nome de um item antes de buscar.')
       return
     }
 
+    inputRef.current.value = searchText
     setValidationMessage('')
     onSearch(searchText)
   }
 
   function handleClear() {
-    setInputValue('')
+    if (inputRef.current) inputRef.current.value = ''
     setValidationMessage('')
     onSearch('')
   }
 
   function handleInputChange(event) {
     const value = event.target.value
-    setInputValue(value)
 
     if (!value && query) {
       setValidationMessage('')
@@ -123,7 +123,6 @@ function ItemSearchPanel({
       )
     },
   )
-
   return (
     <section className="item-search-panel" aria-labelledby="item-search-label">
       <div className="search-panel-header">
@@ -147,11 +146,13 @@ function ItemSearchPanel({
         <div className="search-form-row">
           <input
             id="item-search"
+            key={query}
             name="busca"
             type="search"
             placeholder="Ex.: pilha, óleo de cozinha"
             autoComplete="off"
-            value={inputValue}
+            defaultValue={query}
+            ref={inputRef}
             onChange={handleInputChange}
           />
           <button type="submit">Buscar</button>
@@ -176,7 +177,7 @@ function ItemSearchPanel({
         {query && items.length === 0 && (
           <SearchMessage title={`Não encontramos "${query}".`}>
             Confira a grafia ou veja os tipos de resíduo na página{' '}
-            <a href="/aprenda">Aprenda</a>.
+            <Link to="/aprenda">Aprenda</Link>.
           </SearchMessage>
         )}
         {query && items.length > 0 && !hasCompatiblePoints && (
@@ -191,9 +192,9 @@ function ItemSearchPanel({
             Limpar busca
           </button>
           {learnUrl && (
-            <a className="search-learn-more" href={learnUrl}>
+            <Link className="search-learn-more" to={learnUrl}>
               Saiba mais ›
-            </a>
+            </Link>
           )}
         </div>
       )}

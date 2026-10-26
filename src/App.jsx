@@ -1,4 +1,15 @@
 import { useEffect, useState } from 'react'
+import {
+  BrowserRouter,
+  Link,
+  Navigate,
+  NavLink,
+  Outlet,
+  Route,
+  Routes,
+  useParams,
+  useSearchParams,
+} from 'react-router-dom'
 import CollectionPointsMap from './components/CollectionPointsMap.jsx'
 import ItemSearchPanel from './components/ItemSearchPanel.jsx'
 import collectionPoints from './data/collectionPoints.json'
@@ -6,10 +17,10 @@ import searchableItems from './data/searchableItems.json'
 import wasteTypeDetails from './data/wasteTypeDetails.json'
 import LearnIndexPage from './components/LearnIndexPage.jsx'
 import LearnPage from './components/LearnPage.jsx'
-import { resolveWasteType } from './utils/wasteTypes.js'
 import { filterCollectionPointsByItems } from './search/collectionPointFilter.js'
 import { createItemSearch } from './search/itemSearch.js'
 import { trackEvent } from './utils/telemetry.js'
+import { getWasteTypeId, resolveWasteType } from './utils/wasteTypes.js'
 
 const findItems = createItemSearch(searchableItems)
 
@@ -27,84 +38,6 @@ function trackSearch(text) {
   })
 }
 
-function getSearchQuery() {
-  return new URLSearchParams(window.location.search).get('busca') ?? ''
-}
-
-function getLearnPage() {
-  let pathname = window.location.pathname
-  while (pathname.length > 1 && pathname.endsWith('/')) {
-    pathname = pathname.slice(0, -1)
-  }
-  if (pathname === '/aprenda') return { page: 'index' }
-
-  if (pathname.startsWith('/aprenda/')) {
-    try {
-      const identifier = decodeURIComponent(pathname.slice('/aprenda/'.length))
-      const wasteType = resolveWasteType(identifier)
-      if (wasteType) {
-        return {
-          page: 'detail',
-          wasteType,
-        }
-      }
-    } catch {
-      return { page: 'not-found' }
-    }
-    return { page: 'not-found' }
-  }
-
-  const searchParams = new URLSearchParams(window.location.search)
-  if (searchParams.get('pagina') !== 'aprenda') return null
-
-  const wasteType = searchParams.get('tipo')
-  if (!wasteType) return { page: 'index' }
-
-  const resolvedWasteType = resolveWasteType(wasteType)
-  return resolvedWasteType
-    ? {
-        page: 'detail',
-        wasteType: resolvedWasteType,
-      }
-    : { page: 'not-found' }
-}
-
-function getPageTitle(page) {
-  switch (page?.page) {
-    case 'detail':
-      return `${page.wasteType} | EcoDrop`
-    case 'index':
-      return 'Aprenda | EcoDrop'
-    case 'not-found':
-      return 'Tipo não encontrado | EcoDrop'
-    default:
-      return 'EcoDrop'
-  }
-}
-
-function renderLearnPage(page) {
-  switch (page?.page) {
-    case 'index':
-      return <LearnIndexPage />
-    case 'detail':
-      return (
-        <LearnPage
-          wasteType={page.wasteType}
-          details={wasteTypeDetails[page.wasteType]}
-        />
-      )
-    case 'not-found':
-      return (
-        <main className="learn-page learn-not-found">
-          <h1>Tipo de resíduo não encontrado</h1>
-          <a href="/aprenda">Voltar para Aprenda</a>
-        </main>
-      )
-    default:
-      return null
-  }
-}
-
 function getPointsForType(selectedType) {
   if (!selectedType) return collectionPoints
 
@@ -120,92 +53,77 @@ function getVisiblePoints(query, items, points) {
   return filterCollectionPointsByItems(points, items)
 }
 
-function MapPage({
-  historyRevision,
-  isSearchOpen,
-  items,
-  onClose,
-  onOpen,
-  onSearch,
-  query,
-  selectedType,
-  visiblePoints,
-}) {
-  return (
-    <main className="app-main">
-      <aside
-        className={`search-sidebar${isSearchOpen ? '' : ' search-sidebar--closed'}${items.length === 0 ? ' search-sidebar--compact' : ''}`}
-        aria-label="Busca de itens"
-      >
-        {selectedType && visiblePoints.length === 0 && (
-          <output className="map-filter-empty">
-            Nenhum ponto cadastrado recebe este tipo de resíduo.
-          </output>
-        )}
-        <ItemSearchPanel
-          key={historyRevision}
-          query={query}
-          items={items}
-          points={collectionPoints}
-          hasCompatiblePoints={visiblePoints.length > 0}
-          onSearch={onSearch}
-          onClose={onClose}
-        />
-      </aside>
-      {!isSearchOpen && (
-        <button className="search-open" type="button" onClick={onOpen}>
-          Abrir busca
-        </button>
-      )}
-      <CollectionPointsMap points={visiblePoints} />
-    </main>
-  )
+function DocumentTitle({ title }) {
+  useEffect(() => {
+    document.title = title
+  }, [title])
+
+  return null
 }
 
-function App() {
-  const [query, setQuery] = useState(getSearchQuery)
-  const [historyRevision, setHistoryRevision] = useState(0)
+function MapPage() {
+  const [searchParams, setSearchParams] = useSearchParams()
   const [isSearchOpen, setIsSearchOpen] = useState(true)
-  const learnPage = getLearnPage()
-  const selectedType = new URLSearchParams(window.location.search).get('tipo')
+  const query = searchParams.get('busca') ?? ''
+  const selectedType = searchParams.get('tipo')
   const pointsForType = getPointsForType(selectedType)
   const items = query ? findItems(query) : []
   const visiblePoints = getVisiblePoints(query, items, pointsForType)
 
-  useEffect(() => {
-    function handlePopState() {
-      setQuery(getSearchQuery())
-      setHistoryRevision((revision) => revision + 1)
-    }
-
-    window.addEventListener('popstate', handlePopState)
-    return () => window.removeEventListener('popstate', handlePopState)
-  }, [])
-
   function searchItem(text) {
-    const url = new URL(window.location.href)
+    const nextParams = new URLSearchParams(searchParams)
     if (text) {
-      url.searchParams.set('busca', text)
-      url.searchParams.delete('tipo')
+      nextParams.set('busca', text)
+      nextParams.delete('tipo')
     } else {
-      url.searchParams.delete('busca')
-      url.searchParams.delete('tipo')
+      nextParams.delete('busca')
+      nextParams.delete('tipo')
     }
 
-    const nextUrl = `${url.pathname}${url.search}${url.hash}`
-    const currentUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`
-    if (nextUrl !== currentUrl) {
-      window.history.pushState({}, '', nextUrl)
-    }
-    setQuery(text)
+    setSearchParams(nextParams)
     if (text) trackSearch(text)
   }
 
-  const pageContent = renderLearnPage(learnPage)
-
   return (
     <>
-      <title>{getPageTitle(learnPage)}</title>
+      <DocumentTitle title="EcoDrop" />
+      <main className="app-main">
+        <aside
+          className={`search-sidebar${isSearchOpen ? '' : ' search-sidebar--closed'}${items.length === 0 ? ' search-sidebar--compact' : ''}`}
+          aria-label="Busca de itens"
+        >
+          {selectedType && visiblePoints.length === 0 && (
+            <output className="map-filter-empty">
+              Nenhum ponto cadastrado recebe este tipo de resíduo.
+            </output>
+          )}
+          <ItemSearchPanel
+            query={query}
+            items={items}
+            points={collectionPoints}
+            hasCompatiblePoints={visiblePoints.length > 0}
+            onSearch={searchItem}
+            onClose={() => setIsSearchOpen(false)}
+          />
+        </aside>
+        {!isSearchOpen && (
+          <button
+            className="search-open"
+            type="button"
+            onClick={() => setIsSearchOpen(true)}
+          >
+            Abrir busca
+          </button>
+        )}
+        <CollectionPointsMap points={visiblePoints} />
+      </main>
+    </>
+  )
+}
+
+function AppLayout() {
+  return (
+    <>
       <header className="app-header">
         <div className="app-brand">
           <img className="app-logo" src="/favicon.svg" alt="" />
@@ -213,12 +131,10 @@ function App() {
         </div>
         <p>Pontos de coleta e descarte de resíduos em Caçapava, SP</p>
         <nav className="app-nav" aria-label="Navegação principal">
-          <a href="/" aria-current={!learnPage ? 'page' : undefined}>
+          <NavLink to="/" end>
             Mapa
-          </a>
-          <a href="/aprenda" aria-current={learnPage ? 'page' : undefined}>
-            Aprenda
-          </a>
+          </NavLink>
+          <NavLink to="/aprenda">Aprenda</NavLink>
           <a
             href="https://forms.cloud.microsoft/r/VDeHWtH95J"
             target="_blank"
@@ -229,20 +145,77 @@ function App() {
           </a>
         </nav>
       </header>
-      {pageContent ?? (
-        <MapPage
-          historyRevision={historyRevision}
-          isSearchOpen={isSearchOpen}
-          items={items}
-          onClose={() => setIsSearchOpen(false)}
-          onOpen={() => setIsSearchOpen(true)}
-          onSearch={searchItem}
-          query={query}
-          selectedType={selectedType}
-          visiblePoints={visiblePoints}
-        />
-      )}
+      <Outlet />
     </>
+  )
+}
+
+function LearnNotFound() {
+  return (
+    <main className="learn-page learn-not-found">
+      <DocumentTitle title="Tipo não encontrado | EcoDrop" />
+      <h1>Tipo de resíduo não encontrado</h1>
+      <Link to="/aprenda">Voltar para Aprenda</Link>
+    </main>
+  )
+}
+
+function WasteTypeRoute() {
+  const { wasteTypeId } = useParams()
+  const wasteType = resolveWasteType(wasteTypeId)
+
+  if (!wasteType) return <LearnNotFound />
+
+  return (
+    <>
+      <DocumentTitle title={`${wasteType} | EcoDrop`} />
+      <LearnPage wasteType={wasteType} details={wasteTypeDetails[wasteType]} />
+    </>
+  )
+}
+
+function LegacyLearnRoute() {
+  const [searchParams] = useSearchParams()
+  const legacyType = searchParams.get('tipo')
+
+  if (searchParams.get('pagina') !== 'aprenda') return <MapPage />
+
+  const leftoverParams = new URLSearchParams(searchParams)
+  leftoverParams.delete('pagina')
+  leftoverParams.delete('tipo')
+  const search = leftoverParams.toString()
+  const suffix = search ? `?${search}` : ''
+
+  if (!legacyType) return <Navigate to={`/aprenda${suffix}`} replace />
+
+  const wasteType = resolveWasteType(legacyType)
+  if (!wasteType) return <LearnNotFound />
+
+  return (
+    <Navigate to={`/aprenda/${getWasteTypeId(wasteType)}${suffix}`} replace />
+  )
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route element={<AppLayout />}>
+          <Route path="/" element={<LegacyLearnRoute />} />
+          <Route
+            path="/aprenda"
+            element={
+              <>
+                <DocumentTitle title="Aprenda | EcoDrop" />
+                <LearnIndexPage />
+              </>
+            }
+          />
+          <Route path="/aprenda/:wasteTypeId" element={<WasteTypeRoute />} />
+          <Route path="*" element={<LearnNotFound />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   )
 }
 

@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import wasteTypeDetails from '../data/wasteTypeDetails.json'
 import './LearnPage.css'
 
@@ -12,13 +13,13 @@ function LearnIndexPage() {
       <ul className="learn-card-list" aria-label="Tipos de resíduo">
         {Object.entries(wasteTypeDetails).map(([type, details]) => (
           <li key={type}>
-            <a className="learn-card" href={`/aprenda/${details.id}`}>
+            <Link className="learn-card" to={`/aprenda/${details.id}`}>
               <h2>{type}</h2>
               <p>{details.summary}</p>
               <span>
                 Ver como descartar <span aria-hidden="true">›</span>
               </span>
-            </a>
+            </Link>
           </li>
         ))}
       </ul>

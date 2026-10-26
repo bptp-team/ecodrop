@@ -1,5 +1,6 @@
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
+import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it } from 'vitest'
 import collectionPoints from '../data/collectionPoints.json'
 import searchableItems from '../data/searchableItems.json'
@@ -12,11 +13,15 @@ const wasteTypes = [
   ...new Set(searchableItems.map(({ wasteType }) => wasteType)),
 ]
 
+function renderInRouter(element) {
+  return renderToStaticMarkup(createElement(MemoryRouter, null, element))
+}
+
 describe('LearnPage', () => {
   it.each(wasteTypes)(
     'renders a learning page with placeholder impact content for %s',
     (wasteType) => {
-      const markup = renderToStaticMarkup(
+      const markup = renderInRouter(
         createElement(LearnPage, {
           wasteType,
           details: wasteTypeDetails[wasteType],
@@ -36,7 +41,7 @@ describe('LearnPage', () => {
   )
 
   it('lists learning topics on the dedicated index page without query parameters', () => {
-    const markup = renderToStaticMarkup(createElement(LearnIndexPage))
+    const markup = renderInRouter(createElement(LearnIndexPage))
 
     expect(markup).toContain('<h1>Aprenda a descartar</h1>')
     expect(markup).toContain(

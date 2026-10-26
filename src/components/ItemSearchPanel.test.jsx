@@ -1,5 +1,6 @@
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
+import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it } from 'vitest'
 import ItemSearchPanel from './ItemSearchPanel.jsx'
 import LearnPage from './LearnPage.jsx'
@@ -9,8 +10,12 @@ const matchingItems = [
   { id: 'cardboard', name: 'Papelão', wasteType: 'Papel e papelão' },
 ]
 
+function renderInRouter(element) {
+  return renderToStaticMarkup(createElement(MemoryRouter, null, element))
+}
+
 function renderPanel(typeDetails, items = matchingItems, points = []) {
-  return renderToStaticMarkup(
+  return renderInRouter(
     createElement(ItemSearchPanel, {
       query: 'papel',
       items,
@@ -167,7 +172,7 @@ describe('ItemSearchPanel', () => {
   })
 
   it('shows the not-found message with a link to the learning index', () => {
-    const markup = renderToStaticMarkup(
+    const markup = renderInRouter(
       createElement(ItemSearchPanel, {
         query: 'pilah',
         items: [],
@@ -182,11 +187,11 @@ describe('ItemSearchPanel', () => {
     expect(markup).toContain(
       'Confira a grafia ou veja os tipos de resíduo na página',
     )
-    expect(markup).toContain('href="/aprenda">Aprenda</a>')
+    expect(markup).toMatch(/href="\/aprenda"[^>]*>Aprenda<\/a>/)
   })
 
   it('renders the learn page using the selected waste type content', () => {
-    const markup = renderToStaticMarkup(
+    const markup = renderInRouter(
       createElement(LearnPage, {
         wasteType: 'Medicamentos',
         details: {
