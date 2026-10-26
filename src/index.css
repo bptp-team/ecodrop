@@ -122,14 +122,6 @@ body {
   overflow: hidden;
 }
 
-.map-filter-empty {
-  flex: 0 0 auto;
-  margin: 0 0 0.75rem;
-  padding: 0.75rem;
-  border: 1px solid var(--color-neutral);
-  border-radius: 0.25rem;
-}
-
 .learn-page {
   flex: 1;
   min-height: 0;

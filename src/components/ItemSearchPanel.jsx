@@ -16,7 +16,6 @@ function ItemSearchPanel({
   items,
   points = [],
   onSearch,
-  hasCompatiblePoints,
   onClose,
   typeDetails = wasteTypeDetails,
 }) {
@@ -102,12 +101,11 @@ function ItemSearchPanel({
             className="search-result-points"
             aria-label={`Pontos que recebem ${wasteType}`}
           >
-            {itemPoints.length > 0 && (
-              <p>
-                {itemPoints.length} {pointWord} em Caçapava {receiveVerb} este
-                tipo de resíduo. Os demais foram ocultados no mapa.
-              </p>
-            )}
+            <p>
+              {itemPoints.length} {pointWord} em Caçapava {receiveVerb} este
+              tipo de resíduo.
+              {itemPoints.length > 0 && ' Os demais foram ocultados no mapa.'}
+            </p>
             {itemPoints.length > 0 && (
               <ul>
                 {itemPoints.map((point) => (
@@ -179,11 +177,6 @@ function ItemSearchPanel({
             Confira a grafia ou veja os tipos de resíduo na página{' '}
             <Link to="/aprenda">Aprenda</Link>.
           </SearchMessage>
-        )}
-        {query && items.length > 0 && !hasCompatiblePoints && (
-          <output className="search-no-points">
-            Nenhum ponto recebe este item.
-          </output>
         )}
       </div>
       {query && (

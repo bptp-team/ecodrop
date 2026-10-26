@@ -503,9 +503,8 @@ test('groups matching items by waste type and preserves the no-points state', as
     resultCard.getByText('Tipo de resíduo: Papel e papelão'),
   ).toHaveCount(1)
   await expect(resultCard.locator('.search-result-items')).toHaveCount(0)
-  await expect(page.getByRole('status')).toBeVisible()
-  await expect(page.getByRole('status')).toHaveText(
-    'Nenhum ponto recebe este item.',
+  await expect(resultCard.locator('.search-result-points')).toContainText(
+    '0 pontos em Caçapava recebem este tipo de resíduo.',
   )
   await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(0)
 })
@@ -715,9 +714,8 @@ test('filters the map by waste type and clears both URL filters', async ({
 
   await page.goto('/?tipo=oleo-de-cozinha-usado')
   await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(0)
-  await expect(page.getByRole('status')).toHaveText(
-    'Nenhum ponto cadastrado recebe este tipo de resíduo.',
-  )
+  await expect(page.locator('.map-filter-empty')).toHaveCount(0)
+  await expect(page.getByRole('searchbox')).toBeVisible()
 
   await page.goto('/?busca=pilha&tipo=pilhas-e-baterias')
   await page.getByRole('button', { name: 'Limpar busca' }).click()
@@ -725,9 +723,25 @@ test('filters the map by waste type and clears both URL filters', async ({
   await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(4)
 })
 
-test('keeps the existing no-compatible-points notice for lâmpada', async ({
+test('keeps search results visible when the selected type has no collection points', async ({
   page,
 }) => {
+  await page.route('https://tile.openstreetmap.org/**', (route) =>
+    route.abort(),
+  )
+  await page.goto('/?tipo=lampadas&busca=l%C3%A2mpada')
+
+  await expect(page.locator('.search-result')).toContainText(
+    'Tipo de resíduo: Lâmpadas',
+  )
+  await expect(page.getByRole('searchbox')).toHaveValue('lâmpada')
+  await expect(page.locator('.map-filter-empty')).toHaveCount(0)
+  await expect(page.locator('.search-result-points')).toContainText(
+    '0 pontos em Caçapava recebem este tipo de resíduo.',
+  )
+})
+
+test('shows a zero-points count for lâmpada', async ({ page }) => {
   await page.route('https://tile.openstreetmap.org/**', (route) =>
     route.abort(),
   )
@@ -737,8 +751,8 @@ test('keeps the existing no-compatible-points notice for lâmpada', async ({
     'Tipo de resíduo: Lâmpadas',
   )
   await expect(page.locator('.search-result')).toContainText('Como descartar')
-  await expect(page.getByRole('status')).toHaveText(
-    'Nenhum ponto recebe este item.',
+  await expect(page.locator('.search-result-points')).toContainText(
+    '0 pontos em Caçapava recebem este tipo de resíduo.',
   )
   await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(0)
 })

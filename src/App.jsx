@@ -92,16 +92,10 @@ function MapPage() {
           className={`search-sidebar${isSearchOpen ? '' : ' search-sidebar--closed'}${items.length === 0 ? ' search-sidebar--compact' : ''}`}
           aria-label="Busca de itens"
         >
-          {selectedType && visiblePoints.length === 0 && (
-            <output className="map-filter-empty">
-              Nenhum ponto cadastrado recebe este tipo de resíduo.
-            </output>
-          )}
           <ItemSearchPanel
             query={query}
             items={items}
             points={collectionPoints}
-            hasCompatiblePoints={visiblePoints.length > 0}
             onSearch={searchItem}
             onClose={() => setIsSearchOpen(false)}
           />

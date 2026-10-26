@@ -152,7 +152,7 @@ describe('ItemSearchPanel', () => {
     )
   })
 
-  it('shows only the no-points notice when no points match', () => {
+  it('shows a zero-points count when no points match', () => {
     const markup = renderPanel(
       {},
       [
@@ -166,9 +166,11 @@ describe('ItemSearchPanel', () => {
       [],
     )
 
-    expect(markup).not.toContain('0 pontos em Caçapava recebem este item.')
+    expect(markup).toContain(
+      '0 pontos em Caçapava recebem este tipo de resíduo.',
+    )
     expect(markup).not.toContain('Os demais foram ocultados no mapa.')
-    expect(markup).toContain('Nenhum ponto recebe este item.')
+    expect(markup).not.toContain('Nenhum ponto recebe este item.')
   })
 
   it('shows the not-found message with a link to the learning index', () => {
