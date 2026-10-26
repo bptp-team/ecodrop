@@ -8,8 +8,23 @@ import LearnIndexPage from './components/LearnIndexPage.jsx'
 import LearnPage from './components/LearnPage.jsx'
 import { filterCollectionPointsByItems } from './search/collectionPointFilter.js'
 import { createItemSearch } from './search/itemSearch.js'
+import { trackEvent } from './utils/telemetry.js'
 
 const findItems = createItemSearch(searchableItems)
+
+// Searches without results or without compatible points show what is missing
+// from the item catalog and from the collection points.
+function trackSearch(text) {
+  const found = findItems(text)
+  trackEvent('Search', {
+    term: text.toLowerCase(),
+    results: found.length,
+    points:
+      found.length > 0
+        ? filterCollectionPointsByItems(collectionPoints, found).length
+        : 0,
+  })
+}
 
 function getSearchQuery() {
   return new URLSearchParams(window.location.search).get('busca') ?? ''
@@ -83,6 +98,7 @@ function App() {
       window.history.pushState({}, '', nextUrl)
     }
     setQuery(text)
+    if (text) trackSearch(text)
   }
 
   return (

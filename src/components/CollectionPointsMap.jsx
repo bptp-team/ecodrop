@@ -5,6 +5,7 @@ import markerShadowUrl from 'leaflet/dist/images/marker-shadow.png'
 import 'leaflet/dist/leaflet.css'
 import { MapContainer, Marker, TileLayer } from 'react-leaflet'
 import { MAP_CENTER, MAP_ZOOM } from '../config/map.js'
+import { trackEvent } from '../utils/telemetry.js'
 import PointPopup from './PointPopup.jsx'
 import './CollectionPointsMap.css'
 
@@ -31,6 +32,13 @@ function CollectionPointsMap({ points }) {
           position={[point.lat, point.lng]}
           icon={markerIcon}
           alt={point.name}
+          eventHandlers={{
+            popupopen: () =>
+              trackEvent('CollectionPointOpened', {
+                id: point.id,
+                name: point.name,
+              }),
+          }}
         >
           <PointPopup point={point} />
         </Marker>
