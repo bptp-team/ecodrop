@@ -380,6 +380,35 @@ test('clears matched item results when the search is cleared', async ({
   await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(4)
 })
 
+test('filters pilha to compatible points and clears all query parameters', async ({
+  page,
+}) => {
+  await page.route('https://tile.openstreetmap.org/**', (route) =>
+    route.abort(),
+  )
+  await page.goto('/?origem=HU05')
+  const search = page.getByRole('searchbox', {
+    name: 'O que você quer descartar?',
+  })
+  await search.fill('pilha')
+  await page.getByRole('button', { name: 'Buscar' }).click()
+
+  await expect(page).toHaveURL('/?origem=HU05&busca=pilha')
+  await expect(page.locator('.search-result')).toHaveCount(1)
+  await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(2)
+  await expect(
+    page.getByText(
+      '2 pontos em Caçapava recebem este item. Os demais foram ocultados no mapa.',
+    ),
+  ).toBeVisible()
+
+  await page.getByRole('button', { name: 'Limpar busca' }).click()
+
+  await expect(page).toHaveURL('/')
+  await expect(search).toHaveValue('')
+  await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(4)
+})
+
 test('clears the applied search when the search input is cleared', async ({
   page,
 }) => {

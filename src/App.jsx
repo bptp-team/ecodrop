@@ -49,7 +49,7 @@ function App() {
     if (text) {
       url.searchParams.set('busca', text)
     } else {
-      url.searchParams.delete('busca')
+      url.search = ''
     }
 
     const nextUrl = `${url.pathname}${url.search}${url.hash}`
