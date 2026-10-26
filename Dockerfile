@@ -13,6 +13,8 @@ COPY index.html vite.config.js ./
 COPY public ./public
 COPY src ./src
 
+# Empty in local builds, so only the image published by the pipeline sends analytics.
+ARG VITE_APPINSIGHTS_CONNECTION_STRING=""
 RUN npm run build
 
 FROM nginx:1.30.4-alpine-slim AS runtime

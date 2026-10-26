@@ -90,6 +90,8 @@ jobs:
           context: .
           push: true
           tags: ${{ env.IMAGE }}:${{ github.ref_name }}
+          build-args: |
+            VITE_APPINSIGHTS_CONNECTION_STRING=${{ vars.ECODROP_APPINSIGHTS_CONNECTION_STRING }}
           labels: |
             org.opencontainers.image.version=${{ github.ref_name }}
             org.opencontainers.image.revision=${{ github.sha }}
