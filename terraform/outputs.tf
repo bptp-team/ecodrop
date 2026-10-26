@@ -23,8 +23,13 @@ output "container_app_environment_name" {
   value       = azapi_resource.environment.name
 }
 
+output "container_app_environment_static_ip" {
+  description = "Static IP address of the Container Apps environment, the target of the domain's A record."
+  value       = data.azurerm_container_app_environment.main.static_ip_address
+}
+
 output "container_app_fqdn" {
-  description = "Azure-generated name of the app, the target of the domain's CNAME record."
+  description = "Azure-generated address of the app, which serves it without the custom domain."
   value       = azurerm_container_app.main.ingress[0].fqdn
 }
 
