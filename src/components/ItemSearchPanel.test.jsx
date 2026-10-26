@@ -119,7 +119,7 @@ describe('ItemSearchPanel', () => {
     expect(learnPosition).toBeGreaterThan(clearPosition)
     expect(markup).toContain('Drogaria São Paulo')
     expect(markup).toContain('Praça da Bandeira, 45, Centro')
-    expect(markup).toContain('href="/aprenda/Medicamentos?busca=papel"')
+    expect(markup).toContain('href="/aprenda/medicamentos?busca=papel"')
   })
 
   it('shows the point count even when there are no sources', () => {
@@ -197,9 +197,11 @@ describe('ItemSearchPanel', () => {
       }),
     )
 
-    expect(markup).toContain('Aprenda sobre Medicamentos')
+    expect(markup).toContain('<h1>Medicamentos</h1>')
     expect(markup).toContain('Leve ao ponto de coleta.')
     expect(markup).toContain('Fonte oficial')
-    expect(markup).toContain('href="/?busca=medicamento"')
+    expect(markup).toContain(
+      'href="/?tipo=medicamentos&amp;busca=Medicamentos"',
+    )
   })
 })

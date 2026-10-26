@@ -3,6 +3,7 @@ import SourceList from './SourceList.jsx'
 import SearchMessage from './SearchMessage.jsx'
 import wasteTypeDetails from '../data/wasteTypeDetails.json'
 import { filterCollectionPointsByItems } from '../search/collectionPointFilter.js'
+import { getWasteTypeId } from '../utils/wasteTypes.js'
 import './ItemSearchPanel.css'
 
 function isPlaceholder(value) {
@@ -51,7 +52,7 @@ function ItemSearchPanel({
   }
 
   const learnUrl = items[0]
-    ? `/aprenda/${encodeURIComponent(items[0].wasteType)}?${new URLSearchParams({ busca: query }).toString()}`
+    ? `/aprenda/${getWasteTypeId(items[0].wasteType)}?${new URLSearchParams({ busca: query }).toString()}`
     : null
 
   const resultGroupsByWasteType = new Map()
@@ -179,9 +180,9 @@ function ItemSearchPanel({
           </SearchMessage>
         )}
         {query && items.length > 0 && !hasCompatiblePoints && (
-          <p className="search-no-points" role="status">
+          <output className="search-no-points">
             Nenhum ponto recebe este item.
-          </p>
+          </output>
         )}
       </div>
       {query && (
@@ -191,7 +192,7 @@ function ItemSearchPanel({
           </button>
           {learnUrl && (
             <a className="search-learn-more" href={learnUrl}>
-              Saiba mais
+              Saiba mais ›
             </a>
           )}
         </div>

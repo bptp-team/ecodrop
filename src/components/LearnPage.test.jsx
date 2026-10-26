@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest'
 import collectionPoints from '../data/collectionPoints.json'
 import searchableItems from '../data/searchableItems.json'
 import wasteTypeDetails from '../data/wasteTypeDetails.json'
+import { getWasteTypeId, resolveWasteType } from '../utils/wasteTypes.js'
 import LearnIndexPage from './LearnIndexPage.jsx'
 import LearnPage from './LearnPage.jsx'
 
@@ -22,22 +23,29 @@ describe('LearnPage', () => {
         }),
       )
 
-      expect(markup).toContain(`Aprenda sobre ${wasteType}`)
-      expect(markup).toContain('Impactos ambientais')
+      expect(markup).toContain(`<h1>${wasteType}</h1>`)
+      expect(markup).toContain('Por que descartar corretamente')
       expect(markup).toContain(
         'Ainda não registramos os impactos desse tipo de resíduo.',
       )
       expect(markup).toContain('Como descartar')
       expect(markup).toContain('Não registramos a forma de descarte ainda.')
+      expect(markup).toContain('Fontes oficiais')
+      expect(markup).toContain('Ainda não registramos fontes oficiais')
     },
   )
 
   it('lists learning topics on the dedicated index page without query parameters', () => {
     const markup = renderToStaticMarkup(createElement(LearnIndexPage))
 
-    expect(markup).toContain('Aprenda sobre resíduos')
-    expect(markup).toContain('href="/aprenda/Vidro"')
-    expect(markup).toContain('Vidro</a>')
+    expect(markup).toContain('<h1>Aprenda a descartar</h1>')
+    expect(markup).toContain(
+      'Escolha um tipo de resíduo para saber por que e como descartá-lo corretamente.',
+    )
+    expect(markup).toContain('href="/aprenda/vidro"')
+    expect(markup).toContain('<h2>Vidro</h2>')
+    expect(markup).toContain('Conteúdo educativo em preparação.')
+    expect(markup).toContain('Ver como descartar')
     expect(markup).not.toContain('?')
   })
 
@@ -59,6 +67,18 @@ describe('LearnPage', () => {
         },
       ])
     }
+  })
+
+  it('resolves stable IDs and keeps supporting existing type-name URLs', () => {
+    for (const wasteType of wasteTypes) {
+      const id = getWasteTypeId(wasteType)
+
+      expect(id).toBeTruthy()
+      expect(resolveWasteType(id)).toBe(wasteType)
+      expect(resolveWasteType(wasteType)).toBe(wasteType)
+    }
+
+    expect(resolveWasteType('tipo-inexistente')).toBeNull()
   })
 
   it('keeps every item type and accepted point material linked to existing data', () => {

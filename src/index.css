@@ -45,13 +45,20 @@ body {
 
 .app-header {
   flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 1.5rem;
   padding: 1rem;
   color: var(--color-on-primary);
   background: var(--color-primary);
 }
 
 .app-header p {
+  grid-column: 1;
+  grid-row: 2;
   margin: 0;
+  color: var(--color-header-subtitle);
 }
 
 .app-brand {
@@ -70,8 +77,29 @@ body {
   color: var(--color-on-primary);
 }
 
-.app-header p {
-  color: var(--color-header-subtitle);
+.app-nav {
+  display: flex;
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1.25rem;
+}
+
+.app-nav a {
+  color: var(--color-on-primary);
+  text-decoration: none;
+  text-underline-offset: 0.2em;
+}
+
+.app-nav a[aria-current='page'] {
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.app-nav a:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 4px;
 }
 
 /* Also a flex column, so the map can grow to fill it. */
@@ -92,6 +120,14 @@ body {
   box-shadow: inset -1px 0 var(--color-border);
   background: var(--color-surface);
   overflow: hidden;
+}
+
+.map-filter-empty {
+  flex: 0 0 auto;
+  margin: 0 0 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid var(--color-neutral);
+  border-radius: 0.25rem;
 }
 
 .learn-page {
@@ -160,6 +196,26 @@ body {
     height: 100%;
     min-height: 0;
     z-index: 0;
+  }
+}
+
+@media (max-width: 767px) {
+  .app-header {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 0.5rem;
+  }
+
+  .app-brand,
+  .app-header p,
+  .app-nav {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .app-nav {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 0.5rem 1rem;
   }
 }
 

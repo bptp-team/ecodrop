@@ -1,17 +1,146 @@
 .learn-page {
-  width: min(100% - 2rem, 52rem);
+  box-sizing: border-box;
   margin: 0 auto;
   padding: 1.5rem 0;
 }
 
-.learn-page h2 {
-  margin: 1rem 0;
+.learn-index-page {
+  width: min(100% - 2rem, 68.75rem);
+  padding: 2.25rem 0;
 }
 
-.learn-page h3 {
-  margin-bottom: 0.5rem;
+.learn-index-page > h1,
+.learn-detail-page > h1 {
+  margin: 0 0 0.75rem;
 }
 
+.learn-intro {
+  margin: 0 0 1.75rem;
+  color: var(--color-muted, #52665a);
+}
+
+.learn-card-list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.learn-card-list li {
+  min-width: 0;
+}
+
+.learn-card {
+  box-sizing: border-box;
+  display: flex;
+  min-height: 9rem;
+  height: 100%;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.25rem;
+  color: inherit;
+  background: var(--color-surface);
+  text-decoration: none;
+}
+
+.learn-card:hover {
+  border-color: var(--color-primary);
+}
+
+.learn-card:focus-visible,
+.learn-map-link:focus-visible,
+.learn-breadcrumb a:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
+.learn-card h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.125rem;
+}
+
+.learn-card p {
+  margin: 0 0 1rem;
+  color: var(--color-muted, #52665a);
+}
+
+.learn-card > span {
+  margin-top: auto;
+  color: var(--color-primary-dark);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.learn-detail-page {
+  width: min(100% - 2rem, 47.5rem);
+  padding: 1.5rem 0 2.5rem;
+}
+
+.learn-breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  color: var(--color-muted, #52665a);
+}
+
+.learn-breadcrumb a,
 .learn-back {
   color: var(--color-primary-dark);
+}
+
+.learn-detail-page section {
+  margin-top: 1.5rem;
+}
+
+.learn-detail-page section h2 {
+  margin: 0 0 0.625rem;
+  font-size: 1.25rem;
+}
+
+.learn-detail-page section ul,
+.learn-detail-page section ol {
+  padding-left: 1.5rem;
+}
+
+.learn-map-link {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  margin-top: 1.5rem;
+  padding: 0.625rem 0.875rem;
+  border-radius: 0.25rem;
+  color: var(--color-on-primary);
+  background: var(--color-primary);
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.learn-map-link:hover {
+  background: var(--color-primary-dark);
+}
+
+.learn-source-list {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.learn-source-list a {
+  color: var(--color-primary-dark);
+}
+
+@media (min-width: 768px) {
+  .learn-card-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .learn-card-list {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }

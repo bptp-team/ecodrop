@@ -21,10 +21,12 @@ for (const wasteType of learnPageTypes) {
     await page.goto(`/aprenda/${encodeURIComponent(wasteType)}`)
 
     await expect(
-      page.getByRole('heading', { name: `Aprenda sobre ${wasteType}` }),
+      page.getByRole('heading', { name: wasteType, level: 1 }),
     ).toBeVisible()
     await expect(
-      page.getByRole('heading', { name: 'Impactos ambientais' }),
+      page.getByRole('heading', {
+        name: 'Por que descartar corretamente',
+      }),
     ).toBeVisible()
     await expect(
       page.getByRole('heading', { name: 'Como descartar' }),
@@ -48,6 +50,13 @@ for (const { name, width } of viewports) {
       await page.goto('/')
 
       await expect(page.getByRole('heading', { name: 'EcoDrop' })).toBeVisible()
+      await expect(page.getByRole('link', { name: 'Mapa' })).toHaveAttribute(
+        'aria-current',
+        'page',
+      )
+      await expect(
+        page.getByRole('link', { name: 'Aprenda' }),
+      ).not.toHaveAttribute('aria-current', 'page')
       await expect(page.locator('.app-logo')).toBeVisible()
       await expect(page.locator('.app-header')).toHaveCSS(
         'background-color',
@@ -403,7 +412,7 @@ test('clears matched item results when the search is cleared', async ({
   await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(4)
 })
 
-test('filters pilha to compatible points and clears all query parameters', async ({
+test('filters pilha and clears search and type while preserving other parameters', async ({
   page,
 }) => {
   await page.route('https://tile.openstreetmap.org/**', (route) =>
@@ -427,7 +436,7 @@ test('filters pilha to compatible points and clears all query parameters', async
 
   await page.getByRole('button', { name: 'Limpar busca' }).click()
 
-  await expect(page).toHaveURL('/')
+  await expect(page).toHaveURL('/?origem=HU05')
   await expect(search).toHaveValue('')
   await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(4)
 })
@@ -532,11 +541,15 @@ test('finds medicines in the sidebar and shows only their two collection points'
   ).toHaveCount(0)
   await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(2)
 
-  await page.getByRole('link', { name: 'Saiba mais' }).click()
-  await expect(page).toHaveURL('/aprenda/Medicamentos?busca=medicamento')
+  await page.getByRole('link', { name: /Saiba mais/ }).click()
+  await expect(page).toHaveURL('/aprenda/medicamentos?busca=medicamento')
   await expect(
-    page.getByRole('heading', { name: 'Aprenda sobre Medicamentos' }),
+    page.getByRole('heading', { name: 'Medicamentos', level: 1 }),
   ).toBeVisible()
+  await expect(page).toHaveTitle('Medicamentos | EcoDrop')
+  await expect(
+    page.getByRole('link', { name: 'Aprenda', exact: true }).first(),
+  ).toHaveAttribute('aria-current', 'page')
   await expect(
     page.getByText('Não registramos a forma de descarte ainda.'),
   ).toBeVisible()
@@ -547,7 +560,7 @@ test('finds medicines in the sidebar and shows only their two collection points'
   expect(documentMetrics.documentHeight).toBeLessThanOrEqual(
     documentMetrics.viewportHeight,
   )
-  await page.getByRole('link', { name: 'Voltar à busca' }).click()
+  await page.goBack()
   await expect(page).toHaveURL('/?busca=medicamento')
   await expect(
     page.getByRole('searchbox', { name: 'O que você quer descartar?' }),
@@ -593,7 +606,7 @@ test('keeps the app within the viewport with scrollable results and pinned actio
   expect(layout.actionsTop).toBeGreaterThan(layout.sidebarTop)
   expect(layout.actionsInsideScroller).toBe(false)
   await expect(page.getByRole('button', { name: 'Limpar busca' })).toBeVisible()
-  await expect(page.getByRole('link', { name: 'Saiba mais' })).toBeVisible()
+  await expect(page.getByRole('link', { name: /Saiba mais/ })).toBeVisible()
   await expect(page.locator('.leaflet-container')).toBeVisible()
   expect(layout.mapBottom).toBeLessThanOrEqual(layout.viewportHeight)
 })
@@ -614,17 +627,102 @@ test('keeps all collection points visible when the item is unmatched', async ({
   )
   await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(4)
 
-  await page.getByRole('link', { name: 'Aprenda' }).click()
+  await page
+    .getByRole('navigation', { name: 'Navegação principal' })
+    .getByRole('link', { name: 'Aprenda' })
+    .click()
   await expect(page).toHaveURL('/aprenda')
   await expect(
-    page.getByRole('heading', { name: 'Aprenda sobre resíduos' }),
+    page.getByRole('heading', { name: 'Aprenda a descartar', level: 1 }),
   ).toBeVisible()
-  await expect(page.getByRole('link', { name: 'Vidro' })).toBeVisible()
-  await page.getByRole('link', { name: 'Vidro' }).click()
-  await expect(page).toHaveURL('/aprenda/Vidro')
+  await expect(page).toHaveTitle('Aprenda | EcoDrop')
+  const glassCard = page.locator('.learn-card').filter({ hasText: 'Vidro' })
+  await expect(glassCard).toBeVisible()
+  await glassCard.click()
+  await expect(page).toHaveURL('/aprenda/vidro')
   await expect(
-    page.getByRole('heading', { name: 'Aprenda sobre Vidro' }),
+    page.getByRole('heading', { name: 'Vidro', level: 1 }),
   ).toBeVisible()
+})
+
+test('shows a not-found page for unknown waste types', async ({ page }) => {
+  await page.goto('/aprenda/nao-existe')
+
+  await expect(
+    page.getByRole('heading', { name: 'Tipo de resíduo não encontrado' }),
+  ).toBeVisible()
+  await expect(
+    page.getByRole('link', { name: 'Voltar para Aprenda' }),
+  ).toHaveAttribute('href', '/aprenda')
+  await expect(page).toHaveTitle('Tipo não encontrado | EcoDrop')
+})
+
+test('keeps the learning index responsive and preserves legacy type URLs', async ({
+  page,
+}) => {
+  await page.goto('/aprenda')
+  await expect(
+    page
+      .getByRole('navigation', { name: 'Navegação principal' })
+      .getByRole('link', { name: 'Aprenda' }),
+  ).toHaveAttribute('aria-current', 'page')
+
+  const feedbackLink = page.locator(
+    '.app-nav a[href="https://forms.cloud.microsoft/r/VDeHWtH95J"]',
+  )
+  await expect(feedbackLink).toHaveAttribute('target', '_blank')
+
+  for (const [width, expectedColumns] of [
+    [375, 1],
+    [768, 2],
+    [1024, 3],
+  ]) {
+    await page.setViewportSize({ width, height: 900 })
+    const columnCount = await page
+      .locator('.learn-card-list')
+      .evaluate(
+        (grid) => getComputedStyle(grid).gridTemplateColumns.split(' ').length,
+      )
+    expect(columnCount).toBe(expectedColumns)
+  }
+
+  await page.goto('/aprenda/Pilhas%20e%20baterias')
+  await expect(
+    page.getByRole('heading', { name: 'Pilhas e baterias', level: 1 }),
+  ).toBeVisible()
+})
+
+test('filters the map by waste type and clears both URL filters', async ({
+  page,
+}) => {
+  await page.route('https://tile.openstreetmap.org/**', (route) =>
+    route.abort(),
+  )
+  await page.goto('/aprenda/pilhas-e-baterias')
+  await page
+    .getByRole('link', { name: 'Ver no mapa os pontos que recebem' })
+    .click()
+  await expect(page).toHaveURL(
+    '/?tipo=pilhas-e-baterias&busca=Pilhas+e+baterias',
+  )
+  await expect(
+    page.getByRole('searchbox', { name: 'O que você quer descartar?' }),
+  ).toHaveValue('Pilhas e baterias')
+  await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(2)
+  await page.getByRole('button', { name: 'Limpar busca' }).click()
+  await expect(page).toHaveURL('/')
+  await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(4)
+
+  await page.goto('/?tipo=oleo-de-cozinha-usado')
+  await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(0)
+  await expect(page.getByRole('status')).toHaveText(
+    'Nenhum ponto cadastrado recebe este tipo de resíduo.',
+  )
+
+  await page.goto('/?busca=pilha&tipo=pilhas-e-baterias')
+  await page.getByRole('button', { name: 'Limpar busca' }).click()
+  await expect(page).toHaveURL('/')
+  await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(4)
 })
 
 test('keeps the existing no-compatible-points notice for lâmpada', async ({
