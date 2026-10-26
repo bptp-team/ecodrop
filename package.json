@@ -15,6 +15,7 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@microsoft/applicationinsights-web": "^3.4.5",
     "leaflet": "^1.9.4",
     "minisearch": "^7.2.0",
     "react": "^19.2.8",
