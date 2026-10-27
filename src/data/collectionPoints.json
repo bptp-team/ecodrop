@@ -77,5 +77,32 @@
         "url": "https://www.tiendeo.com.br/Lojas/cacapava/av-cel-manoel-inoc%C3%AAncio-centro/90762"
       }
     ]
+  },
+  {
+    "id": "cacapava-supermercado-shibata",
+    "name": "Supermercado Shibata",
+    "city": "Caçapava",
+    "address": "Rodovia João Amaral Gurgel, 980, Residencial Terras do Vale",
+    "lat": -23.1190011,
+    "lng": -45.7135616,
+    "hours": "Segunda a sábado, das 8h às 22h; domingo, das 8h às 20h",
+    "materials": [
+      "Lixo orgânico",
+      "Metais",
+      "Não recicláveis",
+      "Plásticos",
+      "Papéis",
+      "Vidros"
+    ],
+    "osmUrl": "https://www.openstreetmap.org/way/559793058",
+    "sources": [
+      {
+        "label": "Verificação presencial (16 de outubro de 2026)"
+      },
+      {
+        "label": "OpenStreetMap",
+        "url": "https://www.openstreetmap.org/way/559793058"
+      }
+    ]
   }
 ]

@@ -103,5 +103,65 @@
         "url": "[URL da fonte oficial]"
       }
     ]
+  },
+  "Resíduos orgânicos": {
+    "id": "residuos-organicos",
+    "summary": "Conteúdo educativo em preparação.",
+    "impacts": ["[Impacto ambiental a pesquisar com fonte oficial]"],
+    "disposalGuide": [
+      "[Passo de descarte confirmado pela equipe]",
+      "[Próximo passo confirmado pela equipe]"
+    ],
+    "sources": [
+      {
+        "label": "[Nome da fonte oficial]",
+        "url": "[URL da fonte oficial]"
+      }
+    ]
+  },
+  "Metais": {
+    "id": "metais",
+    "summary": "Conteúdo educativo em preparação.",
+    "impacts": ["[Impacto ambiental a pesquisar com fonte oficial]"],
+    "disposalGuide": [
+      "[Passo de descarte confirmado pela equipe]",
+      "[Próximo passo confirmado pela equipe]"
+    ],
+    "sources": [
+      {
+        "label": "[Nome da fonte oficial]",
+        "url": "[URL da fonte oficial]"
+      }
+    ]
+  },
+  "Resíduos não recicláveis": {
+    "id": "residuos-nao-reciclaveis",
+    "summary": "Conteúdo educativo em preparação.",
+    "impacts": ["[Impacto ambiental a pesquisar com fonte oficial]"],
+    "disposalGuide": [
+      "[Passo de descarte confirmado pela equipe]",
+      "[Próximo passo confirmado pela equipe]"
+    ],
+    "sources": [
+      {
+        "label": "[Nome da fonte oficial]",
+        "url": "[URL da fonte oficial]"
+      }
+    ]
+  },
+  "Plásticos": {
+    "id": "plasticos",
+    "summary": "Conteúdo educativo em preparação.",
+    "impacts": ["[Impacto ambiental a pesquisar com fonte oficial]"],
+    "disposalGuide": [
+      "[Passo de descarte confirmado pela equipe]",
+      "[Próximo passo confirmado pela equipe]"
+    ],
+    "sources": [
+      {
+        "label": "[Nome da fonte oficial]",
+        "url": "[URL da fonte oficial]"
+      }
+    ]
   }
 }

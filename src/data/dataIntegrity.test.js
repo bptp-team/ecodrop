@@ -6,11 +6,11 @@ import wasteTypeDetails from './wasteTypeDetails.json'
 const months =
   'janeiro|fevereiro|março|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro'
 const inPersonVerificationPattern = new RegExp(
-  `^Verificação presencial \\((${months}) de \\d{4}\\)$`,
+  `^Verificação presencial \\((?:\\d{1,2} de )?(${months}) de \\d{4}\\)$`,
   'i',
 )
 const officialSourceVerificationPattern = new RegExp(
-  `^Verificação por fonte oficial \\((${months}) de \\d{4}\\)$`,
+  `^Verificação por fonte oficial \\((?:\\d{1,2} de )?(${months}) de \\d{4}\\)$`,
   'i',
 )
 
@@ -86,6 +86,17 @@ describe('data integrity', () => {
         expect(knownMaterials.has(material)).toBe(true)
       }
     }
+  })
+
+  it('links every accepted point material to a searchable item using the exact label', () => {
+    const searchableMaterials = new Set(
+      searchableItems.flatMap((item) => item.collectionPointMaterials),
+    )
+    const pointMaterials = new Set(
+      collectionPoints.flatMap((point) => point.materials ?? []),
+    )
+
+    expect([...pointMaterials].sort()).toEqual([...searchableMaterials].sort())
   })
 
   it('uses unique non-empty IDs for waste types', () => {

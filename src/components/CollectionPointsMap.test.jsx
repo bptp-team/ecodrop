@@ -58,7 +58,7 @@ describe('CollectionPointsMap', () => {
       createElement(CollectionPointsMap, { points: collectionPoints }),
     )
 
-    expect(markup.match(/data-marker-name=/g)).toHaveLength(4)
+    expect(markup.match(/data-marker-name=/g)).toHaveLength(5)
     expect(markup).toContain('data-marker-name="PEV Vila Santos"')
     expect(markup).toContain('data-popup-max-width="260"')
     expect(markup).toContain(

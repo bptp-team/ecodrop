@@ -22,6 +22,10 @@ describe('createItemSearch', () => {
     ['caixa de papelão', 'cardboard'],
     ['garrafa de vidro', 'glass'],
     ['medicamento', 'medicine'],
+    ['lixo orgânico', 'organic-waste'],
+    ['metais', 'metal'],
+    ['resíduo comum', 'non-recyclable-waste'],
+    ['plásticos', 'plastic'],
   ])('finds %s as item %s', (query, expectedId) => {
     expect(findItems(query)[0]?.id).toBe(expectedId)
   })

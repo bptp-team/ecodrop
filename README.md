@@ -248,15 +248,15 @@ collectionPoints.json
 
 Each entry describes one searchable item:
 
-| Field                      | Purpose                                                                                                                                              |
-| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `id`                       | Stable, unique item identifier.                                                                                                                      |
-| `name`                     | Item's primary display/search name.                                                                                                                  |
-| `synonyms`                 | Alternative names that safely mean the same item.                                                                                                    |
-| `wasteType`                | Exact key of this item's educational entry in `wasteTypeDetails.json`. Items that share a waste type share its content and learning page.            |
-| `collectionPointMaterials` | Explicit accepted-material labels that connect this item to collection points. Each value must match a `materials` value in `collectionPoints.json`. |
+| Field                      | Purpose                                                                                                                                                      |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `id`                       | Stable, unique item identifier.                                                                                                                              |
+| `name`                     | Item's primary display/search name.                                                                                                                          |
+| `synonyms`                 | Alternative names that safely mean the same item.                                                                                                            |
+| `wasteType`                | Exact key of this item's educational entry in `wasteTypeDetails.json`. Items that share a waste type share its content and learning page.                    |
+| `collectionPointMaterials` | Explicit accepted-material labels that connect this item to collection points. Each value must exactly match a `materials` value in `collectionPoints.json`. |
 
-Do not guess item-to-point compatibility from similar wording. Add a material here only after confirming that it represents this item and is listed for the intended point(s). Matching ignores letter case and accents, but otherwise uses the full material label.
+Do not guess item-to-point compatibility from similar wording. Every distinct label in `collectionPoints.json[].materials` must appear exactly in at least one item's `collectionPointMaterials`, and every catalog mapping must match a point material. Add a material here only after confirming that it represents this item and is listed for the intended point(s). Although search matching ignores letter case and accents, keep the stored labels identical.
 
 #### `collectionPoints.json`: locations and accepted materials
 
@@ -324,7 +324,7 @@ Only add a point when its operation and accepted materials have been confirmed a
 3. **Add the record** to `src/data/collectionPoints.json`. Give it a stable, unique `id` (a lowercase, hyphen-separated name is a good choice), and fill in `name`, `city`, `address`, `lat`, `lng`, and `sources`. Add `hours` and `materials` when verified; list only materials the point confirmed it accepts. Use decimal-degree coordinates.
 4. **Record sources and verification date.** Each point needs at least one labeled `sources` entry. Use a URL for a linked source. Add a separate plain-text source entry for the verification, using exactly `Verificação presencial (mês de ano)` for a visit or `Verificação por fonte oficial (mês de ano)` for an official-source check; for example, `Verificação presencial (outubro de 2026)`. These labels are displayed in the point popup.
 5. **Add the OSM link when available.** If the point has an OSM element, set `osmUrl` to its URL and include that OSM reference in `sources` as well. If it has no OSM element, omit `osmUrl`.
-6. **Check item-search links.** `materials` are the labels displayed for the point. If an accepted material should connect to a searchable item, add the exact label to that item's `collectionPointMaterials` in `src/data/searchableItems.json`. Use an existing `wasteType` from the catalog; if adding a new type, also add its educational entry to `src/data/wasteTypeDetails.json`.
+6. **Check item-search links.** `materials` are the labels displayed for the point. Add every accepted label exactly to at least one relevant item's `collectionPointMaterials` in `src/data/searchableItems.json`; if no relevant item exists, add one to the catalog. Keep the reverse link valid too: every catalog mapping must appear in at least one point's `materials`. Use an existing `wasteType` from the catalog; if adding a new type, also add its educational entry to `src/data/wasteTypeDetails.json`.
 7. **Update the data-source table.** Add or update the point in the table above with its distance, information source, and location source. Refresh the `Data verified on ...` date to reflect the latest verification.
 8. **Run the checks.** Run `npm test` and resolve any failures. Then run `npm run dev`, open the map, click the point's marker, and verify its name, address, hours, materials, sources and OSM link (when present) in the popup.
 

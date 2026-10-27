@@ -1,5 +1,9 @@
 import { expect, test } from './fixtures.js'
 import { interceptTelemetry } from './telemetry.js'
+import collectionPoints from '../src/data/collectionPoints.json' with { type: 'json' }
+import searchableItems from '../src/data/searchableItems.json' with { type: 'json' }
+
+const collectionPointCount = collectionPoints.length
 
 const viewports = [
   { name: 'mobile', width: 375 },
@@ -8,13 +12,7 @@ const viewports = [
 ]
 
 const learnPageTypes = [
-  'Óleo de cozinha usado',
-  'Pilhas e baterias',
-  'Eletrônicos',
-  'Lâmpadas',
-  'Papel e papelão',
-  'Vidro',
-  'Medicamentos',
+  ...new Set(searchableItems.map(({ wasteType }) => wasteType)),
 ]
 
 for (const wasteType of learnPageTypes) {
@@ -42,7 +40,7 @@ for (const { name, width } of viewports) {
   test.describe(`${name} viewport (${width}px)`, () => {
     test.use({ viewport: { width, height: 900 } })
 
-    test('shows the map, its attribution, and all four point markers', async ({
+    test('shows the map, its attribution, and all point markers', async ({
       page,
     }) => {
       await page.route('https://tile.openstreetmap.org/**', (route) =>
@@ -72,7 +70,9 @@ for (const { name, width } of viewports) {
       expect(
         await page.evaluate(() => document.documentElement.scrollHeight),
       ).toBeLessThanOrEqual(900)
-      await expect(map.locator('img.leaflet-marker-icon')).toHaveCount(4)
+      await expect(map.locator('img.leaflet-marker-icon')).toHaveCount(
+        collectionPointCount,
+      )
       await expect(map.locator('.leaflet-control-attribution')).toContainText(
         '© OpenStreetMap contributors',
       )
@@ -352,16 +352,17 @@ test('searches by name or synonym and keeps the query in browser history', async
   ).toBeVisible()
 })
 
-test('keeps an unmatched query visible and allows clearing it', async ({
+test('keeps an intentionally unknown item visible and allows clearing it', async ({
   page,
 }) => {
   await page.route('https://tile.openstreetmap.org/**', (route) =>
     route.abort(),
   )
-  await page.goto('/?busca=pilah')
+  const query = 'Item intencionalmente inexistente'
+  await page.goto(`/?busca=${encodeURIComponent(query)}`)
 
   await expect(
-    page.getByRole('heading', { name: 'Não encontramos "pilah".' }),
+    page.getByRole('heading', { name: `Não encontramos "${query}".` }),
   ).toBeVisible()
   await expect(
     page.getByText(
@@ -370,10 +371,14 @@ test('keeps an unmatched query visible and allows clearing it', async ({
   ).toBeVisible()
   await expect(
     page.getByRole('searchbox', { name: 'O que você quer descartar?' }),
-  ).toHaveValue('pilah')
+  ).toHaveValue(query)
   await expect(
     page.getByText('Tipo de resíduo:', { exact: false }),
   ).toHaveCount(0)
+  await expect(page.locator('.search-result')).toHaveCount(0)
+  await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(
+    collectionPointCount,
+  )
 
   await page.getByRole('button', { name: 'Limpar busca' }).click()
   await expect(page).toHaveURL('/')
@@ -412,7 +417,9 @@ test('clears matched item results when the search is cleared', async ({
   ).toBeVisible()
   await expect(page.locator('.search-result')).toHaveCount(0)
   await expect(page.locator('.search-result-points')).toHaveCount(0)
-  await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(4)
+  await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(
+    collectionPointCount,
+  )
 })
 
 test('filters pilha and clears search and type while preserving other parameters', async ({
@@ -441,7 +448,9 @@ test('filters pilha and clears search and type while preserving other parameters
 
   await expect(page).toHaveURL('/?origem=HU05')
   await expect(search).toHaveValue('')
-  await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(4)
+  await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(
+    collectionPointCount,
+  )
 })
 
 test('clears the applied search when the search input is cleared', async ({
@@ -466,7 +475,9 @@ test('clears the applied search when the search input is cleared', async ({
   await expect(search).toHaveValue('')
   await expect(page).toHaveURL('/')
   await expect(page.locator('.search-result')).toHaveCount(0)
-  await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(4)
+  await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(
+    collectionPointCount,
+  )
 })
 
 test('asks for an item when the search is submitted empty', async ({
@@ -487,7 +498,7 @@ test('asks for an item when the search is submitted empty', async ({
   ).toBeVisible()
 })
 
-test('groups matching items by waste type and preserves the no-points state', async ({
+test('groups matching paper items by waste type and lists compatible points', async ({
   page,
 }) => {
   await page.route('https://tile.openstreetmap.org/**', (route) =>
@@ -507,9 +518,9 @@ test('groups matching items by waste type and preserves the no-points state', as
   ).toHaveCount(1)
   await expect(resultCard.locator('.search-result-items')).toHaveCount(0)
   await expect(resultCard.locator('.search-result-points')).toContainText(
-    '0 pontos em Caçapava recebem este tipo de resíduo.',
+    '2 pontos em Caçapava recebem este tipo de resíduo.',
   )
-  await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(0)
+  await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(2)
 })
 
 test('finds medicines in the sidebar and shows only their two collection points', async ({
@@ -627,7 +638,9 @@ test('keeps all collection points visible when the item is unmatched', async ({
   await expect(page.getByRole('status')).toContainText(
     'Confira a grafia ou veja os tipos de resíduo na página Aprenda.',
   )
-  await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(4)
+  await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(
+    collectionPointCount,
+  )
 
   await page
     .getByRole('navigation', { name: 'Navegação principal' })
@@ -826,17 +839,21 @@ test('filters the map by waste type and clears both URL filters', async ({
   await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(2)
   await page.getByRole('button', { name: 'Limpar busca' }).click()
   await expect(page).toHaveURL('/')
-  await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(4)
+  await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(
+    collectionPointCount,
+  )
 
   await page.goto('/?tipo=oleo-de-cozinha-usado')
-  await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(0)
+  await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(1)
   await expect(page.locator('.map-filter-empty')).toHaveCount(0)
   await expect(page.getByRole('searchbox')).toBeVisible()
 
   await page.goto('/?busca=pilha&tipo=pilhas-e-baterias')
   await page.getByRole('button', { name: 'Limpar busca' }).click()
   await expect(page).toHaveURL('/')
-  await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(4)
+  await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(
+    collectionPointCount,
+  )
 })
 
 test('keeps search results visible when the selected type has no collection points', async ({

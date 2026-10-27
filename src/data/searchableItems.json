@@ -9,7 +9,7 @@
       "óleo de cozinha usado"
     ],
     "wasteType": "Óleo de cozinha usado",
-    "collectionPointMaterials": []
+    "collectionPointMaterials": ["Óleo de cozinha usado"]
   },
   {
     "id": "battery",
@@ -34,7 +34,7 @@
       "celular usado"
     ],
     "wasteType": "Eletrônicos",
-    "collectionPointMaterials": []
+    "collectionPointMaterials": ["Eletrônicos"]
   },
   {
     "id": "lamp",
@@ -48,14 +48,14 @@
     "name": "Papel",
     "synonyms": ["papel usado", "folha de papel", "folhas de papel"],
     "wasteType": "Papel e papelão",
-    "collectionPointMaterials": []
+    "collectionPointMaterials": ["Papéis", "Materiais recicláveis"]
   },
   {
     "id": "cardboard",
     "name": "Papelão",
     "synonyms": ["caixa de papelão", "caixas de papelão", "papel-cartão"],
     "wasteType": "Papel e papelão",
-    "collectionPointMaterials": []
+    "collectionPointMaterials": ["Papéis", "Materiais recicláveis"]
   },
   {
     "id": "glass",
@@ -67,13 +67,41 @@
       "vidro reciclável"
     ],
     "wasteType": "Vidro",
-    "collectionPointMaterials": []
+    "collectionPointMaterials": ["Vidros", "Materiais recicláveis"]
   },
   {
     "id": "medicine",
     "name": "Medicamento",
     "synonyms": ["remédio", "Medicamentos"],
     "wasteType": "Medicamentos",
-    "collectionPointMaterials": ["Medicamentos"]
+    "collectionPointMaterials": ["Medicamentos", "Caixas de medicamentos"]
+  },
+  {
+    "id": "organic-waste",
+    "name": "Resíduo orgânico",
+    "synonyms": ["lixo orgânico", "restos de alimentos", "resíduos orgânicos"],
+    "wasteType": "Resíduos orgânicos",
+    "collectionPointMaterials": ["Lixo orgânico"]
+  },
+  {
+    "id": "metal",
+    "name": "Metal",
+    "synonyms": ["metais", "lata de metal", "embalagem metálica"],
+    "wasteType": "Metais",
+    "collectionPointMaterials": ["Metais", "Materiais recicláveis"]
+  },
+  {
+    "id": "non-recyclable-waste",
+    "name": "Resíduo não reciclável",
+    "synonyms": ["lixo não reciclável", "resíduo comum", "lixo comum"],
+    "wasteType": "Resíduos não recicláveis",
+    "collectionPointMaterials": ["Não recicláveis"]
+  },
+  {
+    "id": "plastic",
+    "name": "Plástico",
+    "synonyms": ["plásticos", "embalagem plástica", "garrafa plástica"],
+    "wasteType": "Plásticos",
+    "collectionPointMaterials": ["Plásticos", "Materiais recicláveis"]
   }
 ]
