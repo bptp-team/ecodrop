@@ -317,11 +317,42 @@ out center tags;
 
 ### Adding or updating a point
 
-1. Confirm that the point is operating, with a recent official source or an in-person visit, and note its address, opening hours and accepted materials. For an in-person visit, add a `sources` entry without `url` that says so and gives the date.
-2. Get the exact coordinate, from an OpenStreetMap element or from a map published by the source itself. If neither exists, a store directory's coordinate can be used, as long as it falls on the street in the address when checked in OSM. Do not use geocoding that only finds the street, or approximate coordinates for the neighborhood: the marker would end up in the wrong place.
-3. Add the point to `src/data/collectionPoints.json`, with its sources in `sources`.
-4. Update the table above and the verification date.
-5. Run `npm run dev`, click the new marker and check the popup.
+Only add a point when its operation and accepted materials have been confirmed and its location can be placed precisely. A recent official source or an in-person visit by the project team can confirm the point. Do not add a location based only on an unverified listing, a street-level geocoding result, or an approximate neighborhood coordinate.
+
+1. **Verify the point.** Confirm that it is currently operating, record its full address, opening hours (if available) and accepted materials. Keep the source URL for each published fact. For an in-person visit, record the verification month and year.
+2. **Find a precise coordinate.** Prefer the point's OpenStreetMap element or a map published by the source. For an OSM area such as a `way`, use its center. If neither is available, a store-directory coordinate is acceptable only after checking in OSM that it falls on the street at the address. Do not use coordinates that only identify the street or neighborhood.
+3. **Add the record** to `src/data/collectionPoints.json`. Give it a stable, unique `id` (a lowercase, hyphen-separated name is a good choice), and fill in `name`, `city`, `address`, `lat`, `lng`, and `sources`. Add `hours` and `materials` when verified; list only materials the point confirmed it accepts. Use decimal-degree coordinates.
+4. **Record sources and verification date.** Each point needs at least one labeled `sources` entry. Use a URL for a linked source. Add a separate plain-text source entry for the verification, using exactly `Verificação presencial (mês de ano)` for a visit or `Verificação por fonte oficial (mês de ano)` for an official-source check; for example, `Verificação presencial (outubro de 2026)`. These labels are displayed in the point popup.
+5. **Add the OSM link when available.** If the point has an OSM element, set `osmUrl` to its URL and include that OSM reference in `sources` as well. If it has no OSM element, omit `osmUrl`.
+6. **Check item-search links.** `materials` are the labels displayed for the point. If an accepted material should connect to a searchable item, add the exact label to that item's `collectionPointMaterials` in `src/data/searchableItems.json`. Use an existing `wasteType` from the catalog; if adding a new type, also add its educational entry to `src/data/wasteTypeDetails.json`.
+7. **Update the data-source table.** Add or update the point in the table above with its distance, information source, and location source. Refresh the `Data verified on ...` date to reflect the latest verification.
+8. **Run the checks.** Run `npm test` and resolve any failures. Then run `npm run dev`, open the map, click the point's marker, and verify its name, address, hours, materials, sources and OSM link (when present) in the popup.
+
+Example record:
+
+```json
+{
+  "id": "cacapava-example-drop-off",
+  "name": "Example drop-off point",
+  "city": "Caçapava",
+  "address": "Street name, 123",
+  "lat": -23.1001,
+  "lng": -45.7001,
+  "hours": "Monday to Friday, 8 am to 5 pm",
+  "materials": ["Pilhas e baterias"],
+  "sources": [
+    {
+      "label": "Verificação presencial (outubro de 2026)"
+    },
+    {
+      "label": "Official source",
+      "url": "https://example.org/collection-point"
+    }
+  ]
+}
+```
+
+Replace the example details with verified information. Do not use the example URL as a real source.
 
 ### Coverage limitations
 
