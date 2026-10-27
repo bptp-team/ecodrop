@@ -125,14 +125,42 @@ function AppLayout() {
         </div>
         <p>Pontos de coleta e descarte de resíduos em Caçapava, SP</p>
         <nav className="app-nav" aria-label="Navegação principal">
-          <NavLink to="/" end>
+          <NavLink
+            to="/"
+            end
+            onClick={() =>
+              trackEvent('Navigation', {
+                item: 'map',
+                destination: '/',
+                linkType: 'internal',
+              })
+            }
+          >
             Mapa
           </NavLink>
-          <NavLink to="/aprenda">Aprenda</NavLink>
+          <NavLink
+            to="/aprenda"
+            onClick={() =>
+              trackEvent('Navigation', {
+                item: 'learn',
+                destination: '/aprenda',
+                linkType: 'internal',
+              })
+            }
+          >
+            Aprenda
+          </NavLink>
           <a
             href="https://forms.cloud.microsoft/r/VDeHWtH95J"
             target="_blank"
             rel="noreferrer"
+            onClick={() =>
+              trackEvent('Navigation', {
+                item: 'feedback',
+                destination: 'https://forms.cloud.microsoft/r/VDeHWtH95J',
+                linkType: 'external',
+              })
+            }
           >
             Avaliar o EcoDrop <span aria-hidden="true">↗</span>
             <span className="visually-hidden"> (abre em nova aba)</span>

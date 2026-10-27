@@ -1,4 +1,5 @@
-import { expect, test } from '@playwright/test'
+import { expect, test } from './fixtures.js'
+import { interceptTelemetry } from './telemetry.js'
 
 const viewports = [
   { name: 'mobile', width: 375 },
@@ -656,6 +657,119 @@ test('shows a not-found page for unknown waste types', async ({ page }) => {
     page.getByRole('link', { name: 'Voltar para Aprenda' }),
   ).toHaveAttribute('href', '/aprenda')
   await expect(page).toHaveTitle('Tipo não encontrado | EcoDrop')
+})
+
+test('tracks clicks on all primary navigation links', async ({ page }) => {
+  const telemetry = await interceptTelemetry(page)
+  await page.route('https://forms.cloud.microsoft/**', (route) => route.abort())
+  await page.route('https://tile.openstreetmap.org/**', (route) =>
+    route.abort(),
+  )
+  await page.goto('/')
+  await telemetry.waitForIngestion()
+
+  const navigation = page.getByRole('navigation', {
+    name: 'Navegação principal',
+  })
+  await navigation.getByRole('link', { name: 'Mapa' }).click()
+  await navigation.getByRole('link', { name: 'Aprenda' }).click()
+  await expect(page).toHaveURL('/aprenda')
+
+  const feedbackLink = navigation.getByRole('link', {
+    name: 'Avaliar o EcoDrop',
+  })
+  const popupPromise = page.waitForEvent('popup')
+  await feedbackLink.click()
+  const popup = await popupPromise
+  await popup.close()
+  await telemetry.waitForEvent('Navigation', 3)
+
+  expect(
+    telemetry.events
+      .filter((event) => event.name === 'Navigation')
+      .map(({ name, properties }) => ({ name, properties })),
+  ).toEqual([
+    {
+      name: 'Navigation',
+      properties: { item: 'map', destination: '/', linkType: 'internal' },
+    },
+    {
+      name: 'Navigation',
+      properties: {
+        item: 'learn',
+        destination: '/aprenda',
+        linkType: 'internal',
+      },
+    },
+    {
+      name: 'Navigation',
+      properties: {
+        item: 'feedback',
+        destination: 'https://forms.cloud.microsoft/r/VDeHWtH95J',
+        linkType: 'external',
+      },
+    },
+  ])
+})
+
+test('tracks search submissions with result and collection point counts', async ({
+  page,
+}) => {
+  const telemetry = await interceptTelemetry(page)
+  await page.route('https://tile.openstreetmap.org/**', (route) =>
+    route.abort(),
+  )
+  await page.goto('/')
+  await telemetry.waitForIngestion()
+
+  const search = page.getByRole('searchbox', {
+    name: 'O que você quer descartar?',
+  })
+  await search.fill('PILHAS')
+  await search.press('Enter')
+
+  await expect(page).toHaveURL(/\/?busca=PILHAS$/)
+  await telemetry.waitForEvent('Search')
+
+  expect(
+    telemetry.events
+      .filter((event) => event.name === 'Search')
+      .map(({ name, properties }) => ({ name, properties })),
+  ).toEqual([
+    {
+      name: 'Search',
+      properties: { term: 'pilhas', results: '1', points: '2' },
+    },
+  ])
+})
+
+test('tracks opening a collection point', async ({ page }) => {
+  const telemetry = await interceptTelemetry(page)
+  await page.route('https://tile.openstreetmap.org/**', (route) =>
+    route.abort(),
+  )
+  await page.goto('/')
+  await telemetry.waitForIngestion()
+
+  const marker = page.getByRole('button', { name: 'PEV Vila Santos' })
+  await marker.focus()
+  await marker.press('Enter')
+  await expect(page.locator('.leaflet-popup')).toBeVisible()
+  await telemetry.waitForEvent('CollectionPointOpened')
+
+  expect(
+    telemetry.events
+      .filter((event) => event.name === 'CollectionPointOpened')
+      .map(({ name, properties }) => ({ name, properties })),
+  ).toEqual([
+    {
+      name: 'CollectionPointOpened',
+      properties: {
+        id: 'cacapava-pev-vila-santos',
+        name: 'PEV Vila Santos',
+      },
+    },
+  ])
 })
 
 test('keeps the learning index responsive and preserves legacy type URLs', async ({
