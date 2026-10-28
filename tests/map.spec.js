@@ -830,6 +830,34 @@ test('tracks clicks on all primary navigation links', async ({ page }) => {
   ])
 })
 
+test('returns to the initial map from the EcoDrop logo', async ({ page }) => {
+  const telemetry = await interceptTelemetry(page)
+  await page.route('https://tile.openstreetmap.org/**', (route) =>
+    route.abort(),
+  )
+  await page.goto('/?busca=medicamento')
+  await expect(page.locator('.leaflet-marker-icon')).toHaveCount(2)
+  await page.getByRole('link', { name: /Saiba mais/ }).click()
+  await expect(page).toHaveURL('/aprenda/medicamentos?busca=medicamento')
+  await telemetry.waitForIngestion()
+
+  await page.getByRole('link', { name: 'EcoDrop', exact: true }).click()
+
+  await expect(page).toHaveURL('/')
+  await expect(
+    page.getByRole('searchbox', { name: 'O que você quer descartar?' }),
+  ).toHaveValue('')
+  await expect(page.locator('.leaflet-marker-icon')).toHaveCount(
+    collectionPointCount,
+  )
+  await telemetry.waitForEvent('Navigation', 1)
+  expect(
+    telemetry.events
+      .filter((event) => event.name === 'Navigation')
+      .map(({ properties }) => properties),
+  ).toEqual([{ item: 'logo', destination: '/', linkType: 'internal' }])
+})
+
 test('tracks search submissions with result and collection point counts', async ({
   page,
 }) => {
