@@ -8,7 +8,7 @@ function SourceLink({ label, url }) {
   }
 
   return (
-    <a href={url} target="_blank" rel="noreferrer">
+    <a href={url} target="_blank" rel="noopener noreferrer">
       {label}
       <span className="visually-hidden"> (abre em nova aba)</span>
     </a>

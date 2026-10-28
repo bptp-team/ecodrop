@@ -16,6 +16,52 @@ const learnPageTypes = [
   ...new Set(searchableItems.map(({ wasteType }) => wasteType)),
 ]
 
+async function expectSecureBlankLinks(page) {
+  const links = page.locator('a[target="_blank"]')
+  const count = await links.count()
+  const insecureHrefs = await links.evaluateAll((anchors) =>
+    anchors
+      .filter(
+        (anchor) =>
+          !anchor.relList.contains('noopener') ||
+          !anchor.relList.contains('noreferrer'),
+      )
+      .map((anchor) => anchor.href),
+  )
+
+  expect(insecureHrefs).toEqual([])
+  return count
+}
+
+test('secures every link that opens in a new tab', async ({ page }) => {
+  await page.route('https://tile.openstreetmap.org/**', (route) =>
+    route.abort(),
+  )
+  await page.goto('/')
+  let checkedLinks = await expectSecureBlankLinks(page)
+
+  await page.goto('/aprenda')
+  checkedLinks += await expectSecureBlankLinks(page)
+
+  for (const { id } of Object.values(wasteTypeDetails)) {
+    await page.goto(`/aprenda/${id}`)
+    checkedLinks += await expectSecureBlankLinks(page)
+  }
+
+  await page.goto('/')
+  for (const point of collectionPoints) {
+    const marker = page.getByRole('button', { name: point.name })
+    await marker.focus()
+    await marker.press('Enter')
+    await expect(
+      page.locator('.leaflet-popup h2', { hasText: point.name }),
+    ).toBeVisible()
+    checkedLinks += await expectSecureBlankLinks(page)
+  }
+
+  expect(checkedLinks).toBeGreaterThan(0)
+})
+
 for (const wasteType of learnPageTypes) {
   test(`opens the learning page for ${wasteType}`, async ({ page }) => {
     await page.goto(`/aprenda/${encodeURIComponent(wasteType)}`)
@@ -132,7 +178,7 @@ for (const { name, width } of viewports) {
         name: /Prefeitura de Caçapava/,
       })
       await expect(sourceLink).toHaveAttribute('target', '_blank')
-      await expect(sourceLink).toHaveAttribute('rel', 'noreferrer')
+      await expect(sourceLink).toHaveAttribute('rel', 'noopener noreferrer')
       await expect(
         popup.getByRole('link', { name: /OpenStreetMap/ }),
       ).toHaveCount(0)
@@ -365,7 +411,7 @@ for (const { name, width } of viewports.filter(({ width }) =>
       'https://www.openstreetmap.org/way/558135447',
     )
     await expect(osmLink).toHaveAttribute('target', '_blank')
-    await expect(osmLink).toHaveAttribute('rel', 'noreferrer')
+    await expect(osmLink).toHaveAttribute('rel', 'noopener noreferrer')
 
     const readBounds = () =>
       popup.evaluate((element) => {
@@ -405,7 +451,7 @@ for (const { name, width } of viewports.filter(({ width }) =>
       'https://www.openstreetmap.org/way/558135447',
     )
     await expect(sourceLink).toHaveAttribute('target', '_blank')
-    await expect(sourceLink).toHaveAttribute('rel', 'noreferrer')
+    await expect(sourceLink).toHaveAttribute('rel', 'noopener noreferrer')
     await expect(sourceLink).toHaveAccessibleName(
       /OpenStreetMap \(abre em nova aba\)/,
     )
@@ -800,19 +846,19 @@ test('tracks clicks on all primary navigation links', async ({ page }) => {
   await feedbackLink.click()
   const popup = await popupPromise
   await popup.close()
-  await telemetry.waitForEvent('Navigation', 3)
+  await telemetry.waitForEvent('NavigationLinkClicked', 3)
 
   expect(
     telemetry.events
-      .filter((event) => event.name === 'Navigation')
+      .filter((event) => event.name === 'NavigationLinkClicked')
       .map(({ name, properties }) => ({ name, properties })),
   ).toEqual([
     {
-      name: 'Navigation',
+      name: 'NavigationLinkClicked',
       properties: { item: 'map', destination: '/', linkType: 'internal' },
     },
     {
-      name: 'Navigation',
+      name: 'NavigationLinkClicked',
       properties: {
         item: 'learn',
         destination: '/aprenda',
@@ -820,7 +866,7 @@ test('tracks clicks on all primary navigation links', async ({ page }) => {
       },
     },
     {
-      name: 'Navigation',
+      name: 'NavigationLinkClicked',
       properties: {
         item: 'feedback',
         destination: 'https://forms.cloud.microsoft/r/VDeHWtH95J',
@@ -839,7 +885,19 @@ test('returns to the initial map from the EcoDrop logo', async ({ page }) => {
   await expect(page.locator('.leaflet-marker-icon')).toHaveCount(2)
   await page.getByRole('link', { name: /Saiba mais/ }).click()
   await expect(page).toHaveURL('/aprenda/medicamentos?busca=medicamento')
+  await telemetry.waitForEvent('LearnMoreClick')
   await telemetry.waitForIngestion()
+
+  expect(
+    telemetry.events
+      .filter((event) => event.name === 'LearnMoreClick')
+      .map(({ properties }) => properties),
+  ).toEqual([
+    {
+      wasteType: 'Medicamentos',
+      destination: '/aprenda/medicamentos',
+    },
+  ])
 
   await page.getByRole('link', { name: 'EcoDrop', exact: true }).click()
 
@@ -850,12 +908,50 @@ test('returns to the initial map from the EcoDrop logo', async ({ page }) => {
   await expect(page.locator('.leaflet-marker-icon')).toHaveCount(
     collectionPointCount,
   )
-  await telemetry.waitForEvent('Navigation', 1)
+  await telemetry.waitForEvent('NavigationLinkClicked', 1)
   expect(
     telemetry.events
-      .filter((event) => event.name === 'Navigation')
+      .filter((event) => event.name === 'NavigationLinkClicked')
       .map(({ properties }) => properties),
   ).toEqual([{ item: 'logo', destination: '/', linkType: 'internal' }])
+})
+
+test('tracks content page views without counting query changes as pages', async ({
+  page,
+}) => {
+  const telemetry = await interceptTelemetry(page)
+  await page.route('https://tile.openstreetmap.org/**', (route) =>
+    route.abort(),
+  )
+  await page.goto('/')
+  await telemetry.waitForPageView('/')
+
+  const search = page.getByRole('searchbox', {
+    name: 'O que você quer descartar?',
+  })
+  await search.fill('PILHAS')
+  await search.press('Enter')
+  await telemetry.waitForEvent('Search')
+  expect(
+    telemetry.pageViews.filter((pageView) => pageView.name === '/'),
+  ).toHaveLength(1)
+
+  const navigation = page.getByRole('navigation', {
+    name: 'Navegação principal',
+  })
+  await navigation.getByRole('link', { name: 'Aprenda' }).click()
+  await telemetry.waitForPageView('/aprenda')
+  await page.getByRole('link', { name: /Pilhas e baterias/ }).click()
+  await telemetry.waitForPageView('/aprenda/pilhas-e-baterias')
+  await page.goBack()
+  await telemetry.waitForPageView('/aprenda', 2)
+
+  expect(telemetry.pageViews.map((pageView) => pageView.name)).toEqual([
+    '/',
+    '/aprenda',
+    '/aprenda/pilhas-e-baterias',
+    '/aprenda',
+  ])
 })
 
 test('tracks search submissions with result and collection point counts', async ({
@@ -889,6 +985,36 @@ test('tracks search submissions with result and collection point counts', async 
   ])
 })
 
+test('tracks searches without results with the existing Search schema', async ({
+  page,
+}) => {
+  const telemetry = await interceptTelemetry(page)
+  await page.route('https://tile.openstreetmap.org/**', (route) =>
+    route.abort(),
+  )
+  await page.goto('/')
+  await telemetry.waitForIngestion()
+
+  const search = page.getByRole('searchbox', {
+    name: 'O que você quer descartar?',
+  })
+  await search.fill('Item intencionalmente inexistente')
+  await search.press('Enter')
+  await telemetry.waitForEvent('Search')
+
+  expect(
+    telemetry.events
+      .filter((event) => event.name === 'Search')
+      .map(({ properties }) => properties),
+  ).toEqual([
+    {
+      term: 'item intencionalmente inexistente',
+      results: '0',
+      points: '0',
+    },
+  ])
+})
+
 test('tracks opening a collection point', async ({ page }) => {
   const telemetry = await interceptTelemetry(page)
   await page.route('https://tile.openstreetmap.org/**', (route) =>
@@ -916,6 +1042,36 @@ test('tracks opening a collection point', async ({ page }) => {
       },
     },
   ])
+})
+
+test('tracks clicks on a collection point OpenStreetMap link', async ({
+  page,
+}) => {
+  const telemetry = await interceptTelemetry(page)
+  await page.route('https://tile.openstreetmap.org/**', (route) =>
+    route.abort(),
+  )
+  await page.goto('/')
+  await telemetry.waitForIngestion()
+
+  const point = collectionPoints.find(
+    ({ name }) => name === 'Carrefour Bairro Caçapava',
+  )
+  const marker = page.getByRole('button', { name: point.name })
+  await marker.focus()
+  await marker.press('Enter')
+  const link = page.getByRole('link', { name: /Ver no OpenStreetMap/ })
+  const popupPromise = page.waitForEvent('popup')
+  await link.click()
+  const popup = await popupPromise
+  await popup.close()
+  await telemetry.waitForEvent('CollectionPointLinkClick')
+
+  expect(
+    telemetry.events
+      .filter((event) => event.name === 'CollectionPointLinkClick')
+      .map(({ properties }) => properties),
+  ).toEqual([{ pointId: point.id }])
 })
 
 test('keeps the learning index responsive and preserves legacy type URLs', async ({

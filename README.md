@@ -140,30 +140,123 @@ This step is not part of Terraform because its Azure provider cannot link the fr
 
 ## Analytics
 
-The published site sends usage data to Azure Application Insights. It can be viewed in the Azure portal, in the `ecodrop-insights` resource.
+The published site sends usage data to Azure Application Insights, available in the Azure portal in the `ecodrop-insights` resource. The SDK is loaded only when the production connection string is present.
 
-What is collected:
+### Metrics and events
 
-| Data                          | What it shows                                                                  |
-| ----------------------------- | ------------------------------------------------------------------------------ |
-| Page views                    | Visits, pages, devices, browsers and approximate city                          |
-| Load times                    | How long pages take to load                                                    |
-| Errors                        | JavaScript errors in visitors' browsers                                        |
-| `Search` event                | Each search term, how many items it found and how many compatible points exist |
-| `CollectionPointOpened` event | Which collection point was opened on the map                                   |
+| Metric or event              | What it records and why it is useful                                                                                                                                                                                                                       |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Page views                   | A visit to the map (`/`), Aprenda index (`/aprenda`) or a valid waste-type page (`/aprenda/:wasteTypeId`). Shows which parts of the site are used. Query-string changes such as searches do not create extra page views.                                   |
+| Page views per day           | Daily volume of page views; useful for comparing usage over time and seeing activity around educational events.                                                                                                                                            |
+| Approximate city             | `client_City` estimates the city of access. It can show whether visits come from Caçapava or elsewhere; it is not a precise location.                                                                                                                      |
+| Initial page load duration   | `pageViews.duration` for the first page view, marked by `isInitialLoad`. This reflects the initial browser navigation timing. Later SPA route changes can have a duration of zero and should not be used as load-time measurements.                        |
+| JavaScript errors            | Browser exceptions captured by Application Insights. Helps identify client-side failures affecting visitors.                                                                                                                                               |
+| `Search`                     | One submitted search, with `term` (lowercase), `results` (matching item count) and `points` (compatible collection-point count). A zero `results` count indicates a missing catalog item; zero `points` indicates a possible gap in collection-point data. |
+| Searches without results     | Derived from `Search` where `results` is zero. Its rate helps prioritize additions to the item catalog.                                                                                                                                                    |
+| Search terms                 | The `term` property of `Search`, useful for identifying common queries and catalog vocabulary.                                                                                                                                                             |
+| Searches per map view        | The number of `Search` events divided by map page views. Indicates how often map visitors use search.                                                                                                                                                      |
+| Aprenda visits by waste type | Page views grouped by route, showing which educational waste-type pages are viewed.                                                                                                                                                                        |
+| `NavigationLinkClicked`      | A click on a main navigation link, the EcoDrop logo or the feedback link. Includes `item`, `destination` and `linkType`. It replaces the historical event name `Navigation`.                                                                               |
+| `CollectionPointOpened`      | Opening a map point popup, with the point `id` and `name`. Shows which collection points attract interest.                                                                                                                                                 |
+| `LearnMoreClick`             | Clicking “Saiba mais” from search results, with the `wasteType` and `destination`. Measures when a search leads to educational content.                                                                                                                    |
+| `CollectionPointLinkClick`   | Clicking the OpenStreetMap link in a point popup, with `pointId`. Indicates intent to visit a collection point; the destination URL is not sent.                                                                                                           |
 
-Searches with no items, or with items but no compatible points, show what is missing from the item catalog and from the collection points.
+Run these examples in the Application Insights resource under **Logs**.
 
-Privacy:
+Page views by page and day:
 
-- No cookies are used, so visitors are not asked for consent.
-- No visitor identifier is kept between visits. The SDK only keeps a temporary send buffer that the browser clears when the tab is closed.
-- Application Insights uses the visitor's IP address to estimate the city and does not store it.
+```kusto
+pageViews
+| summarize views = count() by page = name
+| order by views desc
+```
 
-How it is set up:
+```kusto
+pageViews
+| summarize views = count() by bin(timestamp, 1d)
+| render columnchart
+```
 
-- The code is in [`src/utils/telemetry.js`](src/utils/telemetry.js). The analytics library is only downloaded by the published site.
-- Local development, tests and the CI build send nothing.
+Aprenda visits by route:
+
+```kusto
+pageViews
+| where name startswith "/aprenda"
+| summarize views = count() by page = name
+| order by views desc
+```
+
+Approximate city:
+
+```kusto
+pageViews
+| summarize views = count() by client_City
+| order by views desc
+```
+
+Initial page load duration:
+
+```kusto
+pageViews
+| where tostring(customDimensions.isInitialLoad) == "true"
+| summarize averageDuration = avg(duration), p95Duration = percentile(duration, 95)
+```
+
+Search volume and no-result rate:
+
+```kusto
+customEvents
+| where name == "Search"
+| summarize totalSearches = count(), notFound = countif(toint(tostring(customDimensions.results)) == 0)
+| extend notFoundRate = iff(totalSearches == 0, real(0), round(100.0 * notFound / totalSearches, 1))
+```
+
+Most searched terms:
+
+```kusto
+customEvents
+| where name == "Search"
+| summarize searches = count() by term = tolower(tostring(customDimensions.term))
+| top 10 by searches desc
+```
+
+Searches per map view:
+
+```kusto
+let searches = toscalar(customEvents | where name == "Search" | count);
+let mapViews = toscalar(pageViews | where name == "/" | count);
+print searchesPerMapView = iff(mapViews == 0, real(0), todouble(searches) / todouble(mapViews))
+```
+
+Educational and collection-point actions:
+
+```kusto
+customEvents
+| where name == "LearnMoreClick"
+| summarize clicks = count() by wasteType = tostring(customDimensions.wasteType)
+```
+
+```kusto
+customEvents
+| where name == "CollectionPointLinkClick"
+| summarize clicks = count() by pointId = tostring(customDimensions.pointId)
+```
+
+For comparisons across the navigation-event rename, include both names:
+
+```kusto
+customEvents
+| where name in ("Navigation", "NavigationLinkClicked")
+| summarize clicks = count() by item = tostring(customDimensions.item)
+```
+
+`PageVisitTime` is not enabled. Sessions, unique users and retention are not reported because cookies are disabled and the app does not keep a visitor identifier. Whether consent is required depends on the full legal and data-processing context; disabling cookies alone is not a legal determination. Search terms are free text, so avoid entering personal information.
+
+### Privacy and setup
+
+- Cookies are disabled with `disableCookiesUsage: true`; the SDK does not keep a visitor identifier between visits.
+- Application Insights uses the visitor's IP address to estimate the city; the IP is not retained for that geolocation measurement.
+- The code is in [`src/utils/telemetry.js`](src/utils/telemetry.js). Local development, tests and the CI build send nothing.
 - The pipeline passes the connection string to the image build from the `ECODROP_APPINSIGHTS_CONNECTION_STRING` repository variable, which holds the `application_insights_connection_string` Terraform output. The connection string is not a secret: it only allows sending data, and every visitor's browser receives it.
 - The Log Analytics workspace has a daily limit of 0.1 GB, which keeps a month of data within the 5 GB that Azure includes for free.
 - Ad blockers often block analytics, so the numbers are somewhat lower than the real use.

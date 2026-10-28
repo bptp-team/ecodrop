@@ -2,6 +2,7 @@ import { expect } from './fixtures.js'
 
 export async function interceptTelemetry(page) {
   const events = []
+  const pageViews = []
   let ingestionRequests = 0
 
   await page.route('https://dc.services.visualstudio.com/**', async (route) => {
@@ -15,6 +16,8 @@ export async function interceptTelemetry(page) {
         : [envelopes]) {
         if (envelope.data?.baseType === 'EventData') {
           events.push(envelope.data.baseData)
+        } else if (envelope.data?.baseType === 'PageviewData') {
+          pageViews.push(envelope.data.baseData)
         }
       }
     }
@@ -28,8 +31,13 @@ export async function interceptTelemetry(page) {
 
   return {
     events,
+    pageViews,
     waitForIngestion: () =>
       expect.poll(() => ingestionRequests).toBeGreaterThan(0),
+    waitForPageView: (name, count = 1) =>
+      expect
+        .poll(() => pageViews.filter((pageView) => pageView.name === name))
+        .toHaveLength(count),
     waitForEvent: (name, count = 1) =>
       expect
         .poll(() => events.filter((event) => event.name === name), {

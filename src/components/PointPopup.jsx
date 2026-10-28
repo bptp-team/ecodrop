@@ -16,7 +16,7 @@ function PointPopup({ point }) {
         <PointMaterials materials={point.materials} />
         {point.notes && <p className="point-popup-note">{point.notes}</p>}
         <SourceList sources={point.sources} />
-        <PointOsmLink osmUrl={point.osmUrl} />
+        <PointOsmLink osmUrl={point.osmUrl} pointId={point.id} />
       </div>
     </Popup>
   )

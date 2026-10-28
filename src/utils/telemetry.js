@@ -3,6 +3,17 @@
 const connectionString = import.meta.env.VITE_APPINSIGHTS_CONNECTION_STRING
 
 let appInsights
+const pendingTelemetry = []
+
+function sendTelemetry(operation) {
+  if (!connectionString) return
+
+  if (appInsights) {
+    operation(appInsights)
+  } else {
+    pendingTelemetry.push(operation)
+  }
+}
 
 export async function initTelemetry() {
   if (!connectionString) return
@@ -19,10 +30,16 @@ export async function initTelemetry() {
     },
   })
   appInsights.loadAppInsights()
-  appInsights.trackPageView()
+
+  for (const operation of pendingTelemetry.splice(0)) {
+    operation(appInsights)
+  }
 }
 
-// Events sent before the SDK finishes loading are dropped.
+export function trackPageView(pageView) {
+  sendTelemetry((sdk) => sdk.trackPageView(pageView))
+}
+
 export function trackEvent(name, properties) {
-  appInsights?.trackEvent({ name, properties })
+  sendTelemetry((sdk) => sdk.trackEvent({ name, properties }))
 }

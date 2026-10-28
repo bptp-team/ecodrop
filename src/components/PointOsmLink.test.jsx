@@ -17,7 +17,7 @@ describe('PointOsmLink', () => {
 
   it('renders an accessible external link when a URL is provided', () => {
     expect(renderOsmLink('https://www.openstreetmap.org/way/123')).toBe(
-      '<p class="point-popup-osm"><a href="https://www.openstreetmap.org/way/123" target="_blank" rel="noreferrer">Ver no OpenStreetMap ↗<span class="visually-hidden"> (abre em nova aba)</span></a></p>',
+      '<p class="point-popup-osm"><a href="https://www.openstreetmap.org/way/123" target="_blank" rel="noopener noreferrer">Ver no OpenStreetMap ↗ <span class="visually-hidden"> (abre em nova aba)</span></a></p>',
     )
   })
 

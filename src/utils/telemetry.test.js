@@ -41,7 +41,7 @@ describe('telemetry', () => {
     expect(sdk.trackEvent).not.toHaveBeenCalled()
   })
 
-  it('starts the SDK without cookies and records the page view', async () => {
+  it('starts the SDK without cookies', async () => {
     const telemetry = await loadTelemetry('InstrumentationKey=test')
 
     await telemetry.initTelemetry()
@@ -51,7 +51,25 @@ describe('telemetry', () => {
       disableCookiesUsage: true,
     })
     expect(sdk.loadAppInsights).toHaveBeenCalledOnce()
-    expect(sdk.trackPageView).toHaveBeenCalledOnce()
+    expect(sdk.trackPageView).not.toHaveBeenCalled()
+  })
+
+  it('queues page views and events until the SDK is ready', async () => {
+    const telemetry = await loadTelemetry('InstrumentationKey=test')
+    const initialization = telemetry.initTelemetry()
+
+    telemetry.trackPageView({ name: '/aprenda', uri: '/aprenda' })
+    telemetry.trackEvent('Search', { term: 'pilha' })
+    await initialization
+
+    expect(sdk.trackPageView).toHaveBeenCalledWith({
+      name: '/aprenda',
+      uri: '/aprenda',
+    })
+    expect(sdk.trackEvent).toHaveBeenCalledWith({
+      name: 'Search',
+      properties: { term: 'pilha' },
+    })
   })
 
   it('forwards custom events once the SDK is loaded', async () => {

@@ -21,7 +21,7 @@ import LearnIndexPage from './components/LearnIndexPage.jsx'
 import LearnPage from './components/LearnPage.jsx'
 import { filterCollectionPointsByItems } from './search/collectionPointFilter.js'
 import { createItemSearch } from './search/itemSearch.js'
-import { trackEvent } from './utils/telemetry.js'
+import { trackEvent, trackPageView } from './utils/telemetry.js'
 import { getWasteTypeId, resolveWasteType } from './utils/wasteTypes.js'
 
 const findItems = createItemSearch(searchableItems)
@@ -53,6 +53,22 @@ function getPointsForType(selectedType) {
 function getVisiblePoints(query, items, points) {
   if (!query || items.length === 0) return points
   return filterCollectionPointsByItems(points, items)
+}
+
+function isTrackablePage(pathname, search) {
+  if (pathname === '/') {
+    return new URLSearchParams(search).get('pagina') !== 'aprenda'
+  }
+  if (pathname === '/aprenda') return true
+
+  const match = pathname.match(/^\/aprenda\/([^/]+)$/)
+  if (!match) return false
+
+  try {
+    return Boolean(resolveWasteType(decodeURIComponent(match[1])))
+  } catch {
+    return false
+  }
 }
 
 function DocumentTitle({ title }) {
@@ -124,8 +140,28 @@ function MapPage() {
 
 function AppLayout() {
   const routerLocation = useLocation()
+  const { pathname, search } = routerLocation
   const [userLocation, setUserLocation] = useState(null)
   const hasRequestedLocation = useRef(false)
+  const lastTrackedPagePath = useRef(null)
+  const isInitialPageView = useRef(true)
+
+  useEffect(() => {
+    if (
+      !isTrackablePage(pathname, search) ||
+      lastTrackedPagePath.current === pathname
+    ) {
+      return
+    }
+
+    lastTrackedPagePath.current = pathname
+    trackPageView({
+      name: pathname,
+      uri: `${window.location.origin}${pathname}`,
+      properties: { isInitialLoad: isInitialPageView.current },
+    })
+    isInitialPageView.current = false
+  }, [pathname, search])
 
   useEffect(() => {
     if (
@@ -158,7 +194,7 @@ function AppLayout() {
           className="app-brand"
           to="/"
           onClick={() =>
-            trackEvent('Navigation', {
+            trackEvent('NavigationLinkClicked', {
               item: 'logo',
               destination: '/',
               linkType: 'internal',
@@ -174,7 +210,7 @@ function AppLayout() {
             to="/"
             end
             onClick={() =>
-              trackEvent('Navigation', {
+              trackEvent('NavigationLinkClicked', {
                 item: 'map',
                 destination: '/',
                 linkType: 'internal',
@@ -186,7 +222,7 @@ function AppLayout() {
           <NavLink
             to="/aprenda"
             onClick={() =>
-              trackEvent('Navigation', {
+              trackEvent('NavigationLinkClicked', {
                 item: 'learn',
                 destination: '/aprenda',
                 linkType: 'internal',
@@ -198,9 +234,9 @@ function AppLayout() {
           <a
             href="https://forms.cloud.microsoft/r/VDeHWtH95J"
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
             onClick={() =>
-              trackEvent('Navigation', {
+              trackEvent('NavigationLinkClicked', {
                 item: 'feedback',
                 destination: 'https://forms.cloud.microsoft/r/VDeHWtH95J',
                 linkType: 'external',

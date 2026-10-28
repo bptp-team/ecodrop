@@ -8,6 +8,7 @@ import {
   getCollectionPointDistanceKm,
   sortCollectionPointsByDistance,
 } from '../search/collectionPointSort.js'
+import { trackEvent } from '../utils/telemetry.js'
 import { getWasteTypeId } from '../utils/wasteTypes.js'
 import './ItemSearchPanel.css'
 
@@ -218,7 +219,16 @@ function ItemSearchPanel({
             Limpar busca
           </button>
           {learnUrl && (
-            <Link className="search-learn-more" to={learnUrl}>
+            <Link
+              className="search-learn-more"
+              to={learnUrl}
+              onClick={() =>
+                trackEvent('LearnMoreClick', {
+                  wasteType: items[0].wasteType,
+                  destination: `/aprenda/${getWasteTypeId(items[0].wasteType)}`,
+                })
+              }
+            >
               Saiba mais ›
             </Link>
           )}
