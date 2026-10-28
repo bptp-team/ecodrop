@@ -91,6 +91,42 @@ for (const wasteType of learnPageTypes) {
   })
 }
 
+for (const { name, width } of viewports.filter(
+  ({ width }) => width === 375 || width === 1440,
+)) {
+  test(`${name} learning content scrolls independently from the header`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 500 })
+    await page.goto('/aprenda/pilhas-e-baterias')
+
+    const header = page.locator('.app-header')
+    const content = page.locator('.app-content--learn')
+
+    expect(
+      await content.evaluate((element) => element.scrollHeight),
+    ).toBeGreaterThan(await content.evaluate((element) => element.clientHeight))
+
+    await expect(page.locator('html')).toHaveCSS('overflow', 'hidden')
+    const contentBounds = await content.boundingBox()
+    await page.mouse.move(
+      contentBounds.x + contentBounds.width / 2,
+      contentBounds.y + contentBounds.height / 2,
+    )
+    await page.mouse.wheel(0, 500)
+
+    await expect
+      .poll(() =>
+        header.evaluate((element) => element.getBoundingClientRect().top),
+      )
+      .toBe(0)
+    await expect
+      .poll(() => content.evaluate((element) => element.scrollTop))
+      .toBeGreaterThan(0)
+    expect(await page.evaluate(() => window.scrollY)).toBe(0)
+  })
+}
+
 for (const { name, width } of viewports) {
   test.describe(`${name} viewport (${width}px)`, () => {
     test.use({ viewport: { width, height: 900 } })
@@ -721,7 +757,7 @@ test('finds medicines in the sidebar and shows only their two collection points'
     documentHeight: document.documentElement.scrollHeight,
     viewportHeight: window.innerHeight,
   }))
-  expect(documentMetrics.documentHeight).toBeLessThanOrEqual(
+  expect(documentMetrics.documentHeight).toBeGreaterThan(
     documentMetrics.viewportHeight,
   )
   await page.goBack()

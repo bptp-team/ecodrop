@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import Button from './Button.jsx'
 import SourceLink from './SourceLink.jsx'
 import { getWasteTypeId } from '../utils/wasteTypes.js'
 import './LearnPage.css'
@@ -54,15 +55,17 @@ function LearnPage({ wasteType, details = {} }) {
           <p>Não registramos a forma de descarte ainda.</p>
         )}
       </section>
-      <Link
+      <Button
+        as={Link}
         className="learn-map-link"
+        variant="primary"
         to={`/?${new URLSearchParams({
           tipo: getWasteTypeId(wasteType),
           busca: wasteType,
         })}`}
       >
         Ver no mapa os pontos que recebem
-      </Link>
+      </Button>
       <section aria-labelledby="learn-sources-title">
         <h2 id="learn-sources-title">Fontes oficiais</h2>
         {sources.length > 0 ? (

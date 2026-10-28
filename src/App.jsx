@@ -13,6 +13,7 @@ import {
   useSearchParams,
 } from 'react-router-dom'
 import CollectionPointsMap from './components/CollectionPointsMap.jsx'
+import Button from './components/Button.jsx'
 import ItemSearchPanel from './components/ItemSearchPanel.jsx'
 import collectionPoints from './data/collectionPoints.json'
 import searchableItems from './data/searchableItems.json'
@@ -121,13 +122,14 @@ function MapPage() {
           />
         </aside>
         {!isSearchOpen && (
-          <button
+          <Button
             className="search-open"
+            variant="primary"
             type="button"
             onClick={() => setIsSearchOpen(true)}
           >
             Abrir busca
-          </button>
+          </Button>
         )}
         <CollectionPointsMap
           points={visiblePoints}
@@ -141,6 +143,8 @@ function MapPage() {
 function AppLayout() {
   const routerLocation = useLocation()
   const { pathname, search } = routerLocation
+  const isLearnLayout =
+    pathname !== '/' || new URLSearchParams(search).get('pagina') === 'aprenda'
   const [userLocation, setUserLocation] = useState(null)
   const hasRequestedLocation = useRef(false)
   const lastTrackedPagePath = useRef(null)
@@ -188,7 +192,7 @@ function AppLayout() {
   }, [routerLocation.pathname, routerLocation.search])
 
   return (
-    <>
+    <div className={`app-shell app-shell--${isLearnLayout ? 'learn' : 'map'}`}>
       <header className="app-header">
         <Link
           className="app-brand"
@@ -248,8 +252,12 @@ function AppLayout() {
           </a>
         </nav>
       </header>
-      <Outlet context={userLocation} />
-    </>
+      <div
+        className={`app-content app-content--${isLearnLayout ? 'learn' : 'map'}`}
+      >
+        <Outlet context={userLocation} />
+      </div>
+    </div>
   )
 }
 

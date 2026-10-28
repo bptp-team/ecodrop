@@ -19,6 +19,12 @@
   background: var(--color-background);
 }
 
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+}
+
 body {
   margin: 0;
   background: var(--color-background);
@@ -33,11 +39,27 @@ body {
   white-space: nowrap;
 }
 
-/* Full-height column: the main area fills the space below the header. */
 #root {
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.app-shell {
   display: flex;
   flex-direction: column;
   width: 100%;
+}
+
+.app-shell--map {
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.app-shell--learn {
   height: 100vh;
   height: 100dvh;
   min-height: 0;
@@ -53,6 +75,20 @@ body {
   padding: 1rem;
   color: var(--color-on-primary);
   background: var(--color-primary);
+}
+
+.app-content--map {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.app-content--learn {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .app-header p {
@@ -107,7 +143,6 @@ body {
   outline-offset: 4px;
 }
 
-/* Also a flex column, so the map can grow to fill it. */
 .app-main {
   flex: 1;
   display: grid;
@@ -125,15 +160,6 @@ body {
   box-shadow: inset -1px 0 var(--color-border);
   background: var(--color-surface);
   overflow: hidden;
-}
-
-/* Positioned so the absolute screen-reader text in its links scrolls with
-   the page instead of extending the document below the viewport. */
-.learn-page {
-  position: relative;
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
 }
 
 @media (max-width: 1023px) {
@@ -174,19 +200,6 @@ body {
     top: 1rem;
     left: 4rem;
     z-index: 2;
-    padding: 0.625rem 0.875rem;
-    border: 0;
-    border-radius: 0.25rem;
-    color: var(--color-on-primary);
-    background: var(--color-primary);
-    cursor: pointer;
-    font: inherit;
-    font-weight: 650;
-  }
-
-  .search-open:focus-visible {
-    outline: 3px solid var(--color-focus);
-    outline-offset: 2px;
   }
 
   .map {

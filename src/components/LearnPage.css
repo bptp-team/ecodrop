@@ -52,7 +52,6 @@
 }
 
 .learn-card:focus-visible,
-.learn-map-link:focus-visible,
 .learn-breadcrumb a:focus-visible {
   outline: 3px solid var(--color-focus);
   outline-offset: 3px;
@@ -108,20 +107,7 @@
 }
 
 .learn-map-link {
-  display: inline-flex;
-  min-height: 2.75rem;
-  align-items: center;
   margin-top: 1.5rem;
-  padding: 0.625rem 0.875rem;
-  border-radius: 0.25rem;
-  color: var(--color-on-primary);
-  background: var(--color-primary);
-  font-weight: 650;
-  text-decoration: none;
-}
-
-.learn-map-link:hover {
-  background: var(--color-primary-dark);
 }
 
 .learn-source-list {

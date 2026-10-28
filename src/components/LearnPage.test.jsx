@@ -68,6 +68,19 @@ describe('LearnPage', () => {
     expect(markup).not.toContain('[')
   })
 
+  it('renders the map action as a shared primary link with waste-type filters', () => {
+    const markup = renderInRouter(
+      createElement(LearnPage, {
+        wasteType: 'Vidro',
+        details: {},
+      }),
+    )
+
+    expect(markup).toContain('class="button button--primary learn-map-link"')
+    expect(markup).toContain('href="/?tipo=vidro&amp;busca=Vidro"')
+    expect(markup).toContain('Ver no mapa os pontos que recebem')
+  })
+
   it('lists learning topics on the dedicated index page without query parameters', () => {
     const markup = renderInRouter(createElement(LearnIndexPage))
 

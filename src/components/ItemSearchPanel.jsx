@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
+import Button from './Button.jsx'
 import SourceList from './SourceList.jsx'
 import SearchMessage from './SearchMessage.jsx'
 import wasteTypeDetails from '../data/wasteTypeDetails.json'
@@ -158,14 +159,15 @@ function ItemSearchPanel({
   return (
     <section className="item-search-panel" aria-labelledby="item-search-label">
       <div className="search-panel-header">
-        <button
+        <Button
           className="search-close"
+          variant="tertiary"
           type="button"
           aria-label="Fechar busca"
           onClick={onClose}
         >
           Fechar
-        </button>
+        </Button>
       </div>
       <form className="search-form" role="search" onSubmit={handleSubmit}>
         <label
@@ -187,7 +189,7 @@ function ItemSearchPanel({
             ref={inputRef}
             onChange={handleInputChange}
           />
-          <button type="submit">Buscar</button>
+          <Button type="submit">Buscar</Button>
         </div>
       </form>
 
@@ -215,9 +217,14 @@ function ItemSearchPanel({
       </div>
       {query && (
         <div className="search-panel-actions">
-          <button className="search-clear" type="button" onClick={handleClear}>
+          <Button
+            className="search-clear"
+            variant="secondary"
+            type="button"
+            onClick={handleClear}
+          >
             Limpar busca
-          </button>
+          </Button>
           {learnUrl && (
             <Link
               className="search-learn-more"
