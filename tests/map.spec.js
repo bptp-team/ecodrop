@@ -2,6 +2,7 @@ import { expect, test } from './fixtures.js'
 import { interceptTelemetry } from './telemetry.js'
 import collectionPoints from '../src/data/collectionPoints.json' with { type: 'json' }
 import searchableItems from '../src/data/searchableItems.json' with { type: 'json' }
+import wasteTypeDetails from '../src/data/wasteTypeDetails.json' with { type: 'json' }
 
 const collectionPointCount = collectionPoints.length
 
@@ -31,8 +32,16 @@ for (const wasteType of learnPageTypes) {
       page.getByRole('heading', { name: 'Como descartar' }),
     ).toBeVisible()
     await expect(
-      page.getByText('Não registramos a forma de descarte ainda.'),
+      page.getByText(wasteTypeDetails[wasteType].disposalGuide[0]),
     ).toBeVisible()
+    await expect(
+      page.getByRole('heading', { name: 'Fontes oficiais' }),
+    ).toBeVisible()
+    await expect(
+      page.getByRole('link', {
+        name: wasteTypeDetails[wasteType].sources[0].label,
+      }),
+    ).toHaveAttribute('href', wasteTypeDetails[wasteType].sources[0].url)
   })
 }
 
@@ -660,7 +669,7 @@ test('finds medicines in the sidebar and shows only their two collection points'
     page.getByRole('link', { name: 'Aprenda', exact: true }).first(),
   ).toHaveAttribute('aria-current', 'page')
   await expect(
-    page.getByText('Não registramos a forma de descarte ainda.'),
+    page.getByText(wasteTypeDetails.Medicamentos.disposalGuide[0]),
   ).toBeVisible()
   const documentMetrics = await page.evaluate(() => ({
     documentHeight: document.documentElement.scrollHeight,
