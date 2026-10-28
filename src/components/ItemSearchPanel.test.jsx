@@ -14,12 +14,18 @@ function renderInRouter(element) {
   return renderToStaticMarkup(createElement(MemoryRouter, null, element))
 }
 
-function renderPanel(typeDetails, items = matchingItems, points = []) {
+function renderPanel(
+  typeDetails,
+  items = matchingItems,
+  points = [],
+  userLocation = null,
+) {
   return renderInRouter(
     createElement(ItemSearchPanel, {
       query: 'papel',
       items,
       points,
+      userLocation,
       hasCompatiblePoints: false,
       onSearch: () => {},
       typeDetails,
@@ -150,6 +156,70 @@ describe('ItemSearchPanel', () => {
     expect(markup).toContain(
       '1 ponto em Caçapava recebe este tipo de resíduo. Os demais foram ocultados no mapa.',
     )
+  })
+
+  it('orders compatible collection points by distance within the result', () => {
+    const markup = renderPanel(
+      {},
+      [
+        {
+          id: 'medicine',
+          name: 'Medicamento',
+          wasteType: 'Medicamentos',
+          collectionPointMaterials: ['Medicamentos'],
+        },
+      ],
+      [
+        {
+          id: 'raia',
+          name: 'Droga Raia',
+          materials: ['Medicamentos'],
+          lat: -23.099981,
+          lng: -45.705666,
+        },
+        {
+          id: 'dsp',
+          name: 'Drogaria São Paulo',
+          materials: ['Medicamentos'],
+          lat: -23.10089,
+          lng: -45.70462,
+        },
+      ],
+      { latitude: -23.10089, longitude: -45.70462 },
+    )
+
+    expect(markup.indexOf('Drogaria São Paulo')).toBeLessThan(
+      markup.indexOf('Droga Raia'),
+    )
+    expect(markup).toContain('0 m')
+    expect(markup).toContain('147 m')
+    expect(markup).toContain('em linha reta')
+  })
+
+  it('does not show point distances when there is no authorized location', () => {
+    const markup = renderPanel(
+      {},
+      [
+        {
+          id: 'medicine',
+          name: 'Medicamento',
+          wasteType: 'Medicamentos',
+          collectionPointMaterials: ['Medicamentos'],
+        },
+      ],
+      [
+        {
+          id: 'raia',
+          name: 'Droga Raia',
+          materials: ['Medicamentos'],
+          lat: -23.099981,
+          lng: -45.705666,
+        },
+      ],
+    )
+
+    expect(markup).not.toContain('search-result-distance')
+    expect(markup).not.toContain('em linha reta')
   })
 
   it('shows a zero-points count when no points match', () => {

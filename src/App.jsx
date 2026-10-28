@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   BrowserRouter,
   Link,
@@ -7,6 +7,8 @@ import {
   Outlet,
   Route,
   Routes,
+  useLocation,
+  useOutletContext,
   useParams,
   useSearchParams,
 } from 'react-router-dom'
@@ -63,6 +65,7 @@ function DocumentTitle({ title }) {
 
 function MapPage() {
   const [searchParams, setSearchParams] = useSearchParams()
+  const userLocation = useOutletContext()
   const [isSearchOpen, setIsSearchOpen] = useState(true)
   const query = searchParams.get('busca') ?? ''
   const selectedType = searchParams.get('tipo')
@@ -96,6 +99,7 @@ function MapPage() {
             query={query}
             items={items}
             points={collectionPoints}
+            userLocation={userLocation}
             onSearch={searchItem}
             onClose={() => setIsSearchOpen(false)}
           />
@@ -116,6 +120,33 @@ function MapPage() {
 }
 
 function AppLayout() {
+  const routerLocation = useLocation()
+  const [userLocation, setUserLocation] = useState(null)
+  const hasRequestedLocation = useRef(false)
+
+  useEffect(() => {
+    if (
+      routerLocation.pathname !== '/' ||
+      new URLSearchParams(routerLocation.search).get('pagina') === 'aprenda' ||
+      hasRequestedLocation.current
+    ) {
+      return
+    }
+
+    hasRequestedLocation.current = true
+    if (!navigator.geolocation) return
+
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) =>
+        setUserLocation({
+          latitude: coords.latitude,
+          longitude: coords.longitude,
+        }),
+      () => undefined,
+      { maximumAge: 60_000, timeout: 10_000 },
+    )
+  }, [routerLocation.pathname, routerLocation.search])
+
   return (
     <>
       <header className="app-header">
@@ -167,7 +198,7 @@ function AppLayout() {
           </a>
         </nav>
       </header>
-      <Outlet />
+      <Outlet context={userLocation} />
     </>
   )
 }

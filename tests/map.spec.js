@@ -220,6 +220,44 @@ for (const { name, width } of viewports.filter(({ width }) => width < 1024)) {
   })
 }
 
+test('orders each result point list by distance when location is allowed', async ({
+  page,
+}) => {
+  await page.context().grantPermissions(['geolocation'])
+  await page.context().setGeolocation({
+    latitude: -23.10089,
+    longitude: -45.70462,
+  })
+  await page.goto('/?busca=medicamento')
+
+  await expect(page.locator('.search-result-points li strong')).toHaveText([
+    'Drogaria São Paulo',
+    'Droga Raia',
+  ])
+  await expect(page.locator('.search-result-distance')).toHaveText([
+    ' · 0 m',
+    ' · 147 m',
+  ])
+})
+
+test('keeps received result order silently when location is denied', async ({
+  page,
+}) => {
+  await page.context().grantPermissions([], {
+    origin: 'http://127.0.0.1:4173',
+  })
+  await page.goto('/?busca=medicamento')
+
+  await expect(page.locator('.search-result-points li strong')).toHaveText([
+    'Droga Raia',
+    'Drogaria São Paulo',
+  ])
+  await expect(page.locator('.search-result-distance')).toHaveCount(0)
+  await expect(page.locator('.search-feedback')).not.toContainText(
+    /distância|localização/i,
+  )
+})
+
 for (const { name, width } of viewports.filter(({ width }) =>
   [375, 1440].includes(width),
 )) {

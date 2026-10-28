@@ -4,8 +4,18 @@ import SourceList from './SourceList.jsx'
 import SearchMessage from './SearchMessage.jsx'
 import wasteTypeDetails from '../data/wasteTypeDetails.json'
 import { filterCollectionPointsByItems } from '../search/collectionPointFilter.js'
+import {
+  getCollectionPointDistanceKm,
+  sortCollectionPointsByDistance,
+} from '../search/collectionPointSort.js'
 import { getWasteTypeId } from '../utils/wasteTypes.js'
 import './ItemSearchPanel.css'
+
+function formatDistance(distanceKm) {
+  if (distanceKm < 1) return `${Math.round(distanceKm * 1000)} m`
+
+  return `${new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 }).format(distanceKm)} km`
+}
 
 function isPlaceholder(value) {
   return typeof value === 'string' && /^\[.*\]$/.test(value.trim())
@@ -15,6 +25,7 @@ function ItemSearchPanel({
   query,
   items,
   points = [],
+  userLocation = null,
   onSearch,
   onClose,
   typeDetails = wasteTypeDetails,
@@ -74,7 +85,13 @@ function ItemSearchPanel({
           ...source,
           url: isPlaceholder(source.url) ? undefined : source.url,
         }))
-      const itemPoints = filterCollectionPointsByItems(points, matchingItems)
+      const compatiblePoints = filterCollectionPointsByItems(
+        points,
+        matchingItems,
+      )
+      const itemPoints = userLocation
+        ? sortCollectionPointsByDistance(compatiblePoints, userLocation)
+        : compatiblePoints
       const pointWord = itemPoints.length === 1 ? 'ponto' : 'pontos'
       const receiveVerb = itemPoints.length === 1 ? 'recebe' : 'recebem'
 
@@ -108,12 +125,28 @@ function ItemSearchPanel({
             </p>
             {itemPoints.length > 0 && (
               <ul>
-                {itemPoints.map((point) => (
-                  <li key={point.id}>
-                    <strong>{point.name}</strong>
-                    {point.address && <span> — {point.address}</span>}
-                  </li>
-                ))}
+                {itemPoints.map((point) => {
+                  const distanceKm = userLocation
+                    ? getCollectionPointDistanceKm(point, userLocation)
+                    : null
+
+                  return (
+                    <li key={point.id}>
+                      <strong>{point.name}</strong>
+                      {point.address && <span> — {point.address}</span>}
+                      {distanceKm !== null && (
+                        <span
+                          className="search-result-distance"
+                          aria-label={`${formatDistance(distanceKm)} em linha reta`}
+                          title="Distância em linha reta"
+                        >
+                          {' '}
+                          · {formatDistance(distanceKm)}
+                        </span>
+                      )}
+                    </li>
+                  )
+                })}
               </ul>
             )}
           </section>
