@@ -266,21 +266,25 @@ Add or update the point itself in this file; do not duplicate point names or add
 
 #### `wasteTypeDetails.json`: educational content by waste type
 
-This file is an object keyed by the exact `wasteType` string from the item catalog. Every distinct item waste type must have an entry, even while content is being collected:
+This file is an object keyed by the exact `wasteType` string from the item catalog. Every distinct item waste type must have an entry:
 
 | Field           | Shape                                          | Display                                                                                      |
 | --------------- | ---------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `id`            | String                                         | Stable identifier used in the learning page URL (`/aprenda/<id>`).                           |
+| `summary`       | String                                         | Short description on the card of the learning index page.                                    |
 | `impacts`       | Array of strings                               | Impacts on the learning page.                                                                |
 | `disposalGuide` | Array of strings                               | Ordered disposal steps on the result and learning page.                                      |
 | `sources`       | Array of `{ "label": string, "url"?: string }` | Official references rendered by `SourceList`. A source without a URL is shown as plain text. |
 
-For missing content, keep at least one explicit placeholder in the relevant array, such as `"[Impacto ambiental a pesquisar com fonte oficial]"`, `"[Passo de descarte confirmado pela equipe]"`, or `"[Nome da fonte oficial]"`. The UI recognizes bracketed placeholder strings and displays a pending-content message instead of presenting them as verified facts. Do not use a fake URL as a real source link.
+The content comes from official sources, verified in October 2026: federal laws and decrees (Planalto), Conama resolutions, the Ministry of the Environment and its reverse logistics portal (SINIR), CETESB, São Paulo state and city government pages, and the Caçapava City Hall. Keep impacts and steps as short sentences, state only what the listed sources support, and list every source used by an entry in its `sources` array. Facts specific to Caçapava, such as the collection schedules, come from the city hall. Caçapava does not publish preparation tips for recyclables, so tips such as rinsing packaging or wrapping broken glass come from the São Paulo city hall; review them if Caçapava publishes its own.
+
+While a field is being researched, a bracketed placeholder such as `"[Impacto ambiental a pesquisar com fonte oficial]"`, `"[Passo de descarte confirmado pela equipe]"`, or `"[Nome da fonte oficial]"` makes the UI show a pending-content message instead of presenting it as a verified fact. The test suite rejects placeholders, so an entry is only complete once every field has sourced content. Do not use a fake URL as a real source link.
 
 The **Saiba mais** action opens the same learning page for every waste type, using the selected item's `wasteType` to load impacts, disposal steps, and sources. Thus, adding a new item with a new waste type requires adding both the item to `searchableItems.json` and the matching educational entry to `wasteTypeDetails.json`. Adding an item to an existing type reuses that type's page and content.
 
 #### Tests that guard the relationships
 
-The test suite checks that each catalog waste type has educational data, each mapped material exists in collection-point data, all learning-data structures include placeholders, and the learning page is reachable and renders its sections for every distinct waste type. Update these tests and run `npm test` and `npm run test:e2e` when adding or changing a type. These checks are intended to catch missing JSON links before the new entry is considered complete.
+The test suite checks that each catalog waste type has a summary, impacts, disposal steps, and HTTPS sources without placeholders, each mapped material exists in collection-point data, the UI replaces placeholders with pending-content messages, and the learning page is reachable and renders its content for every distinct waste type. Update these tests and run `npm test` and `npm run test:e2e` when adding or changing a type. These checks are intended to catch missing JSON links before the new entry is considered complete.
 
 ### Data sources
 
