@@ -71,7 +71,14 @@ describe('ItemSearchPanel', () => {
   })
 
   it('shows a notice when disposal details are only placeholders', () => {
-    const markup = renderPanel(undefined)
+    const markup = renderPanel({
+      'Papel e papelão': {
+        disposalGuide: ['[Passo de descarte confirmado pela equipe]'],
+        sources: [
+          { label: '[Nome da fonte oficial]', url: '[URL da fonte oficial]' },
+        ],
+      },
+    })
 
     expect(markup).toContain('Não registramos a forma de descarte ainda.')
     expect(markup).not.toContain('[Passo de descarte confirmado pela equipe]')
