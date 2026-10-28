@@ -1,7 +1,4 @@
 import L from 'leaflet'
-import markerIconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png'
-import markerIconUrl from 'leaflet/dist/images/marker-icon.png'
-import markerShadowUrl from 'leaflet/dist/images/marker-shadow.png'
 import 'leaflet/dist/leaflet.css'
 import { MapContainer, Marker, TileLayer } from 'react-leaflet'
 import { MAP_CENTER, MAP_ZOOM } from '../config/map.js'
@@ -9,13 +6,11 @@ import { trackEvent } from '../utils/telemetry.js'
 import PointPopup from './PointPopup.jsx'
 import './CollectionPointsMap.css'
 
-// Leaflet's default icon derives its image paths from leaflet.css, which
-// breaks once Vite bundles the images, so the URLs are passed explicitly.
-const markerIcon = L.icon({
-  ...L.Icon.Default.prototype.options,
-  iconUrl: markerIconUrl,
-  iconRetinaUrl: markerIconRetinaUrl,
-  shadowUrl: markerShadowUrl,
+const markerIcon = L.divIcon({
+  className: 'collection-point-marker',
+  iconSize: [26, 26],
+  iconAnchor: [13, 13],
+  popupAnchor: [0, -13],
 })
 
 function CollectionPointsMap({ points }) {
@@ -32,6 +27,7 @@ function CollectionPointsMap({ points }) {
           position={[point.lat, point.lng]}
           icon={markerIcon}
           alt={point.name}
+          title={point.name}
           eventHandlers={{
             popupopen: () =>
               trackEvent('CollectionPointOpened', {

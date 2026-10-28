@@ -8,6 +8,7 @@ vi.mock('leaflet', () => ({
   default: {
     Icon: { Default: { prototype: { options: {} } } },
     icon: vi.fn((options) => options),
+    divIcon: vi.fn((options) => options),
   },
 }))
 
@@ -22,10 +23,11 @@ vi.mock('react-leaflet', () => ({
       },
       children,
     ),
-  Marker: ({ alt, children, position }) =>
+  Marker: ({ alt, children, icon, position }) =>
     createElement(
       'div',
       {
+        className: `leaflet-marker-icon ${icon.className}`,
         'data-marker-name': alt,
         'data-position': `${position[0]},${position[1]}`,
       },
@@ -47,7 +49,7 @@ describe('CollectionPointsMap', () => {
     )
 
     expect(markup).toContain('data-map-center="-23.10083,-45.70694"')
-    expect(markup).toContain('data-map-zoom="17"')
+    expect(markup).toContain('data-map-zoom="14"')
     expect(markup).toContain(
       'data-attribution="© &lt;a href=&quot;https://www.openstreetmap.org/copyright&quot;&gt;OpenStreetMap&lt;/a&gt; contributors"',
     )
@@ -59,6 +61,7 @@ describe('CollectionPointsMap', () => {
     )
 
     expect(markup.match(/data-marker-name=/g)).toHaveLength(5)
+    expect(markup).toContain('collection-point-marker')
     expect(markup).toContain('data-marker-name="PEV Vila Santos"')
     expect(markup).toContain('data-popup-max-width="260"')
     expect(markup).toContain(

@@ -70,9 +70,24 @@ for (const { name, width } of viewports) {
       expect(
         await page.evaluate(() => document.documentElement.scrollHeight),
       ).toBeLessThanOrEqual(900)
-      await expect(map.locator('img.leaflet-marker-icon')).toHaveCount(
+      await expect(map.locator('.leaflet-marker-icon')).toHaveCount(
         collectionPointCount,
       )
+      const markerColors = await map
+        .locator('.leaflet-marker-icon')
+        .first()
+        .evaluate((marker) => {
+          const colorProbe = document.createElement('span')
+          colorProbe.style.color = 'var(--color-primary)'
+          document.body.append(colorProbe)
+          const primaryColor = getComputedStyle(colorProbe).color
+          colorProbe.remove()
+          return {
+            markerColor: getComputedStyle(marker).backgroundColor,
+            primaryColor,
+          }
+        })
+      expect(markerColors.markerColor).toBe(markerColors.primaryColor)
       await expect(map.locator('.leaflet-control-attribution')).toContainText(
         '© OpenStreetMap contributors',
       )
@@ -185,7 +200,7 @@ for (const { name, width } of viewports.filter(({ width }) => width < 1024)) {
     })
     await search.fill('medicamento')
     await page.getByRole('button', { name: 'Buscar' }).click()
-    await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(2)
+    await expect(page.locator('.leaflet-marker-icon')).toHaveCount(2)
     const resultsSidebarBounds = await sidebar.boundingBox()
     expect(resultsSidebarBounds.height).toBe(mainBounds.height)
 
@@ -414,7 +429,7 @@ test('keeps an intentionally unknown item visible and allows clearing it', async
     page.getByText('Tipo de resíduo:', { exact: false }),
   ).toHaveCount(0)
   await expect(page.locator('.search-result')).toHaveCount(0)
-  await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(
+  await expect(page.locator('.leaflet-marker-icon')).toHaveCount(
     collectionPointCount,
   )
 
@@ -442,7 +457,7 @@ test('clears matched item results when the search is cleared', async ({
 
   await expect(page).toHaveURL('/?busca=medicamento')
   await expect(page.locator('.search-result')).toHaveCount(1)
-  await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(2)
+  await expect(page.locator('.leaflet-marker-icon')).toHaveCount(2)
 
   await page.getByRole('button', { name: 'Limpar busca' }).click()
 
@@ -455,7 +470,7 @@ test('clears matched item results when the search is cleared', async ({
   ).toBeVisible()
   await expect(page.locator('.search-result')).toHaveCount(0)
   await expect(page.locator('.search-result-points')).toHaveCount(0)
-  await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(
+  await expect(page.locator('.leaflet-marker-icon')).toHaveCount(
     collectionPointCount,
   )
 })
@@ -475,7 +490,7 @@ test('filters pilha and clears search and type while preserving other parameters
 
   await expect(page).toHaveURL('/?origem=HU05&busca=pilha')
   await expect(page.locator('.search-result')).toHaveCount(1)
-  await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(2)
+  await expect(page.locator('.leaflet-marker-icon')).toHaveCount(2)
   await expect(
     page.getByText(
       '2 pontos em Caçapava recebem este tipo de resíduo. Os demais foram ocultados no mapa.',
@@ -486,7 +501,7 @@ test('filters pilha and clears search and type while preserving other parameters
 
   await expect(page).toHaveURL('/?origem=HU05')
   await expect(search).toHaveValue('')
-  await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(
+  await expect(page.locator('.leaflet-marker-icon')).toHaveCount(
     collectionPointCount,
   )
 })
@@ -506,14 +521,14 @@ test('clears the applied search when the search input is cleared', async ({
   await page.getByRole('button', { name: 'Buscar' }).click()
 
   await expect(page.locator('.search-result')).toHaveCount(1)
-  await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(2)
+  await expect(page.locator('.leaflet-marker-icon')).toHaveCount(2)
 
   await search.fill('')
 
   await expect(search).toHaveValue('')
   await expect(page).toHaveURL('/')
   await expect(page.locator('.search-result')).toHaveCount(0)
-  await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(
+  await expect(page.locator('.leaflet-marker-icon')).toHaveCount(
     collectionPointCount,
   )
 })
@@ -558,7 +573,7 @@ test('groups matching paper items by waste type and lists compatible points', as
   await expect(resultCard.locator('.search-result-points')).toContainText(
     '2 pontos em Caçapava recebem este tipo de resíduo.',
   )
-  await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(2)
+  await expect(page.locator('.leaflet-marker-icon')).toHaveCount(2)
 })
 
 test('finds medicines in the sidebar and shows only their two collection points', async ({
@@ -590,7 +605,7 @@ test('finds medicines in the sidebar and shows only their two collection points'
   await expect(
     page.getByRole('heading', { name: /Não encontramos/ }),
   ).toHaveCount(0)
-  await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(2)
+  await expect(page.locator('.leaflet-marker-icon')).toHaveCount(2)
 
   await page.getByRole('link', { name: /Saiba mais/ }).click()
   await expect(page).toHaveURL('/aprenda/medicamentos?busca=medicamento')
@@ -617,7 +632,7 @@ test('finds medicines in the sidebar and shows only their two collection points'
     page.getByRole('searchbox', { name: 'O que você quer descartar?' }),
   ).toHaveValue('medicamento')
   await expect(page.locator('.search-result')).toHaveCount(1)
-  await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(2)
+  await expect(page.locator('.leaflet-marker-icon')).toHaveCount(2)
 })
 
 test('keeps the app within the viewport with scrollable results and pinned actions', async ({
@@ -676,7 +691,7 @@ test('keeps all collection points visible when the item is unmatched', async ({
   await expect(page.getByRole('status')).toContainText(
     'Confira a grafia ou veja os tipos de resíduo na página Aprenda.',
   )
-  await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(
+  await expect(page.locator('.leaflet-marker-icon')).toHaveCount(
     collectionPointCount,
   )
 
@@ -874,22 +889,22 @@ test('filters the map by waste type and clears both URL filters', async ({
   await expect(
     page.getByRole('searchbox', { name: 'O que você quer descartar?' }),
   ).toHaveValue('Pilhas e baterias')
-  await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(2)
+  await expect(page.locator('.leaflet-marker-icon')).toHaveCount(2)
   await page.getByRole('button', { name: 'Limpar busca' }).click()
   await expect(page).toHaveURL('/')
-  await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(
+  await expect(page.locator('.leaflet-marker-icon')).toHaveCount(
     collectionPointCount,
   )
 
   await page.goto('/?tipo=oleo-de-cozinha-usado')
-  await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(1)
+  await expect(page.locator('.leaflet-marker-icon')).toHaveCount(1)
   await expect(page.locator('.map-filter-empty')).toHaveCount(0)
   await expect(page.getByRole('searchbox')).toBeVisible()
 
   await page.goto('/?busca=pilha&tipo=pilhas-e-baterias')
   await page.getByRole('button', { name: 'Limpar busca' }).click()
   await expect(page).toHaveURL('/')
-  await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(
+  await expect(page.locator('.leaflet-marker-icon')).toHaveCount(
     collectionPointCount,
   )
 })
@@ -925,7 +940,7 @@ test('shows a zero-points count for lâmpada', async ({ page }) => {
   await expect(page.locator('.search-result-points')).toContainText(
     '0 pontos em Caçapava recebem este tipo de resíduo.',
   )
-  await expect(page.locator('img.leaflet-marker-icon')).toHaveCount(0)
+  await expect(page.locator('.leaflet-marker-icon')).toHaveCount(0)
 })
 
 test('places the search panel beside the map on desktop and compactly over it on mobile', async ({

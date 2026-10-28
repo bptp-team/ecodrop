@@ -3,5 +3,5 @@
 // (Leaflet uses [lat, lng], MapLibre uses [lng, lat]).
 export const MAP_CENTER = { lat: -23.10083, lng: -45.70694 }
 
-// Starts closer to Caçapava while keeping its collection points in view.
-export const MAP_ZOOM = 17
+// Starts with a wider view of Caçapava and its collection points.
+export const MAP_ZOOM = 14
