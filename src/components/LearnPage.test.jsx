@@ -13,32 +13,60 @@ const wasteTypes = [
   ...new Set(searchableItems.map(({ wasteType }) => wasteType)),
 ]
 
+const placeholderPattern = /^\[.*\]$/
+
 function renderInRouter(element) {
   return renderToStaticMarkup(createElement(MemoryRouter, null, element))
 }
 
 describe('LearnPage', () => {
   it.each(wasteTypes)(
-    'renders a learning page with placeholder impact content for %s',
+    'renders the impacts, disposal steps, and sources for %s',
     (wasteType) => {
+      const details = wasteTypeDetails[wasteType]
       const markup = renderInRouter(
-        createElement(LearnPage, {
-          wasteType,
-          details: wasteTypeDetails[wasteType],
-        }),
+        createElement(LearnPage, { wasteType, details }),
       )
 
       expect(markup).toContain(`<h1>${wasteType}</h1>`)
       expect(markup).toContain('Por que descartar corretamente')
-      expect(markup).toContain(
-        'Ainda não registramos os impactos desse tipo de resíduo.',
-      )
       expect(markup).toContain('Como descartar')
-      expect(markup).toContain('Não registramos a forma de descarte ainda.')
       expect(markup).toContain('Fontes oficiais')
-      expect(markup).toContain('Ainda não registramos fontes oficiais')
+
+      for (const text of [...details.impacts, ...details.disposalGuide]) {
+        expect(markup).toContain(`<li>${text}</li>`)
+      }
+      for (const { label, url } of details.sources) {
+        expect(markup).toContain(`href="${url.replaceAll('&', '&amp;')}"`)
+        expect(markup).toContain(label)
+      }
+
+      expect(markup).not.toContain('Ainda não registramos')
+      expect(markup).not.toContain('Não registramos a forma de descarte ainda.')
     },
   )
+
+  it('shows pending-content messages instead of placeholder strings', () => {
+    const markup = renderInRouter(
+      createElement(LearnPage, {
+        wasteType: 'Vidro',
+        details: {
+          impacts: ['[Impacto ambiental a pesquisar com fonte oficial]'],
+          disposalGuide: ['[Passo de descarte confirmado pela equipe]'],
+          sources: [
+            { label: '[Nome da fonte oficial]', url: '[URL da fonte oficial]' },
+          ],
+        },
+      }),
+    )
+
+    expect(markup).toContain(
+      'Ainda não registramos os impactos desse tipo de resíduo.',
+    )
+    expect(markup).toContain('Não registramos a forma de descarte ainda.')
+    expect(markup).toContain('Ainda não registramos fontes oficiais')
+    expect(markup).not.toContain('[')
+  })
 
   it('lists learning topics on the dedicated index page without query parameters', () => {
     const markup = renderInRouter(createElement(LearnIndexPage))
@@ -49,28 +77,29 @@ describe('LearnPage', () => {
     )
     expect(markup).toContain('href="/aprenda/vidro"')
     expect(markup).toContain('<h2>Vidro</h2>')
-    expect(markup).toContain('Conteúdo educativo em preparação.')
+    expect(markup).toContain(wasteTypeDetails.Vidro.summary)
     expect(markup).toContain('Ver como descartar')
     expect(markup).not.toContain('?')
   })
 
-  it('has placeholder data for every type in the searchable catalog', () => {
-    expect(Object.keys(wasteTypeDetails).sort()).toEqual([...wasteTypes].sort())
+  it('has a summary, impacts, disposal steps, and linked sources for every waste type', () => {
+    for (const [wasteType, details] of Object.entries(wasteTypeDetails)) {
+      const { summary, impacts, disposalGuide, sources } = details
 
-    for (const details of Object.values(wasteTypeDetails)) {
-      expect(details.impacts).toEqual([
-        '[Impacto ambiental a pesquisar com fonte oficial]',
-      ])
-      expect(details.disposalGuide).toEqual([
-        '[Passo de descarte confirmado pela equipe]',
-        '[Próximo passo confirmado pela equipe]',
-      ])
-      expect(details.sources).toEqual([
-        {
-          label: '[Nome da fonte oficial]',
-          url: '[URL da fonte oficial]',
-        },
-      ])
+      expect(summary.trim(), wasteType).not.toBe('')
+      expect(impacts.length, wasteType).toBeGreaterThan(0)
+      expect(disposalGuide.length, wasteType).toBeGreaterThan(0)
+      expect(sources.length, wasteType).toBeGreaterThan(0)
+
+      for (const text of [summary, ...impacts, ...disposalGuide]) {
+        expect(text.trim(), wasteType).not.toBe('')
+        expect(text, wasteType).not.toMatch(placeholderPattern)
+      }
+      for (const { label, url } of sources) {
+        expect(label.trim(), wasteType).not.toBe('')
+        expect(label, wasteType).not.toMatch(placeholderPattern)
+        expect(new URL(url).protocol, wasteType).toBe('https:')
+      }
     }
   })
 
@@ -100,9 +129,7 @@ describe('LearnPage', () => {
     }
   })
 
-  it('includes at least one explicit placeholder across learning data', () => {
-    const content = JSON.stringify(wasteTypeDetails)
-
-    expect(content).toMatch(/\[[^\]]+\]/)
+  it('has the same waste types as the searchable catalog', () => {
+    expect(Object.keys(wasteTypeDetails).sort()).toEqual([...wasteTypes].sort())
   })
 })
