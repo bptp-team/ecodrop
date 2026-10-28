@@ -154,10 +154,20 @@ function AppLayout() {
   return (
     <>
       <header className="app-header">
-        <div className="app-brand">
+        <Link
+          className="app-brand"
+          to="/"
+          onClick={() =>
+            trackEvent('Navigation', {
+              item: 'logo',
+              destination: '/',
+              linkType: 'internal',
+            })
+          }
+        >
           <img className="app-logo" src="/favicon.svg" alt="" />
           <h1>EcoDrop</h1>
-        </div>
+        </Link>
         <p>Pontos de coleta e descarte de resíduos em Caçapava, SP</p>
         <nav className="app-nav" aria-label="Navegação principal">
           <NavLink
