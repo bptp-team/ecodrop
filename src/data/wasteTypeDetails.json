@@ -1,166 +1,374 @@
 {
   "Óleo de cozinha usado": {
     "id": "oleo-de-cozinha-usado",
-    "summary": "Conteúdo educativo em preparação.",
-    "impacts": ["[Impacto ambiental a pesquisar com fonte oficial]"],
+    "summary": "Óleo usado em frituras. Guardado em garrafa e entregue para reciclagem, vira sabão e biodiesel em vez de entupir canos e poluir a água.",
+    "impacts": [
+      "Jogado na pia, o óleo entope os canos de casa e atrai ratos e baratas.",
+      "Na rede de esgoto, a gordura endurece e, às vezes, é preciso quebrar a rua para trocar o trecho de tubo.",
+      "Em rios e lagos, forma uma camada que bloqueia a luz do sol e reduz o oxigênio da água, matando peixes e plantas.",
+      "No lixo comum, o óleo impermeabiliza o solo e agrava as enchentes."
+    ],
     "disposalGuide": [
-      "[Passo de descarte confirmado pela equipe]",
-      "[Próximo passo confirmado pela equipe]"
+      "Não jogue o óleo na pia, no ralo, no vaso sanitário nem no lixo comum.",
+      "Depois que o óleo esfriar, guarde-o em uma garrafa PET bem fechada.",
+      "Quando a garrafa encher, entregue-a em um ponto de coleta de óleo usado."
     ],
     "sources": [
       {
-        "label": "[Nome da fonte oficial]",
-        "url": "[URL da fonte oficial]"
+        "label": "Prefeitura de São Paulo — Descarte de óleo de cozinha",
+        "url": "https://prefeitura.sp.gov.br/web/meio_ambiente/w/noticias/320261"
+      },
+      {
+        "label": "Agência SP — Lixo nas redes de esgoto",
+        "url": "https://www.agenciasp.sp.gov.br/esgotos-lixo-oitocentas-toneladas-entopem-as-redes-em-sp/"
+      },
+      {
+        "label": "CETESB — Termos de compromisso de logística reversa",
+        "url": "https://www.cetesb.sp.gov.br/cetesb/qualidade_ambiental/residuos_solidos/logistica_reversa/termos_de_compromisso"
       }
     ]
   },
   "Pilhas e baterias": {
     "id": "pilhas-e-baterias",
-    "summary": "Conteúdo educativo em preparação.",
-    "impacts": ["[Impacto ambiental a pesquisar com fonte oficial]"],
+    "summary": "Pilhas e baterias de aparelhos portáteis, como controles, brinquedos e celulares. Podem conter metais pesados e precisam ir para pontos de coleta próprios.",
+    "impacts": [
+      "Algumas pilhas e baterias contêm chumbo, mercúrio, níquel e cádmio.",
+      "Descartadas em grande quantidade no lixo comum, podem contaminar o solo e a água com esses metais pesados.",
+      "Esses metais podem causar doenças nos rins, câncer e problemas no sistema nervoso."
+    ],
     "disposalGuide": [
-      "[Passo de descarte confirmado pela equipe]",
-      "[Próximo passo confirmado pela equipe]"
+      "Não jogue pilhas e baterias no lixo comum, em terrenos, rios ou no esgoto, nem as queime.",
+      "Quando possível, retire as pilhas e baterias dos aparelhos antes de descartá-los, para entregá-las separadamente.",
+      "Leve-as a um ponto de coleta. Lojas que vendem pilhas e baterias e assistências técnicas autorizadas devem recebê-las.",
+      "A entrega nos pontos de coleta é gratuita."
     ],
     "sources": [
       {
-        "label": "[Nome da fonte oficial]",
-        "url": "[URL da fonte oficial]"
+        "label": "SINIR (Ministério do Meio Ambiente) — Logística reversa de pilhas e baterias",
+        "url": "https://sinir.gov.br/perfis/logistica-reversa/logistica-reversa/pilhas-e-baterias/"
+      },
+      {
+        "label": "Conama — Resolução nº 401/2008",
+        "url": "https://conama.mma.gov.br/?option=com_sisconama&task=arquivo.download&id=570"
       }
     ]
   },
   "Eletrônicos": {
     "id": "eletronicos",
-    "summary": "Conteúdo educativo em preparação.",
-    "impacts": ["[Impacto ambiental a pesquisar com fonte oficial]"],
+    "summary": "Celulares, computadores, eletrodomésticos e outros aparelhos elétricos de uso doméstico. Têm coleta própria, pela logística reversa.",
+    "impacts": [
+      "Descartados em grande quantidade, eletrônicos podem contaminar o solo e a água com metais pesados.",
+      "Se manuseados de forma errada, alguns componentes podem causar incêndios e intoxicações.",
+      "Aparelhos guardam dados pessoais, e formatar nem sempre apaga os arquivos: eles podem ser recuperados por terceiros."
+    ],
     "disposalGuide": [
-      "[Passo de descarte confirmado pela equipe]",
-      "[Próximo passo confirmado pela equipe]"
+      "Antes do descarte, apague seus dados pessoais e os programas do aparelho. Essa tarefa é do consumidor.",
+      "Desligue o aparelho e entregue-o em um ponto de recebimento de eletroeletrônicos.",
+      "Não coloque eletrônicos no lixo comum."
     ],
     "sources": [
       {
-        "label": "[Nome da fonte oficial]",
-        "url": "[URL da fonte oficial]"
+        "label": "SINIR (Ministério do Meio Ambiente) — Logística reversa de eletroeletrônicos",
+        "url": "https://sinir.gov.br/perfis/logistica-reversa/logistica-reversa/eletroeletronicos/"
+      },
+      {
+        "label": "Planalto — Decreto nº 10.240/2020",
+        "url": "https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2020/decreto/d10240.htm"
+      },
+      {
+        "label": "Serpro — Como proteger seus dados ao descartar equipamentos eletrônicos",
+        "url": "https://www.serpro.gov.br/menu/noticias/noticias-2023/como-proteger-seus-dados-ao-descartar-equipamentos-eletronicos"
       }
     ]
   },
   "Lâmpadas": {
     "id": "lampadas",
-    "summary": "Conteúdo educativo em preparação.",
-    "impacts": ["[Impacto ambiental a pesquisar com fonte oficial]"],
+    "summary": "Lâmpadas fluorescentes, de vapor de sódio e mercúrio e de luz mista contêm mercúrio e têm coleta própria, pela logística reversa.",
+    "impacts": [
+      "Lâmpadas fluorescentes, de vapor de sódio e mercúrio e de luz mista contêm mercúrio.",
+      "Quebradas ou jogadas no lixo, liberam mercúrio no ar, no solo e na água, que pode chegar a rios e mananciais.",
+      "O mercúrio acumulado no corpo pode afetar o fígado, os rins e os sistemas nervoso e reprodutivo."
+    ],
     "disposalGuide": [
-      "[Passo de descarte confirmado pela equipe]",
-      "[Próximo passo confirmado pela equipe]"
+      "Não jogue lâmpadas no lixo comum.",
+      "Guarde a lâmpada inteira, de preferência na embalagem original, para não quebrá-la.",
+      "Leve-a a um ponto de entrega de lâmpadas, como os de supermercados e lojas participantes da logística reversa."
     ],
     "sources": [
       {
-        "label": "[Nome da fonte oficial]",
-        "url": "[URL da fonte oficial]"
+        "label": "SINIR (Ministério do Meio Ambiente) — Logística reversa de lâmpadas",
+        "url": "https://sinir.gov.br/perfis/logistica-reversa/logistica-reversa/lampadas-fluorescentes-de-vapor-de-sodio-e-mercurio-e-de-luz-mista/"
+      },
+      {
+        "label": "Governo do Paraná (Sanepar) — Descarte correto de lâmpada fluorescente",
+        "url": "https://www.defesacivil.pr.gov.br/Noticia/Descarte-correto-de-lampada-fluorescente-evita-contaminacao-de-mananciais"
       }
     ]
   },
   "Papel e papelão": {
     "id": "papel-e-papelao",
-    "summary": "Conteúdo educativo em preparação.",
-    "impacts": ["[Impacto ambiental a pesquisar com fonte oficial]"],
+    "summary": "Jornais, revistas, cadernos, folhas, caixas e embalagens de papelão. São recicláveis quando estão limpos e secos.",
+    "impacts": [
+      "Reciclar papel reduz o consumo de matérias-primas, energia e água.",
+      "No lixo comum, o papel vai para o aterro sanitário, que deveria receber apenas rejeitos.",
+      "Misturado a restos de comida, o papel se suja e deixa de ser reciclável."
+    ],
     "disposalGuide": [
-      "[Passo de descarte confirmado pela equipe]",
-      "[Próximo passo confirmado pela equipe]"
+      "Separe papéis e papelão secos e limpos, longe de restos de comida.",
+      "Papel engordurado, papel-carbono, fotografias e extratos em papel térmico não são recicláveis: vão para o lixo comum.",
+      "Entregue na coleta seletiva, que em Caçapava segue um itinerário semanal por bairro, ou em um ponto de entrega de recicláveis.",
+      "Em coletores coloridos, papel e papelão vão no azul."
     ],
     "sources": [
       {
-        "label": "[Nome da fonte oficial]",
-        "url": "[URL da fonte oficial]"
+        "label": "Prefeitura de São Paulo — Descarte de material reciclável",
+        "url": "https://prefeitura.sp.gov.br/web/comunicacao/w/cuide_da_cidade/noticias/276264"
+      },
+      {
+        "label": "Ministério do Meio Ambiente — Manual de compostagem doméstica, comunitária e institucional",
+        "url": "https://www.gov.br/cidades/pt-br/acesso-a-informacao/acoes-e-programas/saneamento/protegeer/biblioteca/CompostagemDomsticaComunitriaeInstitucionaldeResduosOrgnicosMMA.pdf"
+      },
+      {
+        "label": "Conama — Resolução nº 275/2001",
+        "url": "https://conama.mma.gov.br/?option=com_sisconama&task=arquivo.download&id=273"
+      },
+      {
+        "label": "Prefeitura de Caçapava — Coleta seletiva",
+        "url": "https://www.cacapava.sp.gov.br/obras-e-servicos-municipais/coleta-seletiva"
       }
     ]
   },
   "Vidro": {
     "id": "vidro",
-    "summary": "Conteúdo educativo em preparação.",
-    "impacts": ["[Impacto ambiental a pesquisar com fonte oficial]"],
+    "summary": "Garrafas, potes, frascos e copos de vidro. São recicláveis e devem ser separados com cuidado para evitar acidentes.",
+    "impacts": [
+      "O vidro não se decompõe na natureza: seu tempo de decomposição é indeterminado.",
+      "Cacos mal embalados podem ferir os trabalhadores da coleta.",
+      "Separadas, as embalagens de vidro voltam à indústria para serem recicladas."
+    ],
     "disposalGuide": [
-      "[Passo de descarte confirmado pela equipe]",
-      "[Próximo passo confirmado pela equipe]"
+      "Esvazie e enxágue garrafas, potes e frascos e retire as tampas.",
+      "Embrulhe cacos em jornal antes de descartá-los, para evitar acidentes.",
+      "Vidros de janela e de carro, espelhos, louças, lâmpadas e ampolas de remédio não vão para a reciclagem de vidro.",
+      "Entregue na coleta seletiva, que em Caçapava segue um itinerário semanal por bairro, ou em um ponto de entrega de recicláveis.",
+      "Em coletores coloridos, o vidro vai no verde."
     ],
     "sources": [
       {
-        "label": "[Nome da fonte oficial]",
-        "url": "[URL da fonte oficial]"
+        "label": "SINIR (Ministério do Meio Ambiente) — Logística reversa de embalagens de vidro",
+        "url": "https://sinir.gov.br/perfis/logistica-reversa/logistica-reversa/aba-vidro/"
+      },
+      {
+        "label": "Prefeitura de São Paulo — Descarte de material reciclável",
+        "url": "https://prefeitura.sp.gov.br/web/comunicacao/w/cuide_da_cidade/noticias/276264"
+      },
+      {
+        "label": "Prefeitura de São Paulo — Lixo reciclável",
+        "url": "https://prefeitura.sp.gov.br/web/comunicacao/w/cuide_da_cidade/noticias/276267"
+      },
+      {
+        "label": "Ministério do Meio Ambiente — Manual de compostagem doméstica, comunitária e institucional",
+        "url": "https://www.gov.br/cidades/pt-br/acesso-a-informacao/acoes-e-programas/saneamento/protegeer/biblioteca/CompostagemDomsticaComunitriaeInstitucionaldeResduosOrgnicosMMA.pdf"
+      },
+      {
+        "label": "Conama — Resolução nº 275/2001",
+        "url": "https://conama.mma.gov.br/?option=com_sisconama&task=arquivo.download&id=273"
+      },
+      {
+        "label": "Prefeitura de Caçapava — Coleta seletiva",
+        "url": "https://www.cacapava.sp.gov.br/obras-e-servicos-municipais/coleta-seletiva"
       }
     ]
   },
   "Medicamentos": {
     "id": "medicamentos",
-    "summary": "Conteúdo educativo em preparação.",
-    "impacts": ["[Impacto ambiental a pesquisar com fonte oficial]"],
+    "summary": "Remédios de uso humano vencidos ou que não são mais usados. Farmácias e drogarias participantes recebem esses produtos para dar destino seguro.",
+    "impacts": [
+      "Jogados no lixo, na pia ou no vaso sanitário, os remédios podem poluir o solo e a água.",
+      "Muitos princípios ativos não são totalmente removidos pelo tratamento de esgoto.",
+      "No lixo comum, podem ser consumidos por catadores e causar intoxicações."
+    ],
     "disposalGuide": [
-      "[Passo de descarte confirmado pela equipe]",
-      "[Próximo passo confirmado pela equipe]"
+      "Não jogue remédios no lixo comum, na pia ou no vaso sanitário.",
+      "Mantenha o remédio na embalagem original sempre que possível. Caixas de papelão e bulas podem ir para a coleta seletiva.",
+      "Entregue comprimidos, cartelas, xaropes e pomadas nos coletores de farmácias e drogarias participantes.",
+      "Para seringas e agulhas, consulte antes uma unidade de saúde."
     ],
     "sources": [
       {
-        "label": "[Nome da fonte oficial]",
-        "url": "[URL da fonte oficial]"
+        "label": "Planalto — Decreto nº 10.388/2020",
+        "url": "https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2020/decreto/d10388.htm"
+      },
+      {
+        "label": "SINIR (Ministério do Meio Ambiente) — Logística reversa de medicamentos",
+        "url": "https://sinir.gov.br/perfis/logistica-reversa/logistica-reversa/medicamentos-seus-residuos-e-embalagens/"
+      },
+      {
+        "label": "Governo Federal — Descarte adequado de medicamentos em desuso",
+        "url": "https://www.gov.br/pt-br/noticias/meio-ambiente-e-clima/2022/12/o-descarte-adequado-de-medicamentos-em-desuso-contribui-para-a-qualidade-do-meio-ambiente"
+      },
+      {
+        "label": "Agência SP — Medicamentos vencidos: onde descartar",
+        "url": "https://www.agenciasp.sp.gov.br/saude/medicamentos-vencidos-onde-descartar-e-por-que-nao-jogar-no-lixo-ou-no-vaso-sanitario/"
       }
     ]
   },
   "Resíduos orgânicos": {
     "id": "residuos-organicos",
-    "summary": "Conteúdo educativo em preparação.",
-    "impacts": ["[Impacto ambiental a pesquisar com fonte oficial]"],
+    "summary": "Restos de comida, cascas de frutas e verduras, folhas e podas. Podem virar adubo pela compostagem.",
+    "impacts": [
+      "Representam cerca de metade dos resíduos urbanos gerados no Brasil.",
+      "Ao se decompor em lixões e outros locais inadequados, produzem líquidos e gases que contaminam a água e o solo.",
+      "Misturados aos recicláveis, sujam papéis e embalagens e dificultam o trabalho dos catadores.",
+      "Restos de comida expostos atraem moscas, ratos e outros vetores de doenças."
+    ],
     "disposalGuide": [
-      "[Passo de descarte confirmado pela equipe]",
-      "[Próximo passo confirmado pela equipe]"
+      "Separe restos de comida, cascas de frutas e verduras, folhas e podas dos recicláveis e dos rejeitos.",
+      "Se tiver espaço, faça compostagem: o adubo pode ser usado em hortas e jardins.",
+      "Na composteira, cubra cada porção de resíduos úmidos com duas porções de material seco, como serragem, palha ou folhas.",
+      "Sem compostagem, entregue-os à coleta de lixo do seu bairro.",
+      "Em coletores coloridos, os orgânicos vão no marrom."
     ],
     "sources": [
       {
-        "label": "[Nome da fonte oficial]",
-        "url": "[URL da fonte oficial]"
+        "label": "Ministério do Meio Ambiente — Manual de compostagem doméstica, comunitária e institucional",
+        "url": "https://www.gov.br/cidades/pt-br/acesso-a-informacao/acoes-e-programas/saneamento/protegeer/biblioteca/CompostagemDomsticaComunitriaeInstitucionaldeResduosOrgnicosMMA.pdf"
+      },
+      {
+        "label": "Conama — Resolução nº 275/2001",
+        "url": "https://conama.mma.gov.br/?option=com_sisconama&task=arquivo.download&id=273"
+      },
+      {
+        "label": "Prefeitura de Caçapava — Coleta de lixo",
+        "url": "https://www.cacapava.sp.gov.br/obras-e-servicos-municipais/coleta-de-lixo"
       }
     ]
   },
   "Metais": {
     "id": "metais",
-    "summary": "Conteúdo educativo em preparação.",
-    "impacts": ["[Impacto ambiental a pesquisar com fonte oficial]"],
+    "summary": "Latas de bebidas e alimentos, tampas, papel-alumínio limpo, panelas e outros objetos de metal. São recicláveis.",
+    "impacts": [
+      "Uma lata de alumínio leva de 200 a 500 anos para se decompor.",
+      "Latas de alumínio podem ser recicladas indefinidamente sem perder qualidade.",
+      "Reciclar o aço evita impactos da extração de minério e reduz emissões de CO2."
+    ],
     "disposalGuide": [
-      "[Passo de descarte confirmado pela equipe]",
-      "[Próximo passo confirmado pela equipe]"
+      "Esvazie latas e embalagens e não coloque restos de comida, guardanapos ou bitucas dentro delas.",
+      "Deixe o anel na lata: ele também é reciclado.",
+      "Amasse as latas para ocupar menos espaço.",
+      "Latas de tinta, verniz, solvente e inseticida não vão para a coleta seletiva.",
+      "Entregue na coleta seletiva, que em Caçapava segue um itinerário semanal por bairro, ou em um ponto de entrega de recicláveis.",
+      "Em coletores coloridos, o metal vai no amarelo."
     ],
     "sources": [
       {
-        "label": "[Nome da fonte oficial]",
-        "url": "[URL da fonte oficial]"
+        "label": "SINIR (Ministério do Meio Ambiente) — Logística reversa de latas de alumínio",
+        "url": "https://sinir.gov.br/perfis/logistica-reversa/logistica-reversa/latas-de-aluminio-para-bebidas/"
+      },
+      {
+        "label": "SINIR (Ministério do Meio Ambiente) — Logística reversa de embalagens de aço",
+        "url": "https://sinir.gov.br/perfis/logistica-reversa/logistica-reversa/embalagens-de-aco/"
+      },
+      {
+        "label": "Prefeitura de São Paulo — Descarte de material reciclável",
+        "url": "https://prefeitura.sp.gov.br/web/comunicacao/w/cuide_da_cidade/noticias/276264"
+      },
+      {
+        "label": "Prefeitura de São Paulo — Lixo reciclável",
+        "url": "https://prefeitura.sp.gov.br/web/comunicacao/w/cuide_da_cidade/noticias/276267"
+      },
+      {
+        "label": "Ministério do Meio Ambiente — Manual de compostagem doméstica, comunitária e institucional",
+        "url": "https://www.gov.br/cidades/pt-br/acesso-a-informacao/acoes-e-programas/saneamento/protegeer/biblioteca/CompostagemDomsticaComunitriaeInstitucionaldeResduosOrgnicosMMA.pdf"
+      },
+      {
+        "label": "Conama — Resolução nº 275/2001",
+        "url": "https://conama.mma.gov.br/?option=com_sisconama&task=arquivo.download&id=273"
+      },
+      {
+        "label": "Prefeitura de Caçapava — Coleta seletiva",
+        "url": "https://www.cacapava.sp.gov.br/obras-e-servicos-municipais/coleta-seletiva"
       }
     ]
   },
   "Resíduos não recicláveis": {
     "id": "residuos-nao-reciclaveis",
-    "summary": "Conteúdo educativo em preparação.",
-    "impacts": ["[Impacto ambiental a pesquisar com fonte oficial]"],
+    "summary": "Rejeitos que não podem ser reciclados nem compostados, como fraldas, bitucas de cigarro e papéis engordurados. Vão para o aterro sanitário.",
+    "impacts": [
+      "São rejeitos: resíduos que não podem mais ser reciclados ou tratados e devem ir para o aterro sanitário.",
+      "Recicláveis misturados aos rejeitos se perdem e aumentam o volume enviado aos aterros.",
+      "Queimar lixo ou jogá-lo em terrenos, rios ou no mar é proibido por lei e polui o ambiente."
+    ],
     "disposalGuide": [
-      "[Passo de descarte confirmado pela equipe]",
-      "[Próximo passo confirmado pela equipe]"
+      "Separe como rejeito: fraldas, bitucas de cigarro, papéis engordurados, fotografias, papel-carbono, espelhos, louças, espuma e embalagens metalizadas.",
+      "Retire o excesso de líquidos e não encha demais o saco, para fechá-lo bem.",
+      "Embrulhe e identifique objetos que possam ferir os coletores, como cacos.",
+      "Coloque o saco para a coleta de lixo no dia e horário do seu bairro, conforme o itinerário da Prefeitura de Caçapava.",
+      "Em coletores coloridos, o rejeito vai no cinza."
     ],
     "sources": [
       {
-        "label": "[Nome da fonte oficial]",
-        "url": "[URL da fonte oficial]"
+        "label": "Planalto — Lei nº 12.305/2010 (Política Nacional de Resíduos Sólidos)",
+        "url": "https://www.planalto.gov.br/ccivil_03/_ato2007-2010/2010/lei/l12305.htm"
+      },
+      {
+        "label": "Ministério do Meio Ambiente — Manual de compostagem doméstica, comunitária e institucional",
+        "url": "https://www.gov.br/cidades/pt-br/acesso-a-informacao/acoes-e-programas/saneamento/protegeer/biblioteca/CompostagemDomsticaComunitriaeInstitucionaldeResduosOrgnicosMMA.pdf"
+      },
+      {
+        "label": "Prefeitura de São Paulo — Boas práticas para o descarte do lixo",
+        "url": "https://prefeitura.sp.gov.br/web/comunicacao/w/cuide_da_cidade/noticias/276265"
+      },
+      {
+        "label": "Conama — Resolução nº 275/2001",
+        "url": "https://conama.mma.gov.br/?option=com_sisconama&task=arquivo.download&id=273"
+      },
+      {
+        "label": "Prefeitura de Caçapava — Coleta de lixo",
+        "url": "https://www.cacapava.sp.gov.br/obras-e-servicos-municipais/coleta-de-lixo"
       }
     ]
   },
   "Plásticos": {
     "id": "plasticos",
-    "summary": "Conteúdo educativo em preparação.",
-    "impacts": ["[Impacto ambiental a pesquisar com fonte oficial]"],
+    "summary": "Garrafas PET, embalagens, sacolas, potes e outros objetos de plástico. São recicláveis quando estão limpos.",
+    "impacts": [
+      "Uma sacola plástica leva mais de 100 anos para se decompor.",
+      "Cerca de 1,7 milhão de toneladas de plástico chegam aos oceanos por ano, a maior parte vinda do continente.",
+      "No ambiente, o plástico se fragmenta em microplásticos que contaminam a cadeia alimentar marinha.",
+      "Plásticos descartáveis de uso único estão entre os resíduos mais encontrados em praias e no mar."
+    ],
     "disposalGuide": [
-      "[Passo de descarte confirmado pela equipe]",
-      "[Próximo passo confirmado pela equipe]"
+      "Esvazie e enxágue as embalagens para retirar restos de alimentos.",
+      "Separe as tampas das embalagens.",
+      "Celofane e embalagens metalizadas não são recicláveis: vão para o lixo comum.",
+      "Entregue na coleta seletiva, que em Caçapava segue um itinerário semanal por bairro, ou em um ponto de entrega de recicláveis.",
+      "Em coletores coloridos, o plástico vai no vermelho."
     ],
     "sources": [
       {
-        "label": "[Nome da fonte oficial]",
-        "url": "[URL da fonte oficial]"
+        "label": "Ministério do Meio Ambiente — Poluição por plástico",
+        "url": "https://www.gov.br/mma/pt-br/composicao/smc/doceano/vetores-de-degradacao-costeira-e-marinha/poluicao-por-plastico"
+      },
+      {
+        "label": "Ministério do Meio Ambiente — Manual de compostagem doméstica, comunitária e institucional",
+        "url": "https://www.gov.br/cidades/pt-br/acesso-a-informacao/acoes-e-programas/saneamento/protegeer/biblioteca/CompostagemDomsticaComunitriaeInstitucionaldeResduosOrgnicosMMA.pdf"
+      },
+      {
+        "label": "Prefeitura de São Paulo — Descarte de material reciclável",
+        "url": "https://prefeitura.sp.gov.br/web/comunicacao/w/cuide_da_cidade/noticias/276264"
+      },
+      {
+        "label": "Prefeitura de São Paulo — Lixo reciclável",
+        "url": "https://prefeitura.sp.gov.br/web/comunicacao/w/cuide_da_cidade/noticias/276267"
+      },
+      {
+        "label": "Conama — Resolução nº 275/2001",
+        "url": "https://conama.mma.gov.br/?option=com_sisconama&task=arquivo.download&id=273"
+      },
+      {
+        "label": "Prefeitura de Caçapava — Coleta seletiva",
+        "url": "https://www.cacapava.sp.gov.br/obras-e-servicos-municipais/coleta-seletiva"
       }
     ]
   }
