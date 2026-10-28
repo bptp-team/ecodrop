@@ -79,4 +79,28 @@ describe('CollectionPointsMap', () => {
     expect(markup).toContain('class="map"')
     expect(markup).not.toContain('data-marker-name=')
   })
+
+  it('renders a distinct marker at the confirmed user location', () => {
+    const markup = renderToStaticMarkup(
+      createElement(CollectionPointsMap, {
+        points: [],
+        userLocation: { latitude: -23.1, longitude: -45.7 },
+      }),
+    )
+
+    expect(markup).toContain('user-location-marker')
+    expect(markup).toContain('data-marker-name="Sua localização"')
+    expect(markup).toContain('data-position="-23.1,-45.7"')
+  })
+
+  it('does not render a user marker without a valid location', () => {
+    const markup = renderToStaticMarkup(
+      createElement(CollectionPointsMap, {
+        points: [],
+        userLocation: { latitude: Number.NaN, longitude: -45.7 },
+      }),
+    )
+
+    expect(markup).not.toContain('user-location-marker')
+  })
 })

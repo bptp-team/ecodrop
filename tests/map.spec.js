@@ -70,11 +70,11 @@ for (const { name, width } of viewports) {
       expect(
         await page.evaluate(() => document.documentElement.scrollHeight),
       ).toBeLessThanOrEqual(900)
-      await expect(map.locator('.leaflet-marker-icon')).toHaveCount(
+      await expect(map.locator('.collection-point-marker')).toHaveCount(
         collectionPointCount,
       )
       const markerColors = await map
-        .locator('.leaflet-marker-icon')
+        .locator('.collection-point-marker')
         .first()
         .evaluate((marker) => {
           const colorProbe = document.createElement('span')
@@ -243,7 +243,25 @@ test('orders each result point list by distance when location is allowed', async
     latitude: -23.10089,
     longitude: -45.70462,
   })
+  await page.route('https://tile.openstreetmap.org/**', (route) =>
+    route.abort(),
+  )
   await page.goto('/?busca=medicamento')
+
+  await expect(page.locator('.user-location-marker')).toHaveCount(1)
+  const locationMarkerColors = await page
+    .locator('.user-location-marker')
+    .evaluate((marker) => {
+      const colorProbe = document.createElement('span')
+      colorProbe.style.color = 'var(--color-location)'
+      document.body.append(colorProbe)
+      const locationColor = getComputedStyle(colorProbe).color
+      colorProbe.remove()
+      return (
+        getComputedStyle(marker, '::before').backgroundColor === locationColor
+      )
+    })
+  expect(locationMarkerColors).toBe(true)
 
   await expect(page.locator('.search-result-points li strong')).toHaveText([
     'Drogaria São Paulo',
@@ -268,9 +286,34 @@ test('keeps received result order silently when location is denied', async ({
     'Drogaria São Paulo',
   ])
   await expect(page.locator('.search-result-distance')).toHaveCount(0)
+  await expect(page.locator('.user-location-marker')).toHaveCount(0)
   await expect(page.locator('.search-feedback')).not.toContainText(
     /distância|localização/i,
   )
+})
+
+test('does not show a user marker when geolocation reports an error', async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    window.__geolocationErrorCalled = false
+    Object.defineProperty(navigator, 'geolocation', {
+      configurable: true,
+      value: {
+        getCurrentPosition(_success, error) {
+          window.__geolocationErrorCalled = true
+          error({ code: 2, message: 'Position unavailable' })
+        },
+      },
+    })
+  })
+  await page.route('https://tile.openstreetmap.org/**', (route) =>
+    route.abort(),
+  )
+  await page.goto('/')
+  await page.waitForFunction(() => window.__geolocationErrorCalled)
+
+  await expect(page.locator('.user-location-marker')).toHaveCount(0)
 })
 
 for (const { name, width } of viewports.filter(({ width }) =>

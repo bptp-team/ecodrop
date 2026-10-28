@@ -113,7 +113,10 @@ function MapPage() {
             Abrir busca
           </button>
         )}
-        <CollectionPointsMap points={visiblePoints} />
+        <CollectionPointsMap
+          points={visiblePoints}
+          userLocation={userLocation}
+        />
       </main>
     </>
   )
@@ -137,11 +140,12 @@ function AppLayout() {
     if (!navigator.geolocation) return
 
     navigator.geolocation.getCurrentPosition(
-      ({ coords }) =>
-        setUserLocation({
-          latitude: coords.latitude,
-          longitude: coords.longitude,
-        }),
+      ({ coords }) => {
+        const { latitude, longitude } = coords
+        if (Number.isFinite(latitude) && Number.isFinite(longitude)) {
+          setUserLocation({ latitude, longitude })
+        }
+      },
       () => undefined,
       { maximumAge: 60_000, timeout: 10_000 },
     )

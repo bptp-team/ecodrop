@@ -9,8 +9,44 @@
   height: 26px;
   border: 3px solid #fff;
   border-radius: 50%;
-  background: var(--color-primary);
   box-shadow: 0 1px 4px rgb(0 0 0 / 40%);
+}
+
+.collection-point-marker {
+  background: var(--color-primary);
+}
+
+.user-location-marker {
+  width: 32px;
+  height: 40px;
+  background: transparent;
+  border: 0;
+}
+
+.user-location-marker::before {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  box-sizing: border-box;
+  width: 28px;
+  height: 28px;
+  border: 3px solid #fff;
+  border-radius: 50% 50% 50% 0;
+  background: var(--color-location);
+  box-shadow: 0 1px 4px rgb(0 0 0 / 40%);
+  content: '';
+  transform: rotate(-45deg);
+}
+
+.user-location-marker::after {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #fff;
+  content: '';
 }
 
 .point-popup {

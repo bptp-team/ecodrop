@@ -13,7 +13,17 @@ const markerIcon = L.divIcon({
   popupAnchor: [0, -13],
 })
 
-function CollectionPointsMap({ points }) {
+const userLocationIcon = L.divIcon({
+  className: 'user-location-marker',
+  iconSize: [32, 40],
+  iconAnchor: [16, 36],
+})
+
+function CollectionPointsMap({ points, userLocation = null }) {
+  const hasUserLocation =
+    Number.isFinite(userLocation?.latitude) &&
+    Number.isFinite(userLocation?.longitude)
+
   return (
     <MapContainer center={MAP_CENTER} zoom={MAP_ZOOM} className="map">
       <TileLayer
@@ -39,6 +49,14 @@ function CollectionPointsMap({ points }) {
           <PointPopup point={point} />
         </Marker>
       ))}
+      {hasUserLocation && (
+        <Marker
+          position={[userLocation.latitude, userLocation.longitude]}
+          icon={userLocationIcon}
+          alt="Sua localização"
+          title="Sua localização"
+        />
+      )}
     </MapContainer>
   )
 }
