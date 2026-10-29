@@ -4,6 +4,41 @@ Web application for finding waste collection and disposal points in Caçapava, S
 
 Built with [React](https://react.dev) and [Vite](https://vite.dev).
 
+## Contents
+
+- [Requirements](#requirements)
+- [Getting started](#getting-started)
+- [Commands](#commands)
+- [Structure](#structure)
+- [Deployment](#deployment)
+  - [How it works](#how-it-works)
+  - [Publishing a new version](#publishing-a-new-version)
+  - [Infrastructure](#infrastructure)
+  - [Domain](#domain)
+- [Analytics](#analytics)
+  - [Metrics and events](#metrics-and-events)
+  - [Monitoring coverage](#monitoring-coverage)
+  - [Pending items](#pending-items)
+  - [KQL queries](#kql-queries)
+    - [Before running a query](#before-running-a-query)
+    - [Checking a release](#checking-a-release)
+    - [Page views](#page-views)
+    - [Searches](#searches)
+    - [Clicks and other interactions](#clicks-and-other-interactions)
+    - [Investigating missing data](#investigating-missing-data)
+  - [Privacy and setup](#privacy-and-setup)
+- [Map](#map)
+  - [Collection points](#collection-points)
+  - [Item search](#item-search)
+  - [Relationships between data files](#relationships-between-data-files)
+    - [`searchableItems.json`: item catalog](#searchableitemsjson-item-catalog)
+    - [`collectionPoints.json`: locations and accepted materials](#collectionpointsjson-locations-and-accepted-materials)
+    - [`wasteTypeDetails.json`: educational content by waste type](#wastetypedetailsjson-educational-content-by-waste-type)
+    - [Tests that guard the relationships](#tests-that-guard-the-relationships)
+  - [Data sources](#data-sources)
+  - [Adding or updating a point](#adding-or-updating-a-point)
+  - [Coverage limitations](#coverage-limitations)
+
 ## Requirements
 
 - Node.js 22.12+
@@ -160,113 +195,427 @@ The published site sends usage data to Azure Application Insights, available in 
 | Page views                   | A visit to the map (`/`), Aprenda index (`/aprenda`) or a valid waste-type page (`/aprenda/:wasteTypeId`). Shows which parts of the site are used. Query-string changes such as searches do not create extra page views.                                   |
 | Page views per day           | Daily volume of page views; useful for comparing usage over time and seeing activity around educational events.                                                                                                                                            |
 | Approximate city             | `client_City` estimates the city of access. It can show whether visits come from Caçapava or elsewhere; it is not a precise location.                                                                                                                      |
-| Initial page load duration   | `pageViews.duration` for the first page view, marked by `isInitialLoad`. This reflects the initial browser navigation timing. Later SPA route changes can have a duration of zero and should not be used as load-time measurements.                        |
-| JavaScript errors            | Browser exceptions captured by Application Insights. Helps identify client-side failures affecting visitors.                                                                                                                                               |
+| Initial page load duration   | `pageViews.duration` for the first page view in a tab, marked by `isInitialLoad`. It reflects how long the browser took to load the site. Later page views in the same tab repeat this value, so they do not measure load time.                            |
+| JavaScript errors            | Browser exceptions captured automatically by Application Insights, in the `exceptions` table. Helps identify client-side failures affecting visitors.                                                                                                      |
 | `Search`                     | One submitted search, with `term` (lowercase), `results` (matching item count) and `points` (compatible collection-point count). A zero `results` count indicates a missing catalog item; zero `points` indicates a possible gap in collection-point data. |
 | Searches without results     | Derived from `Search` where `results` is zero. Its rate helps prioritize additions to the item catalog.                                                                                                                                                    |
 | Search terms                 | The `term` property of `Search`, useful for identifying common queries and catalog vocabulary.                                                                                                                                                             |
 | Searches per map view        | The number of `Search` events divided by map page views. Indicates how often map visitors use search.                                                                                                                                                      |
 | Aprenda visits by waste type | Page views grouped by route, showing which educational waste-type pages are viewed.                                                                                                                                                                        |
-| `NavigationLinkClicked`      | A click on a main navigation link, the EcoDrop logo, the feedback link or the source-code repository link. Includes `item`, `destination` and `linkType`. It replaces the historical event name `Navigation`.                                              |
+| `NavigationLinkClicked`      | A click on a main navigation link, the EcoDrop logo, the feedback link or the source-code repository link. Includes `item`, `destination` and `linkType`.                                                                                                  |
 | `CollectionPointOpened`      | Opening a map point popup, with the point `id` and `name`. Shows which collection points attract interest.                                                                                                                                                 |
 | `LearnMoreClick`             | Clicking “Saiba mais” from search results, with the `wasteType` and `destination`. Measures when a search leads to educational content.                                                                                                                    |
 | `ViewOnMapClick`             | Clicking “Ver no mapa os pontos que recebem” on a waste-type page, with the `wasteType` and `destination`. Measures when educational content leads back to the map.                                                                                        |
 | `CollectionPointLinkClick`   | Clicking the OpenStreetMap link in a point popup, with `pointId`. Indicates intent to visit a collection point; the destination URL is not sent.                                                                                                           |
 
-Run these examples in the Application Insights resource under **Logs**.
+`PageVisitTime` is not enabled. Sessions, unique users and retention are not reported because cookies are disabled and the app does not keep a visitor identifier. Whether consent is required depends on the full legal and data-processing context; disabling cookies alone is not a legal determination. Search terms are free text, so avoid entering personal information.
 
-Page views by page and day:
+### Monitoring coverage
+
+Every interactive element of the site, what it sends to Application Insights and whether its records have been seen in production. Checked against the code and the production data on October 29, 2026, after release 1.0.5.
+
+- **Confirmed:** records with the expected properties were found in production.
+- **Not validated:** the code sends the event, but no record has been found yet.
+- **Page view only:** the click itself is not recorded, but the page it opens is. The page view does not show which link was used.
+- **Not tracked:** nothing is sent.
+
+| Element or interaction                                                                           | Location                          | Event sent                                                             | Record type                 | Status         |
+| ------------------------------------------------------------------------------------------------ | --------------------------------- | ---------------------------------------------------------------------- | --------------------------- | -------------- |
+| Opening the map                                                                                  | Map (`/`)                         | Page view `/`                                                          | `pageViews`                 | Confirmed      |
+| Opening the Aprenda index                                                                        | Aprenda (`/aprenda`)              | Page view `/aprenda`                                                   | `pageViews`                 | Confirmed      |
+| Opening a waste-type page                                                                        | Waste-type page (`/aprenda/<id>`) | Page view `/aprenda/<id>`                                              | `pageViews`                 | Confirmed      |
+| Opening an address that does not exist                                                           | Page not found                    | None                                                                   | —                           | Not tracked    |
+| “EcoDrop” logo                                                                                   | Header, every page                | `NavigationLinkClicked` (`item`: `logo`) and page view `/`             | `customEvents`, `pageViews` | Confirmed      |
+| “Mapa”                                                                                           | Header, every page                | `NavigationLinkClicked` (`item`: `map`) and page view `/`              | `customEvents`, `pageViews` | Confirmed      |
+| “Aprenda”                                                                                        | Header, every page                | `NavigationLinkClicked` (`item`: `learn`) and page view `/aprenda`     | `customEvents`, `pageViews` | Confirmed      |
+| “Avaliar o EcoDrop ↗” (Microsoft Forms, external)                                                | Header, every page                | `NavigationLinkClicked` (`item`: `feedback`, `linkType`: `external`)   | `customEvents`              | Confirmed      |
+| “Código-fonte ↗” (GitHub, external)                                                              | Header, every page                | `NavigationLinkClicked` (`item`: `repository`, `linkType`: `external`) | `customEvents`              | Confirmed      |
+| “Buscar” button or Enter                                                                         | Map, search panel                 | `Search`                                                               | `customEvents`              | Confirmed      |
+| “Buscar” with an empty field                                                                     | Map, search panel                 | None (only shows a message)                                            | —                           | Not tracked    |
+| “Saiba mais ↗”                                                                                   | Map, search result                | `LearnMoreClick` and page view `/aprenda/<id>`                         | `customEvents`, `pageViews` | Confirmed      |
+| “Limpar busca”, or erasing the search text                                                       | Map, search panel                 | None                                                                   | —                           | Not tracked    |
+| “Fechar” and “Abrir busca” (close and reopen the search panel, on screens narrower than 1024 px) | Map, search panel                 | None                                                                   | —                           | Not tracked    |
+| “Aprenda” link in the no-results message                                                         | Map, search panel                 | Page view `/aprenda`                                                   | `pageViews`                 | Page view only |
+| Source links (“Fonte: …”, external)                                                              | Map, search result                | None                                                                   | —                           | Not tracked    |
+| Collection point marker (click or Enter)                                                         | Map                               | `CollectionPointOpened`                                                | `customEvents`              | Confirmed      |
+| “Ver no OpenStreetMap ↗” (external)                                                              | Map, point popup                  | `CollectionPointLinkClick`                                             | `customEvents`              | Not validated  |
+| Source links (“Fonte: …”, external)                                                              | Map, point popup                  | None                                                                   | —                           | Not tracked    |
+| Popup close button (×)                                                                           | Map, point popup                  | None                                                                   | —                           | Not tracked    |
+| Zoom buttons, dragging and zooming the map                                                       | Map                               | None                                                                   | —                           | Not tracked    |
+| Attribution links (Leaflet, OpenStreetMap; external)                                             | Map, bottom-right corner          | None                                                                   | —                           | Not tracked    |
+| Location permission (allow or block)                                                             | Map, browser prompt               | None                                                                   | —                           | Not tracked    |
+| Waste-type cards (“Ver como descartar ↗”)                                                        | Aprenda                           | Page view `/aprenda/<id>`                                              | `pageViews`                 | Page view only |
+| Breadcrumb “Aprenda”                                                                             | Waste-type page                   | Page view `/aprenda`                                                   | `pageViews`                 | Page view only |
+| “Ver no mapa os pontos que recebem”                                                              | Waste-type page                   | `ViewOnMapClick` and page view `/`                                     | `customEvents`, `pageViews` | Confirmed      |
+| Official source links (“Fontes oficiais”, external)                                              | Waste-type page                   | None                                                                   | —                           | Not tracked    |
+| “Voltar para Aprenda”                                                                            | Page not found                    | Page view `/aprenda`                                                   | `pageViews`                 | Page view only |
+| Initial load timing                                                                              | Every page (automatic)            | Load timing of the first page                                          | `browserTimings`            | Confirmed      |
+| JavaScript errors                                                                                | Every page (automatic)            | Exception                                                              | `exceptions`                | Confirmed      |
+
+Things to know when reading these records:
+
+- Links to other sites never create a page view. For “Avaliar o EcoDrop”, “Código-fonte” and “Ver no OpenStreetMap”, the click event is the only record. The other external links leave no record at all.
+- A page view is recorded only when the page changes. Clicking the logo or “Mapa” while already on the map sends `NavigationLinkClicked` without a page view.
+- Arriving at the map with a search already in the address (from “Ver no mapa os pontos que recebem”, a reload or the browser's back and forward buttons) shows results without sending `Search`. Only submitting the search form sends it.
+- “Ver no OpenStreetMap ↗” appears only in the popups of points with an `osmUrl`, currently Carrefour Bairro Caçapava and Supermercado Shibata.
+
+### Pending items
+
+1. **Validate `CollectionPointLinkClick`.** The event is in the code but no record has arrived yet. Open the popup of Carrefour Bairro Caçapava or Supermercado Shibata, click “Ver no OpenStreetMap ↗” and check the result with the “OpenStreetMap links by point” query.
+2. **Page-view timestamps.** For every page view after the first, the SDK reuses the initial load duration and sets the timestamp to the current time minus that duration. Counts are not affected, but a page view can be listed up to tens of seconds before the click that opened it. A possible fix, not applied: send `duration: 0` in the properties of the page views after the first one, in [`src/App.jsx`](src/App.jsx).
+3. **Interactions without records.** Official source links and pages not found are not tracked. Tracking them would show whether visitors check the sources and which broken addresses are visited.
+
+### KQL queries
+
+Run these queries in the Azure portal: open the `ecodrop-insights` resource and select **Logs**, under **Monitoring**.
+
+#### Before running a query
+
+- Wait a few minutes after using the site before running a query.
+- Ad blockers, including Brave's built-in blocker, stop the SDK. Test in a browser without one.
+- A tab opened before a deploy keeps running the previous version until it is reloaded. Reload the site before testing a new release.
+- Page views recorded until October 28, 2026 came from an older version and are named `EcoDrop`. The queries use `name startswith "/"` to leave them out.
+- Each query sets its own time range with `timestamp > ago(...)`, so the portal shows the time range as “Set in query”.
+- Do not use `views`, `first` or `last` as column names. They are reserved words and cause the error “Query could not be parsed”.
+
+#### Checking a release
+
+After a deploy, reload the site in a browser without an ad blocker, use the features you want to check, wait a few minutes and run these queries. They cover the last hour.
+
+Everything recorded in the last hour:
 
 ```kusto
-pageViews
-| summarize views = count() by page = name
-| order by views desc
+union customEvents, pageViews
+| where timestamp > ago(1h)
+| project timestamp, type = itemType, name, isInitialLoad = tostring(customDimensions.isInitialLoad), properties = tostring(customDimensions), browser = client_Browser
+| order by timestamp desc
 ```
 
+Each action should appear as a row: page views as `pageView`, clicks and searches as `customEvent`, with their properties. The first page view of your test should have `isInitialLoad` set to `true`. If it is `false`, the tab was opened earlier and may still be running the previous version.
+
+Clicks on “Ver no mapa os pontos que recebem”:
+
+```kusto
+customEvents
+| where timestamp > ago(1h) and name == "ViewOnMapClick"
+| project timestamp, wasteType = tostring(customDimensions.wasteType), destination = tostring(customDimensions.destination), browser = client_Browser
+| order by timestamp desc
+```
+
+Expect one row per click, with the waste type of the page and `destination` set to `/`.
+
+The same click and the map page view it opened, grouped by visit:
+
+```kusto
+union
+    (customEvents | where name == "ViewOnMapClick"),
+    (pageViews | where name startswith "/")
+| where timestamp > ago(1h)
+| project timestamp, visit = session_Id, type = itemType, name, detail = tostring(customDimensions.wasteType)
+| order by visit asc, timestamp asc
+```
+
+`visit` is the SDK's session ID, which changes when the page is reloaded. Expect a `ViewOnMapClick` row and a `pageView` row named `/` next to each other in the same visit. The page view may be listed before the click; see [Pending items](#pending-items).
+
+“Ver no mapa”, “Avaliar o EcoDrop” and “Código-fonte” together:
+
+```kusto
+customEvents
+| where timestamp > ago(1h)
+| where name == "ViewOnMapClick"
+    or (name == "NavigationLinkClicked" and tostring(customDimensions.item) in ("feedback", "repository"))
+| extend interaction = case(
+    name == "ViewOnMapClick", "Ver no mapa",
+    tostring(customDimensions.item) == "feedback", "Avaliar o EcoDrop",
+    "Código-fonte")
+| project timestamp, interaction, browser = client_Browser
+| order by timestamp desc
+```
+
+Expect one row for each click on these three elements.
+
+#### Page views
+
+Page views by page:
+
 ```kusto
 pageViews
-| summarize views = count() by bin(timestamp, 1d)
+| where timestamp > ago(30d) and name startswith "/"
+| summarize pageViewCount = count() by page = name
+| order by pageViewCount desc
+```
+
+Shows which pages are used the most. Expect only `/`, `/aprenda` and `/aprenda/<id>` names.
+
+Page views per day, as a chart:
+
+```kusto
+pageViews
+| where timestamp > ago(30d) and name startswith "/"
+| summarize pageViewCount = count() by day = bin(timestamp, 1d)
 | render columnchart
+```
+
+Page views per day and page:
+
+```kusto
+pageViews
+| where timestamp > ago(30d) and name startswith "/"
+| summarize pageViewCount = count() by day = bin(timestamp, 1d), page = name
+| order by day asc, pageViewCount desc
 ```
 
 Aprenda visits by route:
 
 ```kusto
 pageViews
-| where name startswith "/aprenda"
-| summarize views = count() by page = name
-| order by views desc
+| where timestamp > ago(30d) and name startswith "/aprenda"
+| summarize pageViewCount = count() by page = name
+| order by pageViewCount desc
 ```
+
+Shows which waste-type pages are read the most.
 
 Approximate city:
 
 ```kusto
 pageViews
-| summarize views = count() by client_City
-| order by views desc
+| where timestamp > ago(30d) and name startswith "/"
+| summarize pageViewCount = count() by client_City
+| order by pageViewCount desc
 ```
+
+Shows where visits come from, estimated from the IP address. City names appear without accents, such as `Cacapava`.
 
 Initial page load duration:
 
 ```kusto
 pageViews
-| where tostring(customDimensions.isInitialLoad) == "true"
+| where timestamp > ago(30d) and tostring(customDimensions.isInitialLoad) == "true"
 | summarize averageDuration = avg(duration), p95Duration = percentile(duration, 95)
 ```
+
+In milliseconds. Only the first page view of each tab counts, because later page views repeat the same value.
+
+#### Searches
 
 Search volume and no-result rate:
 
 ```kusto
 customEvents
-| where name == "Search"
+| where timestamp > ago(30d) and name == "Search"
 | summarize totalSearches = count(), notFound = countif(toint(tostring(customDimensions.results)) == 0)
 | extend notFoundRate = iff(totalSearches == 0, real(0), round(100.0 * notFound / totalSearches, 1))
 ```
+
+`notFoundRate` is the percentage of searches that found no item.
 
 Most searched terms:
 
 ```kusto
 customEvents
-| where name == "Search"
+| where timestamp > ago(30d) and name == "Search"
 | summarize searches = count() by term = tolower(tostring(customDimensions.term))
 | top 10 by searches desc
 ```
 
+Searches that found no item or no collection point:
+
+```kusto
+customEvents
+| where timestamp > ago(30d) and name == "Search"
+| extend term = tostring(customDimensions.term), results = toint(tostring(customDimensions.results)), points = toint(tostring(customDimensions.points))
+| where results == 0 or points == 0
+| summarize searches = count() by term, gap = iff(results == 0, "item not in catalog", "no compatible point")
+| order by searches desc
+```
+
+`item not in catalog` means the term matched no item and may be worth adding to `searchableItems.json`. `no compatible point` means the item exists but no collection point accepts it.
+
 Searches per map view:
 
 ```kusto
-let searches = toscalar(customEvents | where name == "Search" | count);
-let mapViews = toscalar(pageViews | where name == "/" | count);
+// Page views are named by route only from this moment on
+let since = toscalar(pageViews | where name startswith "/" | summarize min(timestamp));
+let searches = toscalar(customEvents | where timestamp >= since and name == "Search" | count);
+let mapViews = toscalar(pageViews | where timestamp >= since and name == "/" | count);
 print searchesPerMapView = iff(mapViews == 0, real(0), todouble(searches) / todouble(mapViews))
 ```
 
-Educational and collection-point actions:
+Shows how often map visitors search. The `since` line leaves out the period before page views were named by route.
+
+#### Clicks and other interactions
+
+Events by name:
 
 ```kusto
 customEvents
-| where name == "LearnMoreClick"
+| where timestamp > ago(30d)
+| summarize total = count() by name
+| order by total desc
+```
+
+An overview of all custom events. Expect only the event names listed in [Metrics and events](#metrics-and-events).
+
+Navigation clicks by link:
+
+```kusto
+customEvents
+| where timestamp > ago(30d) and name == "NavigationLinkClicked"
+| summarize clicks = count() by item = tostring(customDimensions.item), linkType = tostring(customDimensions.linkType)
+| order by clicks desc
+```
+
+`item` is `logo`, `map`, `learn`, `feedback` or `repository`. The `external` links, `feedback` and `repository`, only appear here, never in `pageViews`.
+
+Total clicks on “Ver no mapa os pontos que recebem”:
+
+```kusto
+customEvents
+| where timestamp > ago(30d) and name == "ViewOnMapClick"
+| summarize clicks = count()
+```
+
+Clicks on “Ver no mapa os pontos que recebem” by waste type:
+
+```kusto
+customEvents
+| where timestamp > ago(30d) and name == "ViewOnMapClick"
 | summarize clicks = count() by wasteType = tostring(customDimensions.wasteType)
+| order by clicks desc
 ```
+
+Clicks on “Saiba mais” by waste type:
 
 ```kusto
 customEvents
-| where name == "CollectionPointLinkClick"
+| where timestamp > ago(30d) and name == "LearnMoreClick"
+| summarize clicks = count() by wasteType = tostring(customDimensions.wasteType)
+| order by clicks desc
+```
+
+Collection points opened on the map:
+
+```kusto
+customEvents
+| where timestamp > ago(30d) and name == "CollectionPointOpened"
+| summarize opens = count() by point = tostring(customDimensions.name)
+| order by opens desc
+```
+
+Shows which points attract the most interest.
+
+OpenStreetMap links by point:
+
+```kusto
+customEvents
+| where timestamp > ago(30d) and name == "CollectionPointLinkClick"
 | summarize clicks = count() by pointId = tostring(customDimensions.pointId)
+| order by clicks desc
 ```
 
-For comparisons across the navigation-event rename, include both names:
+Returns no rows until someone clicks “Ver no OpenStreetMap ↗”; see [Pending items](#pending-items).
+
+Clicks on “Ver no mapa”, “Avaliar o EcoDrop” and “Código-fonte” per day:
 
 ```kusto
 customEvents
-| where name in ("Navigation", "NavigationLinkClicked")
-| summarize clicks = count() by item = tostring(customDimensions.item)
+| where timestamp > ago(30d)
+| where name == "ViewOnMapClick"
+    or (name == "NavigationLinkClicked" and tostring(customDimensions.item) in ("feedback", "repository"))
+| extend interaction = case(
+    name == "ViewOnMapClick", "Ver no mapa",
+    tostring(customDimensions.item) == "feedback", "Avaliar o EcoDrop",
+    "Código-fonte")
+| summarize clicks = count() by day = bin(timestamp, 1d), interaction
+| order by day asc, interaction asc
 ```
 
-`PageVisitTime` is not enabled. Sessions, unique users and retention are not reported because cookies are disabled and the app does not keep a visitor identifier. Whether consent is required depends on the full legal and data-processing context; disabling cookies alone is not a legal determination. Search terms are free text, so avoid entering personal information.
+#### Investigating missing data
+
+Use these queries when an interaction does not show up.
+
+Tables that received data:
+
+```kusto
+union withsource = sourceTable *
+| where timestamp > ago(30d)
+| summarize total = count(), lastSeen = max(timestamp) by sourceTable
+| order by sourceTable asc
+```
+
+`pageViews`, `customEvents` and `browserTimings` should have recent rows whenever the site is used. The SDK fills `exceptions` and `customMetrics` by itself. If nothing arrives, the SDK is not loading: check for an ad blocker and the `ECODROP_APPINSIGHTS_CONNECTION_STRING` repository variable.
+
+When each event was first and last received:
+
+```kusto
+customEvents
+| where timestamp > ago(30d)
+| summarize total = count(), firstSeen = min(timestamp), lastSeen = max(timestamp) by name
+| order by name asc
+```
+
+An event from the code that is missing here has never been received. `lastSeen` shows whether it still arrives after a release.
+
+Properties received by each event:
+
+```kusto
+customEvents
+| where timestamp > ago(30d)
+| mv-expand property = bag_keys(customDimensions) to typeof(string)
+| summarize total = count() by name, property
+| order by name asc, property asc
+```
+
+Compare with [Metrics and events](#metrics-and-events). A property missing from this list was not sent.
+
+How long records take to be stored:
+
+```kusto
+customEvents
+| where timestamp > ago(1d)
+| extend delaySeconds = datetime_diff("second", ingestion_time(), timestamp)
+| summarize averageDelay = round(avg(delaySeconds), 1), maxDelay = max(delaySeconds)
+```
+
+In seconds, between the action and the moment the record was stored. In October 2026 the average was about 10 seconds. If the delay is much longer, wait before concluding that a record is missing.
+
+JavaScript errors:
+
+```kusto
+exceptions
+| where timestamp > ago(30d)
+| project timestamp, problemId, outerMessage, browser = client_Browser
+| order by timestamp desc
+```
+
+Each row is an error in a visitor's browser. `Script error.` without details usually comes from code outside the site, such as a browser extension, and cannot be traced further.
+
+Items the SDK reports as delivered:
+
+```kusto
+customMetrics
+| where timestamp > ago(30d)
+| summarize items = sum(valueSum) by name, telemetryType = tostring(customDimensions.telemetryType)
+| order by name asc, telemetryType asc
+```
+
+The SDK sends these metrics by itself. `Item_Success_Count` counts the items it delivered, by type: `PAGE_VIEW`, `CUSTOM_EVENT` and `EXCEPTION`.
+
+Data volume per day:
+
+```kusto
+union withsource = sourceTable *
+| where timestamp > ago(7d)
+| summarize megabytes = round(sum(_BilledSize) / 1024.0 / 1024.0, 3) by day = bin(timestamp, 1d)
+| order by day asc
+```
+
+In megabytes. The workspace stores up to 0.1 GB (about 100 MB) per day. When the limit is reached, data stops being stored until the next day.
 
 ### Privacy and setup
 
-- Cookies are disabled with `disableCookiesUsage: true`; the SDK does not keep a visitor identifier between visits.
+- Cookies are disabled with `disableCookiesUsage: true`. While the page is open, the SDK keeps a session ID in the browser's local storage and discards it on the next load, so it does not identify a visitor between visits.
 - Application Insights uses the visitor's IP address to estimate the city; the IP is not retained for that geolocation measurement.
 - The code is in [`src/utils/telemetry.js`](src/utils/telemetry.js). Local development, tests and the CI build send nothing.
 - The pipeline passes the connection string to the image build from the `ECODROP_APPINSIGHTS_CONNECTION_STRING` repository variable, which holds the `application_insights_connection_string` Terraform output. The connection string is not a secret: it only allows sending data, and every visitor's browser receives it.
