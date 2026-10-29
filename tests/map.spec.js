@@ -576,6 +576,28 @@ test('keeps an intentionally unknown item visible and allows clearing it', async
   ).toBeVisible()
 })
 
+for (const query of ['eletrônicos', 'eletronicos']) {
+  test(`searches the electronics category with "${query}"`, async ({
+    page,
+  }) => {
+    await page.route('https://tile.openstreetmap.org/**', (route) =>
+      route.abort(),
+    )
+    await page.goto(`/?busca=${encodeURIComponent(query)}`)
+
+    await expect(
+      page.getByRole('heading', { name: `Resultados para “${query}”` }),
+    ).toBeVisible()
+    await expect(page.getByText('Tipo de resíduo: Eletrônicos')).toBeVisible()
+    await expect(page.locator('.search-result')).toHaveCount(1)
+    await expect(page.locator('.search-result-points li')).toHaveCount(2)
+    await expect(
+      page.getByText('Correios - Agência Central', { exact: true }),
+    ).toBeVisible()
+    await expect(page.locator('.leaflet-marker-icon')).toHaveCount(2)
+  })
+}
+
 test('clears matched item results when the search is cleared', async ({
   page,
 }) => {

@@ -24,6 +24,29 @@
     ]
   },
   {
+    "id": "cacapava-correios-centro",
+    "name": "Correios - Agência Central",
+    "city": "Caçapava",
+    "address": "R. Prudente de Moraes, 4 - Centro, CEP 12281-640",
+    "lat": -23.1003171,
+    "lng": -45.7061825,
+    "hours": "Segunda a sexta, das 9h às 17h",
+    "materials": ["Eletrônicos"],
+    "sources": [
+      {
+        "label": "Verificação por fonte oficial (outubro de 2026)"
+      },
+      {
+        "label": "Correios - descarte gratuito de eletroeletrônicos",
+        "url": "https://saladeimprensa.correios.com.br/arquivos/14573"
+      },
+      {
+        "label": "Google Maps - Correios",
+        "url": "https://www.google.com/maps/search/?api=1&query=Correios+R.+Prudente+de+Moraes%2C+4%2C+Centro%2C+Ca%C3%A7apava+-+SP"
+      }
+    ]
+  },
+  {
     "id": "cacapava-carrefour-bairro",
     "name": "Carrefour Bairro Caçapava",
     "city": "Caçapava",

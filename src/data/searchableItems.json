@@ -37,6 +37,41 @@
     "collectionPointMaterials": ["Eletrônicos"]
   },
   {
+    "id": "computer",
+    "name": "Computador",
+    "synonyms": [
+      "computadores",
+      "computador de mesa",
+      "computador usado",
+      "pc",
+      "desktop",
+      "notebook",
+      "laptop"
+    ],
+    "wasteType": "Eletrônicos",
+    "collectionPointMaterials": ["Eletrônicos"]
+  },
+  {
+    "id": "tablet",
+    "name": "Tablet",
+    "synonyms": ["tablets", "tablet usado", "tablete", "ipad"],
+    "wasteType": "Eletrônicos",
+    "collectionPointMaterials": ["Eletrônicos"]
+  },
+  {
+    "id": "electronics",
+    "name": "Eletrônicos",
+    "synonyms": [
+      "eletrônico",
+      "lixo eletrônico",
+      "eletrônicos usados",
+      "eletroeletrônicos",
+      "aparelhos eletrônicos"
+    ],
+    "wasteType": "Eletrônicos",
+    "collectionPointMaterials": ["Eletrônicos"]
+  },
+  {
     "id": "lamp",
     "name": "Lâmpada",
     "synonyms": ["lâmpadas", "lâmpada usada", "lâmpada queimada"],
