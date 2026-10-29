@@ -66,20 +66,31 @@ The site is live at **https://ecodrop.thomaspalma.com.br**.
 
 ### Publishing a new version
 
-Create a version tag and push it:
+Releases use bare `MAJOR.MINOR.PATCH` Git tags, with no `v` prefix. Start from the reviewed commit on `main` and make sure the working tree is clean. A tag push starts the production release workflow, so it publishes an image and updates the live site.
+
+Fetch the latest tags and check that the version you plan to use is not already present locally or on `origin`:
 
 ```bash
-git tag 1.0.1
-git push origin 1.0.1
+git status --short --branch
+git fetch origin --tags
+git tag --list --sort=-version:refname
+git ls-remote --tags origin
+```
+
+Choose the next unused version. For example, to release `1.0.4`, create an annotated tag and push it:
+
+```bash
+git tag -a 1.0.4 -m "EcoDrop 1.0.4"
+git push origin 1.0.4
 ```
 
 The pipeline in [`.github/workflows/ecodrop.yaml`](.github/workflows/ecodrop.yaml) then:
 
-1. runs the usual checks: lint, tests and build;
-2. builds the image and stores it in the registry;
-3. updates the site and checks that it answers.
+1. runs lint, tests and build;
+2. checks that the image version is not already in the registry, then builds and publishes it;
+3. updates the production site to that image and checks `/healthz`.
 
-Pushes without a tag only run the checks. Each version number can be used only once.
+Follow the workflow run in GitHub Actions and confirm that the publish and deploy jobs succeed. Pushes without a tag run checks but do not publish or deploy. Treat each version as one-time: if a run fails after the image is published, do not reuse that version or immediately push another tag. First inspect the failed job and the live deployment; the registry check prevents ordinary reuse but is not an atomic guarantee.
 
 The pipeline signs in to Azure through a trust relationship between GitHub and Azure, so no password is stored in GitHub. Its identity can only publish images and update the app.
 
