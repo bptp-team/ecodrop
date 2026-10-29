@@ -17,7 +17,7 @@ function LearnIndexPage() {
               <h2>{type}</h2>
               <p>{details.summary}</p>
               <span>
-                Ver como descartar <span aria-hidden="true">›</span>
+                Ver como descartar <span aria-hidden="true">↗</span>
               </span>
             </Link>
           </li>

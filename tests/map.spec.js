@@ -83,11 +83,21 @@ for (const wasteType of learnPageTypes) {
     await expect(
       page.getByRole('heading', { name: 'Fontes oficiais' }),
     ).toBeVisible()
-    await expect(
-      page.getByRole('link', {
-        name: wasteTypeDetails[wasteType].sources[0].label,
-      }),
-    ).toHaveAttribute('href', wasteTypeDetails[wasteType].sources[0].url)
+    const breadcrumbLink = page
+      .getByRole('navigation', { name: 'Trilha de navegação' })
+      .getByRole('link', { name: 'Aprenda' })
+    await breadcrumbLink.hover()
+    await expect(breadcrumbLink).toHaveCSS('text-decoration-line', 'underline')
+
+    const sourceLink = page.getByRole('link', {
+      name: wasteTypeDetails[wasteType].sources[0].label,
+    })
+    await expect(sourceLink).toHaveAttribute(
+      'href',
+      wasteTypeDetails[wasteType].sources[0].url,
+    )
+    await sourceLink.hover()
+    await expect(sourceLink).toHaveCSS('text-decoration-line', 'underline')
   })
 }
 
@@ -295,11 +305,38 @@ for (const { name, width } of viewports.filter(({ width }) => width < 1024)) {
     const resultsSidebarBounds = await sidebar.boundingBox()
     expect(resultsSidebarBounds.height).toBe(mainBounds.height)
 
-    await expect(
-      page.getByRole('button', { name: 'Fechar busca' }),
-    ).toBeVisible()
+    const closeSearch = page.getByRole('button', { name: 'Fechar busca' })
+    const clearSearch = page.getByRole('button', { name: 'Limpar busca' })
+    await expect(closeSearch).toBeVisible()
+    await expect(closeSearch).toHaveCSS('padding', '8px 12px')
+    await expect(closeSearch).toHaveCSS('border-top-width', '0px')
+    await expect(closeSearch).toHaveCSS('border-top-style', 'none')
+    await expect(closeSearch).toHaveCSS('border-radius', '4px')
+    await closeSearch.hover()
+    await expect(closeSearch).toHaveCSS(
+      'background-color',
+      'rgb(243, 248, 243)',
+    )
+    await clearSearch.hover()
+    const clearSearchHoverColor = await clearSearch.evaluate(
+      (element) => getComputedStyle(element).backgroundColor,
+    )
+    await closeSearch.hover()
+    await expect(closeSearch).toHaveCSS(
+      'background-color',
+      clearSearchHoverColor,
+    )
 
-    await page.getByRole('button', { name: 'Fechar busca' }).click()
+    await page.getByRole('button', { name: 'Buscar' }).focus()
+    await page.keyboard.press('Shift+Tab')
+    await page.keyboard.press('Shift+Tab')
+    await expect(closeSearch).toBeFocused()
+    await expect(closeSearch).toHaveCSS(
+      'background-color',
+      'rgb(243, 248, 243)',
+    )
+
+    await closeSearch.click()
     await expect(sidebar).toBeHidden()
     await expect(zoomControl).toBeVisible()
     const isZoomControlClickable = await page.evaluate(
@@ -900,11 +937,33 @@ test('tracks clicks on all primary navigation links', async ({ page }) => {
   const feedbackLink = navigation.getByRole('link', {
     name: 'Avaliar o EcoDrop',
   })
+  const repositoryLink = navigation.getByRole('link', {
+    name: 'Código-fonte',
+  })
+  await expect(repositoryLink).toHaveAttribute(
+    'href',
+    'https://github.com/bptp-team/ecodrop',
+  )
+  await expect(repositoryLink).toHaveAttribute('target', '_blank')
+  await expect(repositoryLink).toHaveAttribute('rel', 'noopener noreferrer')
+
+  await repositoryLink.hover()
+  await expect(repositoryLink).toHaveCSS('color', 'rgb(215, 232, 220)')
+  await feedbackLink.focus()
+  await page.keyboard.press('Tab')
+  await expect(repositoryLink).toBeFocused()
+  await expect(repositoryLink).toHaveCSS('color', 'rgb(215, 232, 220)')
+
+  const repositoryPopupPromise = page.waitForEvent('popup')
+  await repositoryLink.click()
+  const repositoryPopup = await repositoryPopupPromise
+  await repositoryPopup.close()
+
   const popupPromise = page.waitForEvent('popup')
   await feedbackLink.click()
   const popup = await popupPromise
   await popup.close()
-  await telemetry.waitForEvent('NavigationLinkClicked', 3)
+  await telemetry.waitForEvent('NavigationLinkClicked', 4)
 
   expect(
     telemetry.events
@@ -926,6 +985,14 @@ test('tracks clicks on all primary navigation links', async ({ page }) => {
     {
       name: 'NavigationLinkClicked',
       properties: {
+        item: 'repository',
+        destination: 'https://github.com/bptp-team/ecodrop',
+        linkType: 'external',
+      },
+    },
+    {
+      name: 'NavigationLinkClicked',
+      properties: {
         item: 'feedback',
         destination: 'https://forms.cloud.microsoft/r/VDeHWtH95J',
         linkType: 'external',
@@ -941,7 +1008,31 @@ test('returns to the initial map from the EcoDrop logo', async ({ page }) => {
   )
   await page.goto('/?busca=medicamento')
   await expect(page.locator('.leaflet-marker-icon')).toHaveCount(2)
-  await page.getByRole('link', { name: /Saiba mais/ }).click()
+  const learnMoreLink = page.getByRole('link', { name: /Saiba mais/ })
+  const clearSearchButton = page.getByRole('button', { name: 'Limpar busca' })
+  await expect(learnMoreLink).toHaveAccessibleName('Saiba mais')
+  await expect(learnMoreLink.locator('[aria-hidden="true"]')).toHaveText('↗')
+  await expect(learnMoreLink).toHaveClass(/button--tertiary/)
+  await expect(learnMoreLink).toHaveCSS('column-gap', '4px')
+  await expect(learnMoreLink).toHaveCSS('padding', '8px 12px')
+  await expect(learnMoreLink).toHaveCSS('border-top-width', '0px')
+  await expect(learnMoreLink).toHaveCSS('border-top-style', 'none')
+  await expect(learnMoreLink).toHaveCSS('border-radius', '4px')
+  await learnMoreLink.hover()
+  await clearSearchButton.hover()
+  const clearSearchHoverColor = await clearSearchButton.evaluate(
+    (element) => getComputedStyle(element).backgroundColor,
+  )
+  await learnMoreLink.hover()
+  await expect(learnMoreLink).toHaveCSS(
+    'background-color',
+    clearSearchHoverColor,
+  )
+  await page.keyboard.press('Tab')
+  await learnMoreLink.focus()
+  await expect(learnMoreLink).toBeFocused()
+  await expect(learnMoreLink).toHaveCSS('outline-style', 'solid')
+  await learnMoreLink.click()
   await expect(page).toHaveURL('/aprenda/medicamentos?busca=medicamento')
   await telemetry.waitForEvent('LearnMoreClick')
   await telemetry.waitForIngestion()
@@ -1146,6 +1237,9 @@ test('keeps the learning index responsive and preserves legacy type URLs', async
     '.app-nav a[href="https://forms.cloud.microsoft/r/VDeHWtH95J"]',
   )
   await expect(feedbackLink).toHaveAttribute('target', '_blank')
+  await expect(
+    page.locator('.learn-card-list a [aria-hidden="true"]'),
+  ).toHaveText(Array(Object.keys(wasteTypeDetails).length).fill('↗'))
 
   for (const [width, expectedColumns] of [
     [375, 1],

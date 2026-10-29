@@ -250,6 +250,21 @@ function AppLayout() {
             Avaliar o EcoDrop <span aria-hidden="true">↗</span>
             <span className="visually-hidden"> (abre em nova aba)</span>
           </a>
+          <a
+            href="https://github.com/bptp-team/ecodrop"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() =>
+              trackEvent('NavigationLinkClicked', {
+                item: 'repository',
+                destination: 'https://github.com/bptp-team/ecodrop',
+                linkType: 'external',
+              })
+            }
+          >
+            Código-fonte <span aria-hidden="true">↗</span>
+            <span className="visually-hidden"> (abre em nova aba)</span>
+          </a>
         </nav>
       </header>
       <div

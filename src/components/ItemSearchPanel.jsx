@@ -226,8 +226,10 @@ function ItemSearchPanel({
             Limpar busca
           </Button>
           {learnUrl && (
-            <Link
+            <Button
+              as={Link}
               className="search-learn-more"
+              variant="tertiary"
               to={learnUrl}
               onClick={() =>
                 trackEvent('LearnMoreClick', {
@@ -236,8 +238,8 @@ function ItemSearchPanel({
                 })
               }
             >
-              Saiba mais ›
-            </Link>
+              Saiba mais <span aria-hidden="true">↗</span>
+            </Button>
           )}
         </div>
       )}

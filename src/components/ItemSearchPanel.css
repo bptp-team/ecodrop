@@ -120,15 +120,7 @@
 }
 
 .search-learn-more {
-  padding: 0.5rem 0.25rem;
-  color: var(--color-primary-dark);
-  text-decoration: underline;
-  text-underline-offset: 0.15em;
-}
-
-.search-learn-more:focus-visible {
-  outline: 3px solid var(--color-focus);
-  outline-offset: 2px;
+  gap: 0.25rem;
 }
 
 .search-validation,
