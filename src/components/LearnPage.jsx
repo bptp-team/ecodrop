@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import Button from './Button.jsx'
 import SourceLink from './SourceLink.jsx'
+import { trackEvent } from '../utils/telemetry.js'
 import { getWasteTypeId } from '../utils/wasteTypes.js'
 import './LearnPage.css'
 
@@ -63,6 +64,12 @@ function LearnPage({ wasteType, details = {} }) {
           tipo: getWasteTypeId(wasteType),
           busca: wasteType,
         })}`}
+        onClick={() =>
+          trackEvent('ViewOnMapClick', {
+            wasteType,
+            destination: '/',
+          })
+        }
       >
         Ver no mapa os pontos que recebem
       </Button>
